@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta property="og:title" content="[syn[k]]hole, dry season: about the piece">
+<meta property="og:description" content="[syn[k]]hole, dry season, by kat titterton. a proposed installation: a sink with no water. in the basin a screen pours a machine's dreams as slow water with a sheen: a still life of skulls, flowers, soap bubbles.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/about.html">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>[syn[k]]hole, dry season: about the piece</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="[syn[k]]hole, dry season, by kat titterton. a proposed installation: a sink with no water. in the basin a screen pours a machine's dreams as slow water with a sheen: a still life of skulls, flowers, soap bubbles.">
+<!-- One page, two media. On screen: the documentation of the piece, the live basin first, eight numbered sections, each opened by
+     one drawing that moves in the piece's own motion (slow, melting, pearl on black). Printed (Letter): the description sheet for
+     CURRENTS 2027, field 17 (NAMES=description bash currents_2027/print.sh); print and reduced motion show every drawing at its end state.
+     Figures live beside it in doc/ (small WebP). FORM after Kat's own Vanitas Veritas web doc (documents/), not its content or colours.
+     TEXT: a Claude draft in Kat's voice, 2026-11-17. Hers, word for word: the name, "sync == sink", and "the most beautiful things
+     usually have something nasty about them". The rest is hers to rewrite. The long text is kept beside this file as about_long.html. -->
+<script>(function(){var t=new URLSearchParams(location.search).get('theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+<!-- THE PIECE'S ADDRESSES, written here and nowhere else in this file. The piece has its own home folder, and its public address
+     is the home value below (Kat: "Yes, currents-2027", 2026-11-17; live once she publishes). frame stays relative. frame: what the hero frames, the piece's own page beside this
+     one, at its own default look (LOOK in index.html: k = 0.25, memory, the code on the drain's rim), the coordinator's call
+     on 2026-11-17. To frame her earlier water instead (the code line under the basin, no memory):
+     frame:'index.html?kn=off&kf=off&kb=off&kc=off&km=off'. home: the piece's address, used
+     by "the link" and the footer; once it is absolute it prints in full on paper. code: the piece's own repository (CURRENTS, not
+     the earlier vanitas veritas repo; Kat, 2026-11-17: "hyperlinks to piece and about should also reflect currents not tiat").
+     Nothing in this page links to the page itself. -->
+<script>
+  var PIECE = { frame:'index.html',
+                home:'https://kat-titter.github.io/currents-2027/synkhole/',
+                code:'https://github.com/kat-titter/currents-2027' };
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-piece]').forEach(function (el) { el[el.tagName === 'IFRAME' ? 'src' : 'href'] = PIECE[el.getAttribute('data-piece')]; });
+    // drawings rest while off screen; with no script they simply keep moving
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle('idle', !e.isIntersecting); }); });
+      document.querySelectorAll('svg.mv').forEach(function (s) { io.observe(s); });
+    }
+  });
+</script>
+<style>
+  /* The piece's own look (sync.html): ink ground, bone text, dim for labels, one mono stack, lowercase.
+     One accent, the water's pearl sheen (sync.html --pearl: cyan, violet, rose at low strength). It means one thing: the water is here,
+     or this part is built. Dark is the piece, so dark is the default; ?theme=light and print flip to ink on white.
+     Spacing on 3, 5, 8, 13, 21, 34, 55, 89. Type near 12, 13, 15, 17, 23, 34. */
+  :root { --ink:#030304; --bone:#e4dfd2; --dim:#8a8d93; --line:#1c1d21; --mass:#0d0e10; --rim:#15161a; --hole:#000;
+    --p1:#bfe6ee; --p2:#cfc9f2; --p3:#f2c9dd;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color-scheme:dark; }
+  :root[data-theme="light"] { --ink:#fff; --bone:#14171a; --dim:#5b6166; --line:#c9cdd1; --mass:#eef0f1; --rim:#dfe3e5; --hole:#fff;
+    --p1:#0092ba; --p2:#684cd6; --p3:#d2347c; color-scheme:light; }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; background:var(--ink); }
+  body { margin:0; background:var(--ink); color:var(--bone); font:15px/1.75 var(--mono); }
+  .wrap { max-width:792px; margin:0 auto; padding:0 16px 89px; overflow-wrap:break-word; }
+
+  /* the cover: a meta row, the piece live, the title block */
+  .meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:3px 21px; max-width:1180px; margin:0 auto; padding:13px 16px;
+    font-size:12px; letter-spacing:.16em; color:var(--dim); }
+  .hero { max-width:1180px; margin:0 auto; }
+  .basin { display:block; width:100%; height:min(84vh, 76vw); border:0; background:#030304; }
+  .still { display:none; }
+  .waterline { height:1px; margin:0 0 34px; background:linear-gradient(90deg, var(--p1), var(--p2), var(--p3)); }
+  h1 { margin:0 0 13px; font:400 34px/1.2 var(--mono); letter-spacing:.12em; }
+  .epi { margin:0 0 21px; font:13px/1.6 var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lede { margin:0; font-size:23px; line-height:1.45; max-width:30em; }
+  p { margin:0 0 13px; }
+  code { font:inherit; color:var(--bone); }
+  a { color:var(--bone); text-decoration:underline; text-decoration-thickness:1px; text-decoration-color:var(--dim); text-underline-offset:3px; }
+  a:hover { text-decoration-color:var(--bone); }
+  a:focus-visible, .term:focus-visible { outline:1px solid var(--bone); outline-offset:3px; }
+  .verse { margin:21px 0 0; color:var(--dim); }
+
+  /* a section: a number, a title, its lead beside one moving drawing; then the rest at the text measure */
+  section { margin-top:89px; padding-top:34px; border-top:1px solid var(--line); }
+  .open { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); grid-template-areas:"fig head"; gap:34px; align-items:start; margin-bottom:34px; }
+  .open > figure { grid-area:fig; margin:0; }
+  .open > .head { grid-area:head; }
+  .no { display:block; font-size:34px; line-height:1; color:var(--dim); letter-spacing:.04em; }
+  h2 { margin:13px 0 13px; font:400 23px/1.3 var(--mono); letter-spacing:.08em; }
+  .head p { font-size:17px; line-height:1.65; }
+  h3 { display:flex; justify-content:space-between; gap:13px; margin:55px 0 13px; font:400 13px/1.6 var(--mono); letter-spacing:.14em; color:var(--bone); }
+  h3 small { font-size:12px; letter-spacing:0; color:var(--dim); text-align:right; }
+
+  /* 01 the wall text, in its own panel: the mark and the label left, the statement right */
+  .wall { position:relative; display:grid; grid-template-columns:200px minmax(0, 1fr); gap:34px; padding:34px; border:1px solid var(--line); border-radius:3px; background:var(--mass); }
+  .wall::before { content:""; position:absolute; left:34px; right:34px; top:-1px; height:1px; background:linear-gradient(90deg, var(--p1), var(--p2), var(--p3)); }
+  .wall figure { margin:0 0 21px; }
+  .tomb { margin:0; padding:13px 0 0; list-style:none; border-top:1px solid var(--line); font-size:12px; line-height:1.6; color:var(--dim); }
+  .tomb li:first-child { color:var(--bone); }
+  .wall .say p { font-size:17px; line-height:1.65; }
+  .wall .say p:last-child { margin:21px 0 0; font-size:13px; color:var(--dim); }
+
+  /* a word a stranger trips on: a card on hover, focus or tap; inline on paper */
+  .term { position:relative; border-bottom:1px dotted var(--dim); cursor:help; }
+  .card { display:none; position:absolute; left:0; top:1.75em; z-index:2; width:240px; padding:8px 13px; border:1px solid var(--line); border-radius:3px;
+    background:var(--mass); color:var(--bone); font-size:13px; line-height:1.6; }
+  .term:hover .card, .term:focus .card { display:block; }
+
+  /* figures step in on both sides. pictures: the text measure less 21 px a side; labels 12 px or more at any width */
+  figure { margin:21px 21px 0; }
+  figure + p, .fig + p, table + p, .after, .row + p, .in + p { margin-top:21px; }
+  .in { margin:21px 21px 0; } .cap.in { margin-top:8px; }
+  .fig { margin:34px auto 0; max-width:440px; }
+  img { display:block; width:100%; height:auto; border-radius:3px; background:#000; }
+  figcaption, .cap { margin:8px 0 0; font-size:12px; line-height:1.6; color:var(--dim); }
+  svg { display:block; width:100%; height:auto; }
+  svg text { font-family:var(--mono); }
+  .t-n { font-size:13px; fill:var(--bone); }
+  .t-g { font-size:12px; fill:var(--dim); }
+  .wet { fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .dry { fill:none; stroke:var(--dim); stroke-width:1; stroke-dasharray:1.5 5; stroke-linecap:round; }
+  .node { fill:var(--ink); stroke:var(--bone); stroke-width:1.2; }
+  .chev { fill:none; stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round; }
+  .s-c { stop-color:var(--p1); } .s-v { stop-color:var(--p2); } .s-r { stop-color:var(--p3); }
+  .mass { fill:var(--mass); stroke:var(--bone); stroke-width:.8; }
+  .rim { fill:var(--rim); stroke:var(--bone); stroke-width:.8; }
+  .hole { fill:var(--hole); }
+  .hair { fill:none; stroke:var(--bone); stroke-width:.8; }
+  .dimn { fill:none; stroke:var(--dim); stroke-width:.7; }
+  .proj { fill:none; stroke:var(--dim); stroke-width:.6; stroke-dasharray:1 4; }
+  .faint { opacity:.35; }
+
+  /* the drawings' motion, the piece's own: slow in, slow out, time that stalls and then slips. Each element's resting style is its
+     end state, so reduced motion and print simply stop the animation. Off screen a drawing rests (.idle). */
+  .bead { fill:none; stroke-width:5; stroke-linecap:round; stroke-dasharray:.01 12.5; }
+  .mv .flow { stroke-dasharray:1 3; animation:stall 46s linear infinite; }
+  .mv .glide { animation:glide 2.5s cubic-bezier(.6,0,.4,1) infinite; }
+  .mv .turn { transform-box:view-box; animation:turn 46s ease-in-out infinite; }
+  .mv .turn .turn { animation-duration:29s; }
+  .mv .breathe { animation:breathe 9s ease-in-out infinite; }
+  .mv .draw { stroke-dasharray:100; animation:draw 34s ease-in-out infinite; }
+  .mv .sleep { animation:sleep 34s ease-in-out infinite; }
+  .mv .wake { animation:wake 34s ease-in-out infinite; }
+  .mv .flow.sleep { animation:stall 46s linear infinite, sleep 34s ease-in-out infinite; }
+  .mv .reach { transform-box:view-box; animation:reach 21s ease-in-out infinite; }
+  .mv .ripple { transform-box:view-box; animation:ripple 8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .mv .ripple.d2 { animation-delay:-2.7s; } .mv .ripple.d3 { animation-delay:-5.4s; }
+  .mv.idle * { animation-play-state:paused; }
+  @keyframes stall { 0% { stroke-dashoffset:0; } 40% { stroke-dashoffset:-40; } 52% { stroke-dashoffset:-42; } 60% { stroke-dashoffset:-56; } 100% { stroke-dashoffset:-100; } }
+  @keyframes glide { from { stroke-dashoffset:0; } to { stroke-dashoffset:-12.5; } }
+  @keyframes turn { 0% { transform:rotate(0deg); } 30% { transform:rotate(80deg); } 46% { transform:rotate(92deg); } 56% { transform:rotate(170deg); } 100% { transform:rotate(360deg); } }
+  @keyframes breathe { 0%, 100% { opacity:1; } 45%, 60% { opacity:.15; } }
+  @keyframes draw { 0% { stroke-dashoffset:100; opacity:1; } 70%, 92% { stroke-dashoffset:0; opacity:1; } 100% { stroke-dashoffset:0; opacity:0; } }
+  @keyframes sleep { 0%, 50%, 100% { opacity:1; } 60%, 90% { opacity:.12; } }
+  @keyframes wake { 0%, 50%, 100% { opacity:.45; } 60%, 90% { opacity:1; } }
+  @keyframes reach { 0%, 100% { transform:rotate(-16deg); } 35%, 75% { transform:rotate(0deg); } }
+  @keyframes ripple { 0% { transform:scale(.2); opacity:0; } 20% { opacity:.9; } 100% { transform:scale(1); opacity:0; } }
+  @media (prefers-reduced-motion: reduce) { .mv * { animation:none !important; } }
+
+  /* rows of pictures: a count that fills its rows */
+  .row { display:grid; gap:8px; }
+  .row figure { margin:0; }
+  .c2 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .c3 { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  .c4 { grid-template-columns:repeat(4, minmax(0, 1fr)); }
+  .glass { aspect-ratio:4 / 3; border-radius:3px; background:#000; border:1px solid var(--line); }
+  .sum { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap:8px; align-items:start; }
+  .sum figure { margin:0; }
+  .sum > span { padding-top:13%; color:var(--dim); }
+  .pick { outline:1px dashed var(--bone); outline-offset:2px; }
+
+  /* tables: one row per thing */
+  table { width:100%; border-collapse:collapse; font-size:13px; line-height:1.6; margin-top:21px; }
+  th, td { padding:8px 13px 8px 0; text-align:left; vertical-align:top; font-weight:400; border-bottom:1px solid var(--line); }
+  thead th { color:var(--dim); font-size:12px; letter-spacing:.06em; }
+  tbody th { color:var(--bone); }
+  tbody td { color:var(--dim); }
+  th:last-child, td:last-child { padding-right:0; }
+  .st { width:21px; padding-right:0; }
+  .lin tbody th { color:var(--dim); } .lin tbody td:last-child { color:var(--bone); }
+  .moves .n { width:21px; color:var(--dim); }
+  .moves th span { display:block; margin-top:3px; color:var(--dim); }
+  .moves .ev { width:46%; }
+  .moves .ev figcaption { margin-top:3px; }
+  .moves pre, .code { margin:0; font:13px/1.75 var(--mono); color:var(--bone); white-space:pre-wrap; }
+  .code { margin:21px 21px 0; padding:13px; border:1px solid var(--line); border-radius:3px; }
+  .mark { display:inline-block; position:relative; width:10px; height:10px; border-radius:50%; vertical-align:-1px; }
+  .mark.on, .mark.was::after { background:linear-gradient(135deg, var(--p1), var(--p2), var(--p3)); }
+  .mark.was { border:1px solid transparent; background:linear-gradient(var(--ink), var(--ink)) padding-box, linear-gradient(135deg, var(--p1), var(--p2), var(--p3)) border-box; }
+  .mark.was::after { content:""; position:absolute; inset:2px; border-radius:50%; }
+  .mark.off { border:1px solid var(--dim); }
+  .key { display:flex; flex-wrap:wrap; gap:3px 21px; margin:13px 0 0; color:var(--dim); font-size:12px; }
+  .key .mark { margin-right:8px; }
+  .key > span { white-space:nowrap; }
+
+  /* a spec sheet: label left, value right, one row per need */
+  .spec { margin:21px 0 0; padding:0; border-top:1px solid var(--line); font-size:13px; line-height:1.6; }
+  .spec div { display:grid; grid-template-columns:144px minmax(0, 1fr); gap:13px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .spec dt { color:var(--dim); letter-spacing:.06em; }
+  .spec dd { margin:0; }
+
+  /* how the water is made: one dream, step by step */
+  .steps { margin:0; padding:0; list-style:none; }
+  .steps > li { margin-top:34px; }
+  .steps h3 { margin:0 0 8px; }
+
+  .foot { margin-top:89px; padding-top:21px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; justify-content:space-between; gap:13px 34px; }
+  .foot p { margin:0; }
+  .links { margin:0; padding:0; list-style:none; display:flex; gap:21px; }
+  .works { margin:0; padding:0; list-style:none; }
+  .works li { margin-bottom:8px; }
+
+  @media (max-width:700px) {
+    .basin { height:min(84vh, 100vw); }
+    h1 { font-size:21px; letter-spacing:.1em; }
+    .lede { font-size:17px; }
+    .open { grid-template-columns:minmax(0, 1fr); grid-template-areas:"head" "fig"; gap:21px; }
+    .open > figure { max-width:440px; }
+    .wall { grid-template-columns:minmax(0, 1fr); gap:21px; padding:21px; }
+    .wall::before { left:21px; right:21px; }
+    .wall figure { max-width:200px; }
+    figure, .code, .in { margin-left:0; margin-right:0; }
+    .c4 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .c4.keep { grid-template-columns:repeat(4, minmax(0, 1fr)); }
+    thead tr, tbody tr { display:grid; grid-template-columns:21px 1fr; padding:8px 0; border-bottom:1px solid var(--line); }
+    th, td { display:block; grid-column:2; width:auto; padding:0; border:0; }
+    .st, .moves .n { grid-column:1; grid-row:1 / 4; }
+    .moves .ev { width:auto; margin-top:8px; }
+    thead th:empty { display:none; }
+    .spec div { grid-template-columns:minmax(0, 1fr); gap:0; }
+    h3 { display:block; } h3 small { display:block; text-align:left; }
+    .foot { display:block; } .links { margin-top:13px; font-size:14px; }
+  }
+  @page { size:8.5in 11in; margin:.7in .8in;
+    @top-left { content:"[syn[k]]hole, dry season  katherine titterton"; font:8pt ui-monospace, Menlo, monospace; color:#5b6166; }
+    @bottom-right { content:counter(page) " / " counter(pages); font:8pt ui-monospace, Menlo, monospace; color:#5b6166; } }
+  @media print {
+    :root { --ink:#fff; --bone:#14171a; --dim:#5b6166; --line:#c9cdd1; --mass:#f6f7f7; --rim:#dfe3e5; --hole:#fff;
+      --p1:#0092ba; --p2:#684cd6; --p3:#d2347c; color-scheme:light; }
+    * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .mv * { animation:none !important; }
+    html, body { background:#fff; }
+    body { font-size:9pt; line-height:1.5; }
+    .wrap { max-width:none; padding:0; }
+    .meta { padding:0 0 6pt; font-size:7.5pt; }
+    .hero { max-width:none; }
+    .basin { display:none; }
+    .still { display:block; width:100%; height:2.9in; object-fit:cover; }
+    .waterline { margin-bottom:10pt; }
+    h1 { font-size:17pt; margin-bottom:4pt; } .lede { font-size:11pt; max-width:none; } .epi { font-size:8pt; margin-bottom:6pt; }
+    p { margin-bottom:6pt; orphans:3; widows:3; }
+    section { margin-top:16pt; padding-top:8pt; }
+    .open { gap:16pt; margin-bottom:8pt; break-inside:avoid; }
+    .no { font-size:15pt; } h2 { font-size:12pt; margin:4pt 0 6pt; } .head p { font-size:9.5pt; }
+    h3 { margin:12pt 0 4pt; font-size:8pt; break-after:avoid; } h3 small { font-size:7.5pt; }
+    .wall { padding:12pt; gap:16pt; grid-template-columns:1.7in minmax(0, 1fr); break-inside:avoid; }
+    .wall::before { left:12pt; right:12pt; }
+    .wall figure { margin-bottom:8pt; }
+    .wall .say p { font-size:9.5pt; } .wall .say p:last-child { font-size:8pt; margin-top:8pt; }
+    .tomb { font-size:7.5pt; padding-top:6pt; }
+    .term { border:0; }
+    .card { display:inline; position:static; width:auto; padding:0; border:0; background:none; font-size:inherit; color:var(--dim); }
+    .card::before { content:" ("; } .card::after { content:")"; }
+    figure, .fig, tr, .sum, .row, .code, .foot, .pair, .spec div { break-inside:avoid; }
+    figure { margin:8pt auto 0; max-width:3.2in; }
+    .fig { max-width:3in; margin-top:8pt; }
+    .open > figure { max-width:none; margin:0; }
+    .pair { display:grid; grid-template-columns:1fr 1fr; gap:13pt; align-items:end; }
+    .pair .fig { max-width:none; margin-top:0; }
+    .in { margin:8pt auto 0; max-width:5.4in; } .cap.in { max-width:none; margin-top:4pt; }
+    .c3 { max-width:4.2in; } .sum { max-width:4.4in; }
+    .row figure { max-width:none; margin:0; }
+    .c4.keep { grid-template-columns:repeat(8, minmax(0, 1fr)); }
+    figure + p, .fig + p, table + p, .after, .row + p, .in + p { margin-top:8pt; }
+    figcaption, .cap, .key { font-size:7.5pt; margin-top:3pt; }
+    table { font-size:8pt; margin-top:8pt; } th, td { padding:4pt 8pt 4pt 0; }
+    thead th { font-size:7.5pt; }
+    .moves .ev { width:34%; } .moves pre { font-size:8pt; }
+    .code { font-size:8pt; padding:6pt 8pt; margin:8pt 0 0; }
+    .spec { font-size:8pt; margin-top:6pt; } .spec div { padding:3pt 0; grid-template-columns:1.4in minmax(0, 1fr); }
+    .steps > li { margin-top:10pt; break-inside:avoid; }
+    .foot { display:block; margin-top:16pt; padding-top:6pt; } .links { display:block; margin-top:6pt; }
+    .lin tbody th::after { content:attr(data-u); display:block; font-size:7.5pt; overflow-wrap:anywhere; }
+    .foot a[href^="http"]::after, .works a::after, .url[href^="http"]::after { content:"  " attr(href); color:var(--dim); font-size:7.5pt; overflow-wrap:anywhere; }
+  }
+</style>
+</head>
+<body>
+
+<div class="meta"><span>currents 2027, installations</span><span>el museo cultural de santa fe, june 2027</span></div>
+<div class="hero">
+  <iframe class="basin" data-piece="frame" title="the piece, live: a basin seen from above. water runs from the tap to the drain, carrying a dream. press and hold to reach in." loading="eager"></iframe>
+  <img class="still" src="doc/water.webp" width="1280" height="960" alt="the basin seen from above: pale water with a pearl sheen turns round a small black drain, bubbles at its edge.">
+</div>
+
+<main class="wrap">
+<div class="waterline" aria-hidden="true"></div>
+
+<header id="piece">
+  <h1>[syn[k]]hole, dry season</h1>
+  <!-- the page that pours the water is sync.html, and the piece is a sink: one word, said twice -->
+  <pre class="epi">sync == sink</pre>
+  <p class="lede">a sink with no water in it. the water is a machine dreaming, and every day it runs out.</p>
+</header>
+
+<!-- 01 -->
+<section id="wall">
+  <div class="head"><span class="no">01</span><h2>wall text</h2></div>
+  <div class="wall">
+    <div>
+      <figure>
+        <svg class="mv" viewBox="0 0 200 200" role="img" aria-label="the piece as one mark: water winds from the tap round and round into a small black drain.">
+          <defs><linearGradient id="wm" gradientUnits="userSpaceOnUse" x1="40" y1="40" x2="160" y2="160"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+          <rect class="mass" x="18" y="22" width="164" height="156" rx="10"/>
+          <circle class="hair" cx="100" cy="30" r="3"/>
+          <path class="wet faint" stroke="url(#wm)" d="M100,36A61,61 0 0 1 158,100A55,55 0 0 1 100,152A49,49 0 0 1 54,100A43,43 0 0 1 100,60A37,37 0 0 1 134,100A31,31 0 0 1 100,128A25,25 0 0 1 78,100A19,19 0 0 1 100,84A13.5,13.5 0 0 1 111,100"/>
+          <path class="wet flow" stroke="url(#wm)" pathLength="100" d="M100,36A61,61 0 0 1 158,100A55,55 0 0 1 100,152A49,49 0 0 1 54,100A43,43 0 0 1 100,60A37,37 0 0 1 134,100A31,31 0 0 1 100,128A25,25 0 0 1 78,100A19,19 0 0 1 100,84A13.5,13.5 0 0 1 111,100"/>
+          <circle class="node" cx="100" cy="100" r="5"/>
+        </svg>
+      </figure>
+      <ul class="tomb">
+        <li>katherine titterton</li>
+        <li>[syn[k]]hole, dry season, 2027</li>
+        <li>a basin, a touch screen, one small computer</li>
+        <li>30 x 25 x 34 in (76 x 64 x 86 cm)</li>
+      </ul>
+    </div>
+    <div class="say">
+      <p>the most beautiful things usually have something nasty about them. here it is the drain, the [syn[k]]hole, where you lose time.</p>
+      <p>an endless feed has no bottom. this hole does. ai drinks real water and our hours. here both run out, and you get out.</p>
+      <p>it fills once each morning of the festival. every hand in this room spends it.</p>
+      <p>ai: stable diffusion 1.5 with lcm-lora dreams the water live on its own computer, toward pictures i chose by hand in midjourney.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="work">
+  <div class="open">
+    <div class="head">
+      <span class="no">02</span><h2>the work</h2>
+      <p>in the basin a screen pours a <span class="term" tabindex="0">vanitas<span class="card" role="tooltip">the old still life of skulls, flowers and soap bubbles</span></span> still life that won't hold still, one frame about every 2.5 seconds: slow for a computer, about right for a tide pool. come close.</p>
+    </div>
+    <figure>
+      <svg class="mv" viewBox="0 0 360 240" role="img" aria-label="the basin from above: water runs from the tap round to the drain, a dream carried along it, one frame about every 2.5 seconds; a hand rests in the water and lifts out.">
+        <defs><linearGradient id="pw" gradientUnits="userSpaceOnUse" x1="250" y1="30" x2="120" y2="190"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+        <rect class="mass" x="30" y="24" width="300" height="196" rx="10"/>
+        <circle class="hair" cx="250" cy="30" r="3"/>
+        <path class="wet faint" stroke="url(#pw)" d="M250,34C318,46 330,128 286,170C246,206 150,206 118,168C92,136 120,104 160,108C178,110 186,122 180,130"/>
+        <path class="bead glide" stroke="url(#pw)" pathLength="100" d="M250,34C318,46 330,128 286,170C246,206 150,206 118,168C92,136 120,104 160,108C178,110 186,122 180,130"/>
+        <circle class="node" cx="180" cy="130" r="5"/>
+        <circle class="dimn breathe" cx="96" cy="78" r="17" stroke-dasharray="2 3"/>
+        <text class="t-g" x="262" y="16">tap</text>
+        <text class="t-g" x="194" y="146">drain</text>
+        <text class="t-g" x="120" y="82">hand</text>
+      </svg>
+    </figure>
+  </div>
+  <figure><img src="doc/sink.webp" width="1100" height="825" alt="a dark room. a black plinth the height of a kitchen counter, and in its top a glowing basin of pale water."></figure>
+  <p>reach in. the water follows your hand for about a second, then slips through your fingers.</p>
+  <figure><img src="doc/hand.webp" width="800" height="600" alt="the same basin with a hand in it: the water is dragged into soft folds."></figure>
+</section>
+
+<!-- 03 -->
+<section id="idea">
+  <div class="open">
+    <div class="head">
+      <span class="no">03</span><h2>the idea</h2>
+      <p>i built this water to be classically beautiful. the nasty thing is inside it: near the drain it stops keeping time and place.</p>
+    </div>
+    <figure>
+      <svg class="mv" viewBox="0 0 360 240" role="img" aria-label="the drain, close: inside a ring round it the basin shows again, smaller and turned, and again inside that, turning, stalling, slipping.">
+        <defs>
+          <linearGradient id="ir" gradientUnits="userSpaceOnUse" x1="150" y1="90" x2="210" y2="150"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient>
+          <clipPath id="ic"><circle cx="180" cy="120" r="90"/></clipPath>
+        </defs>
+        <rect class="mass" x="20" y="12" width="320" height="216" rx="12"/>
+        <g clip-path="url(#ic)">
+          <g class="turn" style="transform-origin:180px 120px">
+            <rect class="hair" x="-67" y="-46" width="134" height="92" rx="5" transform="translate(180 120) rotate(29)"/>
+            <g class="turn" style="transform-origin:180px 120px">
+              <rect class="hair" x="-28" y="-19" width="56" height="38" rx="3" transform="translate(180 120) rotate(58)"/>
+              <rect class="hair" x="-11.5" y="-8" width="23" height="16" rx="2" transform="translate(180 120) rotate(87)"/>
+            </g>
+          </g>
+        </g>
+        <circle class="dry" cx="180" cy="120" r="90"/>
+        <circle cx="180" cy="120" r="37" fill="none" stroke="url(#ir)" stroke-width="1.6"/>
+        <circle class="node" cx="180" cy="120" r="5"/>
+        <path class="dimn" d="M74,198L153.8,146.2"/>
+        <text class="t-g" x="34" y="214">k = 0.25</text>
+        <text class="t-g" x="252" y="40">k = 1</text>
+      </svg>
+    </figure>
+  </div>
+
+  <h3>dry season</h3>
+  <p>i freedive on one breath. at el museo cultural the basin gets one too: an allocation of dreaming each morning, ten mornings in all. untouched, it costs nothing; every hand opens the tap, and strangers spend the day's water together.</p>
+  <figure class="fig">
+    <svg id="level" class="mv" viewBox="0 0 360 214" role="img" aria-label="one day at the sink, as proposed: the water left starts at 1, stays level while nobody touches it, steps down each time a hand is in, then drains to 0 in under a minute and stays dry until it is refilled the next morning.">
+      <defs><linearGradient id="lv" gradientUnits="userSpaceOnUse" x1="56" y1="44" x2="252" y2="174"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+      <path class="dimn" d="M56,44V174H336M52,44H56M52,174H56"/>
+      <path class="dry" d="M336,174V44"/>
+      <path class="wet draw" stroke="url(#lv)" pathLength="100" d="M56,44H96L120,70H150L176,100H196L228,142H244L252,174"/>
+      <text class="t-n" x="56" y="14">water left, 1 = the day's allocation</text>
+      <text class="t-g" x="48" y="48" text-anchor="end">1</text>
+      <text class="t-g" x="48" y="178" text-anchor="end">0</text>
+      <text class="t-g" x="60" y="37">nobody</text>
+      <text class="t-g" x="126" y="60">a hand</text>
+      <text class="t-g" x="258" y="138">drain</text>
+      <text class="t-g" x="258" y="152">under 1 min</text>
+      <text class="t-g" x="294" y="168" text-anchor="middle">dry</text>
+      <text class="t-g" x="330" y="104" text-anchor="end">refill</text>
+      <text class="t-g" x="56" y="192">morning</text>
+      <text class="t-g" x="336" y="192" text-anchor="end">next morning</text>
+      <text class="t-g" x="196" y="209" text-anchor="middle">one day at the sink</text>
+    </svg>
+    <p class="cap">proposed. the drain is built.</p>
+  </figure>
+  <p>spent, it drains to black in under a minute and stays dry until morning. come late and you know who spent it. a dry screen is black glass, and the face in it is yours.</p>
+  <div class="row c3 in">
+    <figure><img src="doc/water.webp" width="1280" height="960" alt="the basin full: pale water with a pearl sheen round the drain."><figcaption>water = 1.00</figcaption></figure>
+    <figure><img src="doc/drain.webp" width="800" height="600" alt="the basin draining: the water is a thin grey swirl round a wide dark drain."><figcaption>water = 0.16</figcaption></figure>
+    <figure><div class="glass" role="img" aria-label="the basin dry: black glass."></div><figcaption>water = None</figcaption></figure>
+  </div>
+
+  <h3>why</h3>
+  <p>training gpt-3 could directly evaporate 700,000 liters of clean freshwater, and global ai demand is projected to withdraw 4.2 to 6.6 billion cubic meters of water in 2027 (li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a>).</p>
+  <p>a machine that dreams and drinks is close to a living thing.</p>
+  <p class="verse">the machine dreams. the taste is chosen. you reach.</p>
+</section>
+
+<!-- 04 -->
+<section id="methods">
+  <div class="open">
+    <div class="head">
+      <span class="no">04</span><h2>methods</h2>
+      <p>the spring dreams, the fluid pours, and my taste sits upstream of both.</p>
+    </div>
+    <figure>
+      <svg class="mv" viewBox="0 0 360 240" role="img" aria-label="how the water is made: the spring, a laptop, dreams live into the fluid; when it sleeps, a reservoir of stored dreams feeds the fluid instead; the fluid pours into the basin, where k sets the depth at the drain.">
+        <defs>
+          <linearGradient id="ms" gradientUnits="userSpaceOnUse" x1="84" y1="64" x2="300" y2="120"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient>
+        </defs>
+        <!-- spring: a laptop -->
+        <rect class="hair" x="38" y="44" width="44" height="28" rx="2"/>
+        <path class="hair" d="M30,76H90"/>
+        <text class="t-n" x="60" y="96" text-anchor="middle">spring</text>
+        <text class="t-g" x="60" y="112" text-anchor="middle">live</text>
+        <!-- reservoir: stored frames -->
+        <rect class="hair" x="46" y="150" width="34" height="24" rx="2"/>
+        <rect class="hair" x="42" y="154" width="34" height="24" rx="2" style="fill:var(--ink)"/>
+        <rect class="hair" x="38" y="158" width="34" height="24" rx="2" style="fill:var(--ink)"/>
+        <text class="t-n" x="60" y="204" text-anchor="middle">reservoir</text>
+        <text class="t-g" x="60" y="220" text-anchor="middle">stored dreams</text>
+        <!-- flows into the fluid -->
+        <path class="wet flow sleep" stroke="url(#ms)" pathLength="100" d="M94,60C134,60 146,100 164,112"/>
+        <path class="dry wake" d="M90,170C130,170 146,140 164,128"/>
+        <circle class="node" cx="186" cy="120" r="20"/>
+        <path class="wet faint" stroke="url(#ms)" d="M178,116C182,110 194,112 192,121C190,128 180,128 181,121"/>
+        <text class="t-n" x="186" y="160" text-anchor="middle">fluid</text>
+        <path class="wet flow" stroke="url(#ms)" pathLength="100" d="M208,120H262"/>
+        <!-- the basin, k at its drain -->
+        <rect class="mass" x="266" y="96" width="70" height="48" rx="6"/>
+        <circle class="node" cx="301" cy="120" r="3.5"/>
+        <circle cx="301" cy="120" r="9" fill="none" stroke="url(#ms)" stroke-width="1.2"/>
+        <text class="t-n" x="301" y="166" text-anchor="middle">basin</text>
+        <text class="t-g" x="301" y="182" text-anchor="middle">k = 0.25</text>
+      </svg>
+    </figure>
+  </div>
+  <ol class="steps">
+    <li id="taste">
+      <h3>01 taste <small>ai, by hand</small></h3>
+      <p>eight pictures. every dream leans toward one, like a plant toward a window.</p>
+      <div class="row c4 keep in">
+        <img class="pick" src="doc/mood1.webp" width="240" height="179" alt="moodboard picture 01.">
+        <img src="doc/mood2.webp" width="240" height="179" alt="moodboard picture 02.">
+        <img src="doc/mood3.webp" width="240" height="179" alt="moodboard picture 03.">
+        <img src="doc/mood4.webp" width="240" height="179" alt="moodboard picture 04.">
+        <img src="doc/mood5.webp" width="240" height="179" alt="moodboard picture 05.">
+        <img src="doc/mood6.webp" width="240" height="179" alt="moodboard picture 06.">
+        <img src="doc/mood7.webp" width="240" height="179" alt="moodboard picture 07.">
+        <img src="doc/mood8.webp" width="240" height="179" alt="moodboard picture 08.">
+      </div>
+    </li>
+    <li id="prompt">
+      <h3>02 prompt <small>not ai</small></h3>
+      <p>44 subjects, 28 moods, 18 lights: more than a million prompts.</p>
+      <pre class="code">vanitas [subject, subject, subject], mood, light</pre>
+    </li>
+    <li id="dream">
+      <h3>03 dream <small>ai</small></h3>
+      <p>3 of 10 steps follow the prompt, so a subject half-surfaces.</p>
+      <div class="sum in">
+        <figure><img src="doc/dream_a.webp" width="400" height="300" alt="dream a, the last dream."><figcaption>dream a</figcaption></figure><span>+</span>
+        <figure><img class="pick" src="doc/mood1.webp" width="240" height="179" alt="moodboard picture 01."><figcaption>moodboard 01</figcaption></figure><span>=</span>
+        <figure><img src="doc/start.webp" width="400" height="300" alt="dream a and moodboard 01, blended."><figcaption>start</figcaption></figure><span>→</span>
+        <figure><img src="doc/dream_b.webp" width="640" height="480" alt="dream b: a white flower with ruffled petals on black."><figcaption>dream b</figcaption></figure>
+      </div>
+    </li>
+    <li id="walk">
+      <h3>04 walk <small>ai</small></h3>
+      <figure><img src="doc/walk.webp" width="1440" height="120" alt="a strip of frames from dream a to dream b, each a small step from the last."></figure>
+    </li>
+    <li id="detail">
+      <h3>05 detail <small>ai: real-esrgan, four times larger</small></h3>
+      <figure><img src="doc/detail.webp" width="800" height="300" alt="one corner of dream b twice: enlarged plainly on the left, soft; enlarged by real-esrgan on the right, sharp."></figure>
+    </li>
+    <li id="water">
+      <h3>06 water <small>not ai: a fluid simulation</small></h3>
+      <div class="row c4 in">
+        <figure><img src="doc/layer_water.webp" width="480" height="360" alt="dream b poured as water round the drain."><figcaption>water</figcaption></figure>
+        <figure><img src="doc/layer_glass.webp" width="480" height="360" alt="the same with a fine glass texture over it."><figcaption>glass</figcaption></figure>
+        <figure><img src="doc/layer_bubbles.webp" width="480" height="360" alt="the same with large soft bubbles on the water."><figcaption>bubbles</figcaption></figure>
+        <figure><img src="doc/layer_k.webp" width="480" height="360" alt="the same with a pearl sheen on the bubbles and the water folding at the drain."><figcaption>sheen</figcaption></figure>
+      </div>
+    </li>
+    <li id="code">
+      <h3>07 code <small>ai-assisted: claude code</small></h3>
+    </li>
+  </ol>
+</section>
+
+<!-- 05 -->
+<section id="process">
+  <div class="open">
+    <div class="head">
+      <span class="no">05</span><h2>process</h2>
+      <p>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.</p>
+    </div>
+    <figure>
+      <svg id="holefig" class="mv" viewBox="0 0 360 262" role="img" aria-label="the basin from above, with five numbered places: 1 the ring round the drain where the basin shows again inside itself, 2 the pour from the tap, 3 a hand, 4 the line of code on the drain's rim, 5 a face over the drain, the drain its mouth.">
+        <defs>
+          <linearGradient id="hp" gradientUnits="userSpaceOnUse" x1="250" y1="40" x2="140" y2="180"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient>
+          <linearGradient id="hr" gradientUnits="userSpaceOnUse" x1="162" y1="110" x2="198" y2="140"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient>
+          <clipPath id="hc"><circle cx="180" cy="125" r="42.6"/></clipPath>
+        </defs>
+        <rect class="mass" x="40" y="20" width="280" height="210" rx="10"/>
+        <!-- 5: a face over the drain, the drain its mouth -->
+        <ellipse class="proj breathe" cx="180" cy="104" rx="30" ry="40"/>
+        <!-- the pour, tap to drain -->
+        <circle class="hair" cx="190" cy="27" r="3"/>
+        <path class="wet faint" stroke="url(#hp)" d="M190,31C262,38 296,108 254,160C224,198 152,198 132,152C118,118 148,90 180,96C202,100 208,120 194,128"/>
+        <path class="wet flow" stroke="url(#hp)" pathLength="100" d="M190,31C262,38 296,108 254,160C224,198 152,198 132,152C118,118 148,90 180,96C202,100 208,120 194,128"/>
+        <!-- 1: the hole. its ring is 0.14 of a basin unit at k = 1, 0.0575 at k = 0.25; inside it the basin again, 2.4 times smaller, turned -->
+        <g clip-path="url(#hc)">
+          <g class="turn" style="transform-origin:180px 125px">
+            <rect class="hair" x="-58" y="-43.5" width="116" height="87" rx="4" transform="translate(180 125) rotate(29)"/>
+            <rect class="hair" x="-24" y="-18" width="48" height="36" rx="2" transform="translate(180 125) rotate(58)"/>
+          </g>
+        </g>
+        <circle class="dry" cx="180" cy="125" r="42.6"/>
+        <circle cx="180" cy="125" r="17.5" fill="none" stroke="url(#hr)" stroke-width="1.6"/>
+        <circle class="node" cx="180" cy="125" r="5"/>
+        <!-- 3: a hand -->
+        <circle class="dimn breathe" cx="92" cy="182" r="16" stroke-dasharray="2 3"/>
+        <circle class="node" cx="222" cy="84" r="9"/><text class="t-g" x="222" y="88" text-anchor="middle">1</text>
+        <circle class="node" cx="265" cy="79" r="9"/><text class="t-g" x="265" y="83" text-anchor="middle">2</text>
+        <circle class="node" cx="92" cy="182" r="9"/><text class="t-g" x="92" y="186" text-anchor="middle">3</text>
+        <path class="dimn" d="M56,243L149.9,155.1"/>
+        <circle class="node" cx="49" cy="249" r="9"/><text class="t-g" x="49" y="253" text-anchor="middle">4</text>
+        <circle class="node" cx="138" cy="66" r="9"/><text class="t-g" x="138" y="70" text-anchor="middle">5</text>
+        <text class="t-g" x="200" y="14">tap</text>
+        <text class="t-n" x="66" y="253">lost = 00:07</text>
+      </svg>
+    </figure>
+  </div>
+  <table class="moves">
+    <tbody>
+      <tr><td class="n">1</td><th scope="row">the hole holds the basin</th><td class="ev"><div class="row c2"><figure><img src="doc/hole_k0.webp" width="480" height="360" alt="close on the drain in plain water: a black disc in smooth pale water."><figcaption>k = 0</figcaption></figure><figure><img src="doc/hole_k1.webp" width="480" height="360" alt="the same place at k = 1: the water round the drain is folded into a small turning copy of the basin."><figcaption>k = 1</figcaption></figure></div></td></tr>
+      <tr><td class="n">2</td><th scope="row">time stutters</th><td class="ev"><svg viewBox="0 0 240 96" role="img" aria-label="the speed of the pour during one stall at k = 0.25: usual speed 1, down to 0.52, then up to 1.75, then back to 1.">
+          <defs><linearGradient id="ck" gradientUnits="userSpaceOnUse" x1="40" y1="0" x2="210" y2="0"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+          <path class="dry" d="M40,60H212"/>
+          <path class="wet" stroke="url(#ck)" d="M40,60H86C96,60 100,74.4 112,74.4H132C140,74.4 142,37.5 152,37.5C162,37.5 166,60 178,60H212"/>
+          <text class="t-g" x="40" y="12">pour speed, 1 = usual</text>
+          <text class="t-g" x="32" y="64" text-anchor="end">1</text>
+          <text class="t-g" x="122" y="92" text-anchor="middle">0.52</text>
+          <text class="t-g" x="152" y="30" text-anchor="middle">1.75</text>
+        </svg></td></tr>
+      <tr><td class="n">3</td><th scope="row">it is clear only on the way out</th><td class="ev"><div class="row c2"><figure><img src="doc/soft.webp" width="480" height="360" alt="the basin with a hand in it: the dream is blurred, grey and soft."><figcaption>hand in</figcaption></figure><figure><img src="doc/clear.webp" width="480" height="360" alt="the basin just after the hand leaves: a sharp face in profile with its eyes closed."><figcaption>hand out</figcaption></figure></div></td></tr>
+      <tr><td class="n">4</td><th scope="row">it says what you lost</th><td class="ev"><pre>lost = 00:07</pre></td></tr>
+      <tr><td class="n">5</td><th scope="row">a face, barely<span>for a few seconds at a time a face rises over the drain: two hollows above the hole, and the hole is its mouth. you are not sure you saw it.</span></th><td class="ev"><div class="row c2"><figure><img src="doc/face_k0.webp" width="480" height="360" alt="the basin in plain water."><figcaption>k = 0</figcaption></figure><figure><img src="doc/face_k1.webp" width="480" height="360" alt="the same frame at k = 1, with the second dream up: the water is lighter."><figcaption>k = 1, the first face</figcaption></figure></div></td></tr>
+    </tbody>
+  </table>
+  <p>i picked k = 0.5, twice, then asked for something between that and plain water. <code>k</code> sets the depth, 0 to 1, and it runs at 0.25: strange enough to notice, quiet enough to doubt.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 360 70" role="img" aria-label="a scale for k from 0, plain water, to 1. a first pick sat at 0.5; the mark moved down to 0.25.">
+      <defs><linearGradient id="kg" gradientUnits="userSpaceOnUse" x1="99" y1="34" x2="111" y2="46"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+      <path class="dimn" d="M30,40H330M30,36V44M330,36V44"/>
+      <path class="dimn" d="M176,33C160,23 126,23 112,32"/>
+      <path class="chev" style="stroke:var(--dim)" transform="translate(112 32) rotate(146)" d="M-3,-3L2,0L-3,3"/>
+      <circle class="dry" cx="180" cy="40" r="4"/>
+      <circle cx="105" cy="40" r="5" fill="url(#kg)"/>
+      <text class="t-n" x="105" y="13" text-anchor="middle">0.25</text>
+      <text class="t-g" x="180" y="13" text-anchor="middle">0.5</text>
+      <text class="t-g" x="30" y="62">0  plain water</text>
+      <text class="t-g" x="330" y="62" text-anchor="end">1</text>
+    </svg>
+  </figure>
+</section>
+
+<!-- 06 -->
+<section id="lineage">
+  <div class="open">
+    <div class="head">
+      <span class="no">06</span><h2>lineage</h2>
+      <p>this water learned to move from other artists' water.</p>
+    </div>
+    <figure>
+      <svg class="mv" viewBox="0 0 360 200" role="img" aria-label="six streams, one for each work in the table, run into one drain: the first four wet and moving, in the piece; the last two dotted and still, not built.">
+        <defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="20" y1="20" x2="300" y2="100"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+        <path class="wet faint" stroke="url(#lg)" d="M20,24C140,24 200,100 286,100M20,54C140,54 200,100 286,100M20,84C140,84 200,100 286,100M20,114C140,114 200,100 286,100"/>
+        <path class="wet flow" stroke="url(#lg)" pathLength="100" d="M20,24C140,24 200,100 286,100"/>
+        <path class="wet flow" stroke="url(#lg)" pathLength="100" d="M20,54C140,54 200,100 286,100" style="animation-delay:-9s"/>
+        <path class="wet flow" stroke="url(#lg)" pathLength="100" d="M20,84C140,84 200,100 286,100" style="animation-delay:-17s"/>
+        <path class="wet flow" stroke="url(#lg)" pathLength="100" d="M20,114C140,114 200,100 286,100" style="animation-delay:-26s"/>
+        <path class="dry" d="M20,144C140,144 200,100 286,100M20,174C140,174 200,100 286,100"/>
+        <circle class="dry" cx="300" cy="100" r="16"/>
+        <circle class="node" cx="300" cy="100" r="5"/>
+      </svg>
+    </figure>
+  </div>
+  <table class="lin">
+    <thead><tr><th class="st"></th><th scope="col"></th><th scope="col">this water takes</th></tr></thead>
+    <tbody>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row" data-u="karlsims.com/flow.html">karl sims, <a href="https://www.karlsims.com/flow.html">flow</a>&nbsp;2018</th><td>runs behind its current</td></tr>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row" data-u="collections.lacma.org/object/199076">random international, <a href="https://collections.lacma.org/object/199076">rain room</a>&nbsp;2012</th><td>answers the hand late</td></tr>
+      <tr><td class="st"><span class="mark was" role="img" aria-label="in the piece since 2026"></span></td><th scope="row" data-u="refikanadol.com/works/unsupervised">refik anadol, <a href="https://refikanadol.com/works/unsupervised/">unsupervised</a></th><td>changes while it flows</td></tr>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row" data-u="hint.fm/wind, bewitched.com/windmap.html">fernanda viégas and martin wattenberg, <a href="https://www.bewitched.com/windmap.html">wind map</a>&nbsp;2012</th><td>parts that remember longer</td></tr>
+      <tr><td class="st"><span class="mark off" role="img" aria-label="not built"></span></td><th scope="row" data-u="teamlab.art/w/vortices/ngv-triennial">teamlab, <a href="https://www.teamlab.art/w/vortices/ngv-triennial/">moving creates vortices and vortices create movement</a>&nbsp;2017</th><td>its paths drawn over it</td></tr>
+      <tr><td class="st"><span class="mark off" role="img" aria-label="not built"></span></td><th scope="row" data-u="timessquarenyc.org/tsq-arts-projects/storms-by-quayola">quayola, <a href="https://www.timessquarenyc.org/tsq-arts-projects/storms-by-quayola">storms</a></th><td>strokes never cleared</td></tr>
+    </tbody>
+  </table>
+  <p class="key"><span><span class="mark on" aria-hidden="true"></span>built</span> <span><span class="mark was" aria-hidden="true"></span>in the piece since 2026</span> <span><span class="mark off" aria-hidden="true"></span>not built</span></p>
+  <p class="cap">read 17 nov 2026.</p>
+</section>
+
+<!-- 07 -->
+<section id="installation">
+  <div class="open">
+    <div class="head">
+      <span class="no">07</span><h2>the installation</h2>
+      <p>one artist travels: me. setup takes one afternoon. switched on, it wakes itself, is silent, has no camera or microphone, drinks no real water and keeps nothing of you.</p>
+    </div>
+    <figure>
+      <svg id="atscale" class="mv" viewBox="0 0 360 330" role="img" aria-label="the sink from the side, with a visitor reaching in: the plinth stands 6 inches off the wall, is 25 inches deep, its rim at 34 inches, with 36 inches of clear floor in front.">
+        <defs><linearGradient id="as1" gradientUnits="userSpaceOnUse" x1="150.9" y1="191" x2="185.3" y2="191"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+        <!-- side elevation: 1 in = 2.6 units. wall, floor, plinth to 30 in, rim to 34 in, a visitor in the 36 in of clear floor -->
+        <rect class="rim" x="114" y="30" width="6" height="250"/>
+        <path class="hair" d="M100,280H340"/>
+        <rect class="mass" x="135.6" y="202" width="65" height="78"/>
+        <rect class="rim" x="135.6" y="191.6" width="65" height="10.4"/>
+        <path d="M150.9,191.6H185.3" fill="none" stroke="url(#as1)" stroke-width="1.6"/>
+        <rect class="rim" x="216.2" y="137" width="23.4" height="143" rx="11.7"/>
+        <circle class="rim" cx="227.9" cy="120.1" r="11.2"/>
+        <g class="reach" style="transform-origin:222.7px 150px"><path class="hair" d="M222.7,150L180,188" stroke-linecap="round"/></g>
+        <path class="proj" d="M135.6,191.6H104"/>
+        <path class="dimn" d="M104,191.6V280M100,191.6H108M100,280H108"/>
+        <text class="t-g" x="94" y="240" text-anchor="end">34 in (86 cm)</text>
+        <path class="dimn" d="M120,294H294.2M120,290V298M135.6,290V298M200.6,290V298M294.2,290V298"/>
+        <text class="t-g" x="127.8" y="314" text-anchor="middle">6 in</text>
+        <text class="t-g" x="168" y="314" text-anchor="middle">25 in</text>
+        <text class="t-g" x="207" y="314">36 in (91 cm) clear</text>
+        <text class="t-g" x="117" y="22" text-anchor="middle">wall</text>
+        <text class="t-g" x="248" y="124">visitor</text>
+        <path class="dimn" d="M270,48H332.4M270,44V52M301.2,44V52M332.4,44V52"/>
+        <text class="t-g" x="270" y="66" text-anchor="middle">0</text>
+        <text class="t-g" x="301.2" y="66" text-anchor="middle">1</text>
+        <text class="t-g" x="328" y="66" text-anchor="middle">2 ft</text>
+      </svg>
+    </figure>
+  </div>
+
+  <h3>the basin</h3>
+  <figure class="fig">
+    <svg id="sinkdwg" viewBox="0 0 360 364" role="img" aria-label="the proposed sink, plan and front elevation: a plinth 30 by 25 inches and 30 inches high, the basin rim at 34 inches, a 27 inch screen behind a 4:3 opening.">
+      <defs>
+        <linearGradient id="sk1" gradientUnits="userSpaceOnUse" x1="154.8" y1="65.6" x2="225.2" y2="118.4"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient>
+        <linearGradient id="sk2" gradientUnits="userSpaceOnUse" x1="154.8" y1="176" x2="225.2" y2="176"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient>
+      </defs>
+      <!-- plan: 1 unit = 1/4 in. the plinth top 30 x 25 in, the 4:3 opening over the screen, the drain -->
+      <path class="dimn" d="M130,30H250M130,26V34M250,26V34"/>
+      <text class="t-g" x="190" y="22" text-anchor="middle">30 in (76 cm)</text>
+      <path class="dimn" d="M116,42V142M112,42H120M112,142H120"/>
+      <text class="t-g" x="108" y="96" text-anchor="end">25 in (64 cm)</text>
+      <rect class="mass" x="130" y="42" width="120" height="100"/>
+      <rect class="hole" x="154.8" y="65.6" width="70.4" height="52.8" stroke="url(#sk1)" stroke-width="1"/>
+      <circle class="hair" cx="190" cy="92" r="2.2"/>
+      <path class="dimn" d="M225.2,92H257"/>
+      <text class="t-n" x="262" y="89">27 in screen</text>
+      <text class="t-g" x="262" y="105">4:3 opening</text>
+      <!-- the two views share their width -->
+      <path class="proj" d="M130,142V176M250,142V176"/>
+      <!-- front elevation: plinth to 30 in, basin rim at 34 in, the screen in its top -->
+      <rect class="mass" x="130" y="192" width="120" height="120"/>
+      <rect class="rim" x="130" y="176" width="120" height="16"/>
+      <rect class="hole" x="154.8" y="176" width="70.4" height="5.2"/>
+      <path d="M154.8,176H225.2" fill="none" stroke="url(#sk2)" stroke-width="1.2"/>
+      <path class="hair" d="M104,312H276"/>
+      <path class="dimn" d="M116,176V312M112,176H120M112,192H120M112,312H120M120,176H130M120,192H130"/>
+      <text class="t-g" x="108" y="180" text-anchor="end">34 in (86 cm)</text>
+      <text class="t-g" x="108" y="196" text-anchor="end">30 in (76 cm)</text>
+      <text class="t-n" x="262" y="188">basin</text>
+      <text class="t-n" x="190" y="256" text-anchor="middle">plinth</text>
+      <!-- scale: 2 ft -->
+      <path class="dimn" d="M130,338H226M130,334V342M178,334V342M226,334V342"/>
+      <text class="t-g" x="130" y="356" text-anchor="middle">0</text>
+      <text class="t-g" x="178" y="356" text-anchor="middle">1</text>
+      <text class="t-g" x="226" y="356" text-anchor="middle">2 ft</text>
+    </svg>
+  </figure>
+
+  <h3>what the festival supplies</h3>
+  <dl class="spec">
+    <div><dt>a plinth</dt><dd>30 x 25 in top, 30 in high, holds 50 lb (23 kg), room inside for the computer</dd></div>
+    <div><dt>one outlet</dt><dd>120 v, grounded, within 6 ft (1.8 m)</dd></div>
+    <div><dt>a dim spot</dt><dd>away from windows, 8 x 8 ft (2.4 x 2.4 m) at best, 6 x 6 ft at least</dd></div>
+    <div><dt>a hand at the switch</dt><dd>on in the morning, off at night</dd></div>
+    <div><dt>internet</dt><dd>optional</dd></div>
+    <div><dt>if you have them</dt><dd>a 27 in touch monitor or a mac mini: either one cuts what i ship to the basin alone</dd></div>
+  </dl>
+
+  <h3>built, and proposed</h3>
+  <table>
+    <tbody>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the spring</th></tr>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the web basin</th></tr>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the drain to black</th></tr>
+      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the [syn[k]]hole</th></tr>
+      <tr><td class="st"><span class="mark off" role="img" aria-label="proposed"></span></td><th scope="row">the basin on its plinth</th></tr>
+      <tr><td class="st"><span class="mark off" role="img" aria-label="proposed"></span></td><th scope="row">the daily budget</th></tr>
+    </tbody>
+  </table>
+  <p class="key"><span><span class="mark on" aria-hidden="true"></span>built in 2026</span> <span><span class="mark off" aria-hidden="true"></span>proposed for 2027</span></p>
+</section>
+
+<!-- 08 -->
+<section id="link">
+  <div class="open">
+    <div class="head">
+      <span class="no">08</span><h2>the link</h2>
+      <p>the basin above is <a class="url" data-piece="home">the piece in a browser</a>, not a recording. my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
+    </div>
+    <figure>
+      <svg class="mv" viewBox="0 0 360 160" role="img" aria-label="a touch on the water: the lines of the current bend round the finger, and rings spread out from it and fade.">
+        <defs><linearGradient id="rp" gradientUnits="userSpaceOnUse" x1="112" y1="12" x2="248" y2="148"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
+        <path class="dimn" d="M24,30C110,30 140,16 180,16C220,16 250,30 336,30M24,130C110,130 140,144 180,144C220,144 250,130 336,130"/>
+        <circle class="wet ripple" stroke="url(#rp)" cx="180" cy="80" r="62" style="transform-origin:180px 80px; opacity:.3"/>
+        <circle class="wet ripple d2" stroke="url(#rp)" cx="180" cy="80" r="62" style="transform-origin:180px 80px; opacity:.3"/>
+        <circle class="wet ripple d3" stroke="url(#rp)" cx="180" cy="80" r="62" style="transform-origin:180px 80px; opacity:.3"/>
+        <circle class="wet" stroke="url(#rp)" cx="180" cy="80" r="38" style="opacity:.6"/>
+        <circle class="node" cx="180" cy="80" r="9"/>
+      </svg>
+    </figure>
+  </div>
+
+  <h3>body of work</h3>
+  <ul class="works">
+    <li>an evolution of vanitas veritas (2026), an earlier sink of mine, on the same spring.</li>
+    <li>the code, <a data-piece="code">on github</a></li>
+    <li>bare metal (2025): <a href="https://www.macrofluidic.me/gallery">the gallery</a>, <a href="https://www.macrofluidic.me/blog">the process essay</a></li>
+    <li>treble (2026): <a href="https://soundcloud.com/ex_gf/pilot">p[i]lot</a>, <a href="https://soundcloud.com/ex_gf/p-ai-lot">p[ai]lot</a></li>
+  </ul>
+</section>
+
+<footer class="foot" id="who">
+  <p>kat titterton, <a href="https://www.macrofluidic.me/">macrofluidic</a></p>
+  <ul class="links">
+    <li><a data-piece="home">the basin</a></li>
+  </ul>
+</footer>
+
+</main>
+</body>
+</html>

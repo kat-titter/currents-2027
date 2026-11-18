@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta property="og:title" content="[syn[k]]hole, dry season, CURRENTS 2027">
+<meta property="og:description" content="[syn[k]]hole, dry season, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[syn[k]]hole, dry season, CURRENTS 2027</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="[syn[k]]hole, dry season, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
+<style>
+  :root { --bone:#e4dfd2; --pearl:linear-gradient(90deg, #bfe6ee, #cfc9f2, #f2c9dd); --ink:#030304; --dim:#8a8d93;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body { margin:0; overflow:hidden; background:var(--ink); color:var(--dim); font:12.5px/1.75 var(--mono); }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:crosshair; }
+  h1 { position:fixed; left:28px; top:22px; margin:0; font:400 20px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase;
+    color:var(--bone); pointer-events:none; }
+  #code { position:fixed; left:28px; bottom:22px; margin:0; font:inherit; color:var(--dim); pointer-events:none; text-align:left;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 0 4px var(--ink), 0 0 2px var(--ink); transition:opacity .8s; }
+  #code { font-size:11.5px; letter-spacing:.01em; color:rgba(138,141,147,.82); }
+  #code #pr { color:var(--bone); opacity:.92; }
+  #code .oref { color:#d3d9e6; background:var(--pearl); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; text-shadow:none; }                                  /* a face from the sink: the visitor is the current dream */
+  #code #grip { display:block; }
+  #code .ln { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.55; }   /* two lines at most: the prompt, then the trace blended in */
+  #code .tr { color:var(--bone); opacity:.48; }
+  #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
+  body.nogpu #dry { display:block; }
+  body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
+  h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }   /* the name is in the tab; the page shows only the water */
+  body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
+  #about { position:fixed; right:28px; bottom:22px; font-size:11.5px; color:rgba(138,141,147,.82); text-decoration:none; padding:8px 0 8px 13px; }   /* the one way out of the water: the page about the piece */
+  #about:hover, #about:focus-visible { color:var(--bone); }
+  body.sink #about, body.doc #about, body.framed #about { display:none; }   /* in the stone, in a document, or framed by another page: only the water */
+  @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } #about { right:16px; bottom:13px; } }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="A basin seen from above. Water runs from the tap to the drain, carrying a dream. Press to reach in; the space bar is the plug."></canvas>
+<h1 id="title">[syn[k]]hole</h1>
+<div id="dry"></div>
+<pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span></pre>
+<a id="about" href="about.html">about</a>
+<script>
+(() => {
+'use strict';
+// [syn[k]]hole, dry season (sync == sink): a basin whose water is a machine dreaming. A spring (code/sink.py, on a GPU) writes a new prompt, dreams it, and walks the
+// latent space to the next, frame by frame; every frame pours in at the tap and runs to the drain. When no spring answers, stored dreams pour from the reservoir.
+// Reach in, and the water under your hand goes where your hand goes, for a moment; then it slips through your fingers, down the drain.
+// The water engine began as veritas (verse/sync.html, the web basin of Vanitas Veritas, a separate piece that keeps its own page and its gold).
+const canvas = document.getElementById('c'), title = document.getElementById('title');
+const waterEl = document.getElementById('water'), gripEl = document.getElementById('grip'), codeEl = document.getElementById('code'), dry = document.getElementById('dry');
+// The look is the page: every setting in LOOK holds with a bare address. The same name in the address overrides it (?k=0: plain water; ?k=1: all the way in),
+// and <name>=off takes a default away (?kc=off: the line under the basin; ?kn=off, ?kf=off: time and the face follow k; ?km=off: no memory; ?kv=1: the fold; ?kw=off: the dream's own warm tones; ?reservoir=off; ?solo=off: the shared relays).
+const LOOK = { k:'0.25', kn:'0.5', kf:'0.5', kb:'1', kc:'rim', km:'1', kw:'1', reservoir:'', solo:'' };   // km memory: on since Kat's "turn on fold and memory, drop the rest"; the fold off again since "the fold feels a bit basic, weird, ugly" (2026-11-17)
+const params = new URLSearchParams(LOOK);
+for (const [name, value] of new URLSearchParams(location.search)) { if (value === 'off') params.delete(name); else params.set(name, value); }
+if (window.top !== window.self) document.body.classList.add('framed');
+if (params.has('sink')) document.body.classList.add('sink');
+if (params.has('doc')) document.body.classList.add('doc');
+const SPRING_HOME = '', POINTER_HOME = 'https://kat-titter.github.io/vanitas-veritas/verse/spring.json';                           // the spring's public address, once it has one; until then, on the web, the water is off
+let SPRING = params.has('spring') ? (params.get('spring') || 'feed/') : SPRING_HOME;
+if (!SPRING && !params.get('img')) fetch(POINTER_HOME + '?t=' + Date.now(), { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed) SPRING = j.feed; }).catch(() => {});   // on either public address: where the spring is now (one pointer, which sink.py rewrites)
+const SMALL = Math.min(innerWidth, innerHeight) < 600 || matchMedia('(pointer: coarse)').matches;
+const SIM = 256, PI_N = SMALL ? 24 : 36, BX = 0.46, BY = 0.345;   // the basin: a rectangle, 4:3 like the dreams
+let DYE = 1024, BIG = false;                       // the water's own resolution, set from the basin's size on screen
+const TAP = [0.5, 0.5 + 0.27];
+// ?k=<0 to 1>: how far in. 0.25 unless set (LOOK); 0 is plain water: every k line in this file sits behind K > 0.
+//   1 the water runs backwards for stretches, and bubbles un-pop          4 soft while a hand is in, clear for a breath as it leaves, then down the drain
+//   2 the hole holds the basin: round the drain the picture repeats       5 lost = mm:ss, how long the hand was in
+//   3 draining, the basin beats 1 to 3 times a second under a shimmer     6 time stutters, the picture lags its current, the water answers late
+//   7 an iridescent sheen, as on a soap film or the inside of a shell; no gold
+//   8 a face, barely: the dream again under the water, mirrored, larger, soft; it surfaces and sinks, and you are not sure you saw it
+//   9 draining, time runs slow at first, then fast, and fastest at the hole. ?kd=<0 to 1> is its own strength: 1 unless set, 0 a true clock
+// The nasty has its own strength, apart from the look. Unset, both are k and the water is as it was:
+//   ?kn=<0 to 1> weird time (1 and 6: backwards, the stall, the skip, the picture's lag). Set, time is also drawn: the picture leans from the hole as the clock slows, and into it as the clock runs fast
+//   ?kf=<0 to 1> the face (8). Set, it stands upright over the drain: two hollows above the hole, and the hole is its mouth
+// The frame and the words, both off unless set:
+//   ?kb=<0 to 1> no clear border: the steel lip goes and the water fades unevenly into the dark, so the basin is implied by its light
+//   ?kc=rim the code, hidden: no line under the basin; lost = mm:ss shows only in the clear breath, small along the drain's rim. Any other ?kc: no code at all
+//   ?km=<0 to 1> memory, after Wind Map (Viegas and Wattenberg): slow patches of the basin re-form up to 33 times slower, so they hold an older dream, softer, while the rest moves on. 0 unless set
+//   ?kv=<0 to 1> the fold: a crease from the tap through the drain; once in every 46 s one half of the basin folds over onto the other and each is the other's mirror. Draining, the bowl is lit as a dome. 0 unless set
+//   ?kw=<0 to 1> warmth out: where a dream is gold, copper or brown, its colour goes grey before it reaches the eye; cool and rose stay. 1 in LOOK: the piece is pearl
+// ?kx=<digits> keeps only those moves (kx=25: the hole and the lost line).
+const K = Math.max(0, Math.min(1, parseFloat(params.get('k')) || 0)), KX = params.get('kx') || '123456789', kOn = (n) => K > 0 && KX.includes(n);
+const kNum = (name, def) => params.has(name) ? Math.max(0, Math.min(1, parseFloat(params.get(name)) || 0)) : def;   // a strength of its own, 0 to 1
+const KD = kOn('9') ? kNum('kd', 1) : 0, KN = kNum('kn', K), KLEAN = K > 0 && params.has('kn'), KF = kNum('kf', K), KFACE = K > 0 && params.has('kf');
+const KE = K > 0 ? kNum('kb', 0) : 0, KC = K > 0 && params.has('kc') ? (params.get('kc') === 'rim' ? 'rim' : 'none') : '';
+const KM = K > 0 ? kNum('km', 0) : 0;   // memory: how much longer the slow patches hold a dream
+const KV = K > 0 ? kNum('kv', 0) : 0;   // the fold: how far the basin folds over itself
+const KW = K > 0 ? kNum('kw', 0) : 0;   // warmth out: how much of a dream's gold and copper goes grey
+
+const view = { w:1, h:1, cx:0, cy:0, S:1, dpr:1 };
+function layout(){
+  const w = innerWidth, h = innerHeight; view.w = w; view.h = h; view.dpr = Math.min(2, devicePixelRatio || 1);
+  const fit = params.has('sink') || params.has('doc') ? [1, 1] : w < 600 ? [0.94, 0.62] : [0.80, 0.74];   // in the stone the hole masks the edge; on the web, room for the words
+  view.S = Math.min(fit[0]*w/(2*BX), fit[1]*h/(2*BY)); view.cx = w/2; view.cy = h/2;
+  const hw = BX*view.S, hh = BY*view.S;
+  Object.assign(dry.style, { left:`${view.cx - hw}px`, top:`${view.cy - hh}px`, width:`${2*hw}px`, height:`${2*hh}px` });
+  Object.assign(codeEl.style, { left:`${view.cx - hw}px`, width:`${2*hw}px`, top:`${view.cy + hh + Math.min(28, (h/2 - hh)*0.35)}px`, bottom:'auto' });
+  fitCode();
+}
+function fitCode(){                                   // two lines at most, as wide as the basin: the type shrinks to fit, to 10 px; past that a line ends in an ellipsis
+  codeEl.style.fontSize = '';
+  const base = parseFloat(getComputedStyle(codeEl).fontSize), w = codeEl.clientWidth, lines = [...waterEl.querySelectorAll('.ln')];
+  const line = lines.length ? Math.max(...lines.map((l) => l.scrollWidth)) : waterEl.getBoundingClientRect().width;
+  if (line > w && w > 0) codeEl.style.fontSize = Math.max(10, base*w/line*0.98) + 'px';
+}
+layout();
+{ const px = 2*BX*view.S*view.dpr;              // a 4K screen gets the spring's full frames and water fine enough to show them
+  DYE = SMALL ? 768 : px > 1800 ? 2048 : px > 1200 ? 1536 : 1024; BIG = px > 1400; }
+
+const gl = canvas.getContext('webgl2', { alpha:false, antialias:false, depth:false, stencil:false, preserveDrawingBuffer:params.has('snap') });   // ?snap: the documents capture stills of the layers
+if (!gl || !gl.getExtension('EXT_color_buffer_float')) {           // no GPU: the tap is dry
+  document.body.classList.add('nogpu'); addEventListener('resize', layout); return;
+}
+
+const COMMON = `#version 300 es
+precision highp float;
+precision highp sampler2D;
+in vec2 vUv;
+out vec4 o;
+const vec2  C  = vec2(0.5);
+const vec2  B  = vec2(0.46, 0.345);   // the basin: half its width and height, a 4:3 rectangle like the dreams
+const float RC = 0.035;   // the bowl's rounded corners
+const float R  = 0.345;   // the reach of the drain's pull: the basin's short half
+float sdBox(vec2 q){ vec2 d = abs(q)-B+RC; return length(max(d,0.)) + min(max(d.x,d.y),0.) - RC; }   // signed distance to the wall: below 0 inside
+const float RD = 0.030;   // drain
+const float SF = 0.034;   // tap footprint
+const float SD = 0.030;   // drain footprint
+float wall(vec2 p){ return 1.0 - smoothstep(-0.004, 0., sdBox(p-C)); }
+bool inside(vec2 p){ return sdBox(p-C) < 0.; }
+float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+float hash1(float n){ return fract(sin(n*127.1+3.7)*43758.5453); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y);
+}
+float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
+`;
+const VS = `#version 300 es
+in vec2 aPos; out vec2 vUv;
+void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.,1.); }`;
+
+const FS = {
+curl: `
+uniform sampler2D uVel; uniform float uH;
+void main(){
+  float L = texture(uVel, vUv-vec2(uH,0.)).y, Rr = texture(uVel, vUv+vec2(uH,0.)).y;
+  float B = texture(uVel, vUv-vec2(0.,uH)).x, T  = texture(uVel, vUv+vec2(0.,uH)).x;
+  o = vec4(((Rr-L)-(T-B))*0.5/uH, 0.,0.,1.);
+}`,
+
+// body forces: small eddies kept alive, the drain's vortex, the stream falling from the tap, and the hand
+force: `
+uniform sampler2D uVel, uCurl;
+uniform float uH, uDt, uConf, uSwirl, uTime, uStream;
+uniform vec2 uStirPos, uStirVel, uTap, uGrabVel;
+uniform vec4 uGrab;                                   // the hand in the water: where, how hard it still grips, how wide the palm
+uniform vec4 uRH[4]; uniform float uRG[4], uRN;       // hands in other basins: where, the push they give, how hard they grip
+void main(){
+  vec2 v = texture(uVel, vUv).xy;
+  float cL = texture(uCurl, vUv-vec2(uH,0.)).x, cR = texture(uCurl, vUv+vec2(uH,0.)).x;
+  float cB = texture(uCurl, vUv-vec2(0.,uH)).x, cT = texture(uCurl, vUv+vec2(0.,uH)).x;
+  float cC = texture(uCurl, vUv).x;
+  vec2 f = 0.5*vec2(abs(cT)-abs(cB), abs(cR)-abs(cL));
+  f /= length(f)+1e-4; f *= uConf*cC; f.y *= -1.;
+  v += f*uDt;
+  // the drain: a Burgers vortex, fast round the hole and slow far from it
+  vec2 d = vUv-C; float r2 = dot(d,d), r = sqrt(r2)+1e-5;
+  vec2 th = vec2(-d.y, d.x)/r;
+  float vt = uSwirl*(1.-exp(-r2/0.0016))/r;
+  v += th*(vt-dot(v,th))*(1.-exp(-0.8*uDt))*smoothstep(R, R*0.45, r);
+  // where the stream lands, the water churns: two small eddies that wander, turning opposite ways
+  for (int k = 0; k < 2; k++) {
+    float s = float(k)*2.-1.;
+    vec2 e = vUv-uTap-0.018*vec2(sin(uTime*1.7+s*2.), cos(uTime*1.3+s))-vec2(s*0.012, 0.);
+    float e2 = dot(e,e);
+    v += s*vec2(-e.y, e.x)*uStream*exp(-e2/0.0005)*uDt*24.;
+  }
+  // a hand moving through the water pushes it
+  vec2 s = vUv-uStirPos;
+  v += uStirVel*exp(-dot(s,s)/0.0022);
+  // a hand holding: the water under the palm goes where the hand goes, except between the fingers
+  vec2 g = vUv-uGrab.xy; float gr = length(g);
+  float fingers = mix(0.15, 1., smoothstep(0.2, 0.8, 0.5+0.5*cos(5.*atan(g.y, g.x)+0.6)));
+  float m = uGrab.z*exp(-gr*gr/(uGrab.w*uGrab.w))*mix(1., fingers, smoothstep(0.35, 0.95, gr/uGrab.w));
+  v = mix(v, uGrabVel, m*(1.-exp(-30.*uDt)));
+  for (int i = 0; i < 4; i++) {                       // the same water, touched from another basin
+    if (float(i) >= uRN) break;
+    vec2 e = vUv-uRH[i].xy; float e2 = dot(e,e);
+    v += uRH[i].zw*exp(-e2/0.0022);
+    v = mix(v, vec2(0.), uRG[i]*exp(-e2/0.0036)*(1.-exp(-30.*uDt)));
+  }
+  o = vec4(v*wall(vUv),0.,1.);
+}`,
+
+advect: `
+uniform sampler2D uVel, uSrc; uniform float uDt, uDiss;
+void main(){
+  vec2 p = vUv - uDt*texture(uVel, vUv).xy;
+  o = texture(uSrc, p)*exp(-uDiss*uDt)*wall(vUv);
+}`,
+
+// divergence, minus what the tap adds and the drain takes
+diverge: `
+uniform sampler2D uVel; uniform float uH, uQ, uQd; uniform vec2 uTap;
+void main(){
+  float L = texture(uVel, vUv-vec2(uH,0.)).x, Rr = texture(uVel, vUv+vec2(uH,0.)).x;
+  float B = texture(uVel, vUv-vec2(0.,uH)).y, T  = texture(uVel, vUv+vec2(0.,uH)).y;
+  float div = ((Rr-L)+(T-B))*0.5/uH;
+  vec2 a = vUv-uTap, b = vUv-C;
+  float src = uQ/(3.14159*SF*SF)*exp(-dot(a,a)/(SF*SF)) - uQd/(3.14159*SD*SD)*exp(-dot(b,b)/(SD*SD));
+  o = vec4(div-src,0.,0.,1.);
+}`,
+
+pressure: `
+uniform sampler2D uP, uDiv; uniform float uH;
+void main(){
+  float pC = texture(uP, vUv).x;
+  vec2 l=vUv-vec2(uH,0.), r=vUv+vec2(uH,0.), b=vUv-vec2(0.,uH), t=vUv+vec2(0.,uH);
+  float pL = inside(l)?texture(uP,l).x:pC, pR = inside(r)?texture(uP,r).x:pC;
+  float pB = inside(b)?texture(uP,b).x:pC, pT = inside(t)?texture(uP,t).x:pC;
+  o = vec4((pL+pR+pB+pT - uH*uH*texture(uDiv,vUv).x)*0.25,0.,0.,1.);
+}`,
+
+project: `
+uniform sampler2D uP, uVel; uniform float uH;
+void main(){
+  float pC = texture(uP, vUv).x;
+  vec2 l=vUv-vec2(uH,0.), r=vUv+vec2(uH,0.), b=vUv-vec2(0.,uH), t=vUv+vec2(0.,uH);
+  float pL = inside(l)?texture(uP,l).x:pC, pR = inside(r)?texture(uP,r).x:pC;
+  float pB = inside(b)?texture(uP,b).x:pC, pT = inside(t)?texture(uP,t).x:pC;
+  vec2 v = texture(uVel, vUv).xy - vec2(pR-pL, pT-pB)*0.5/uH;
+  o = vec4(v*wall(vUv),0.,1.);
+}`,
+
+// the dream is the pigment: carried by the water, re-forming out of the newest frame, freshest where the tap pours it in.
+// Under a gripping hand it stops re-forming: what you hold is the moment you reached in.
+dye: `
+uniform sampler2D uVel, uDye, uImgA, uImgB;
+uniform float uDt, uMix, uPour, uTapPour, uFade, uDrainR;
+uniform vec2 uTap; uniform vec4 uGrab;
+vec3 img(vec2 p){
+  vec2 g = (p-C)/(2.*B) + 0.5;                            // the whole frame, edge to edge
+  return mix(texture(uImgA,g).rgb, texture(uImgB,g).rgb, uMix);   // the frame as the spring graded it
+}
+void main(){
+  vec2 p = vUv - uDt*texture(uVel, vUv).xy;
+  vec4 d = texture(uDye, p);
+  float r = length(vUv-C);
+  d.rgb *= exp(-uFade*uDt);
+  d.rgb *= mix(1., exp(-5.*uDt), smoothstep(RD*uDrainR, RD*0.5, r));      // and down it goes: when the water stops, the drain widens its pull
+  vec2 g = vUv-uGrab.xy; float held = uGrab.z*exp(-dot(g,g)/(uGrab.w*uGrab.w));
+  vec2 a = vUv-uTap; float fresh = exp(-dot(a,a)/(SF*SF*5.));
+  float rate = uPour + uTapPour*fresh;
+  d.rgb = mix(d.rgb, img(vUv), (1.-exp(-rate*uDt))*smoothstep(RD, 0.10, r)*(1.-held));
+  o = d*wall(vUv);
+}`,
+
+// what you see: the water through fluted glass, flat under your hand; the drain, where light goes and does not come back
+display: `
+uniform sampler2D uDye;
+uniform vec2 uCenter, uRes, uCursor, uTapQ;
+uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass;
+uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
+uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
+const vec3 BONE = vec3(0.95,0.91,0.82);
+vec3 kiri(float x){                // a soap film's colours by its thickness: cyan, violet, rose, and round again; no gold
+  x = fract(x)*3.; vec3 a = vec3(0.35,0.90,1.00), b = vec3(0.62,0.48,1.00), c = vec3(1.00,0.45,0.72);
+  return x < 1. ? mix(a, b, smoothstep(0., 1., x)) : x < 2. ? mix(b, c, smoothstep(0., 1., x - 1.)) : mix(c, a, smoothstep(0., 1., x - 2.));
+}
+vec3 pearl(float x){ return mix(BONE, kiri(x), 0.42); }   // the inside of a shell: bone under a thin film
+float caustic(vec2 p, float t){                 // light focused by the moving surface: a slow net, brightest where the dream is
+  vec2 i = p; float c = 1.;
+  for (int n = 0; n < 4; n++) { float tt = t*(1. - 3.5/float(n + 1));
+    i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x));
+    c += 1./length(vec2(p.x/(sin(i.x + tt)/0.005), p.y/(cos(i.y + tt)/0.005))); }
+  c = 1.17 - pow(c/4., 1.4); return pow(clamp(c, 0., 1.), 8.);
+}
+void main(){
+  vec2 q = (gl_FragCoord.xy-uCenter)/uS;     // basin units, origin at the drain
+  float r = length(q), aa = 1.5/uS;
+  vec3 col = vec3(0.0012,0.0012,0.0015);
+  float sd = sdBox(q);
+  if (sd < 0.004) {
+    vec2 hq = q-(uCursor-uCenter)/uS;
+    float pool = smoothstep(0.045+0.05*uGrip, 0.012, length(hq))*uCursorOn*uHold;   // under the hand, the glass lies flat
+    float L = (1.-pool*smoothstep(0., -0.08, sd))*uGlass;   // uGlass 0: the water without its ribbed glass and wet light
+    vec2 ql = q;                                                                             // a bare screen: the dream as it is
+    { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
+    float rimL = 0., film = 0., men = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
+    for (int i = 0; i < 16; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
+      vec2 dq = ql-bb.xy; float an = atan(dq.y, dq.x), sd_ = uBs[i];
+      float wob = 1. + 0.14*sin(2.*an + sd_*6.3 + uTime*0.55) + 0.08*sin(3.*an + sd_*17. - uTime*0.4) + 0.05*sin(5.*an + sd_*29. + uTime*0.9);   // never round: a glob that wobbles
+      float t = length(dq)/(bb.z*wob);
+      if (bb.w < 0.) {                                                            // popping as goo: the skin sags, oozes out in a few thick strands, and melts back into the water
+        float k = -bb.w, gone = 1. - k, ease = gone*gone*(3. - 2.*gone);          // slow to start, slow to finish
+        if (t < 1.) ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t);       // the dome slumps back into the picture
+        float tear = smoothstep(0.1, 0.9, 0.5 + 0.5*sin(an*3. + sd_*40. + gone*1.2)*sin(an*2. - sd_*23.));
+        men += k*0.55*smoothstep(0.4, 0., abs(t - 1.1 - 0.08*ease));               // the ring of the surface, relaxing
+        rimL += 0.6*k*tear*smoothstep(0.2 + 0.18*ease, 0., abs(t - 1. - 0.1*ease)); // the old skin, soft and sagging, barely moving
+        for (int j = 0; j < 2; j++) {                                             // strands in 10 sectors: a few ooze out a little way, thick at the root, and soften as they melt
+          float n = 10., sec = floor((an + 3.14159)*n/6.28318), h = fract(sin(sec*12.99 + sd_*78.23 + float(j)*31.7)*43758.5);
+          if (h < 0.55) continue;
+          vec2 dir = vec2(cos((sec + 0.5 + (h - 0.75)*0.5)/n*6.28318 - 3.14159), sin((sec + 0.5 + (h - 0.75)*0.5)/n*6.28318 - 3.14159));
+          vec2 a0 = dir*bb.z*0.9, a1 = dir*(0.95 + (0.3*h + 0.1*float(j))*ease)*bb.z;
+          vec2 pa = dq - a0, ba = a1 - a0; float hh = clamp(dot(pa, ba)/max(dot(ba, ba), 1e-8), 0., 1.);
+          float dd = length(pa - ba*hh), sz = bb.z*(0.05 + 0.06*fract(h*7.3))*mix(1., 0.55, hh)*(0.8 + 0.7*ease);
+          rimL += 0.8*k*smoothstep(sz*1.3, 0., dd); }
+        continue; }
+      if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.38, bb.w), 1., t*t*t); film = max(film, bb.w*(1.-t*t)); }   // a dome of the dream itself, swollen
+      else if (t < 1.3) ql -= dq/max(length(dq), 1e-4)*bb.z*0.05*bb.w*(1.3-t);                                   // the surface pulled up round it
+      men += bb.w*smoothstep(0.32, 0., abs(t-1.1));                                                        // the meniscus: a soft dark ring where the water curves down
+      rimL += bb.w*(0.55*smoothstep(0.16, 0., abs(t-0.93)) + 0.4*smoothstep(0.35, 0., abs(t-0.7))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a soft rim and a catch-light, lit by the dream's own colour
+    vec2 p = C+ql;
+    vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);
+    c = mix(c, c*c*(3.-2.*c), 0.25);
+    // wet light on the moving surface
+    float e = 3./1024.;
+    vec2 gr = vec2(lum(texture(uDye,p+vec2(e,0.)).rgb)-lum(texture(uDye,p-vec2(e,0.)).rgb),
+                   lum(texture(uDye,p+vec2(0.,e)).rgb)-lum(texture(uDye,p-vec2(0.,e)).rgb));
+    vec3 n = normalize(vec3(-gr*2.2, 0.09));
+    vec3 Hh = normalize(normalize(vec3(-0.45,0.62,0.65))+vec3(0.,0.,1.));
+    c += BONE*pow(max(dot(n,Hh),0.),40.)*0.22*mix(0.4, 1., L);
+    vec3 glow = vec3(0.);
+    for (int k = 0; k < 8; k++) { float a = float(k)*0.7854+0.3; glow += texture(uDye, p+0.034*vec2(cos(a),sin(a))).rgb; }
+    float lit = 1., seam = 1., glass = 0.;
+    float bowl = mix(0.32,1.,smoothstep(0.,-0.07,sd))*(1.+0.12*dot(q/B, normalize(vec2(-0.6,0.8))));   // the water lies below the steel: its edge falls into shadow
+    vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl + BONE*glass*(0.006+0.05*lum(c)) + glow/8.*0.04*lit*L;
+    b += BONE*0.10*caustic(ql*7. + 23., uTime*0.22)*(0.25 + lum(c))*smoothstep(0.,-0.05,sd)*L;   // light through moving water
+    b *= 1. - 0.38*min(men, 1.)*L;                                                    // the bubbles live in the water: shadowed where it curves, lit only where the dream is
+    b += (c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L + pearl(1.3*film + lum(c) + 0.04*uTime)*0.07*film*lum(c);
+    // the hand in the water: a bright edge round the palm, broken where the fingers part
+    { float hr = length(hq), rp = 0.034+0.012*uGrip;
+      float fingers = smoothstep(0.2, 0.8, 0.5+0.5*cos(5.*atan(hq.y, hq.x)+0.6));
+      b += BONE*0.30*uHold*uCursorOn*exp(-pow((hr-rp)/0.0035, 2.))*mix(0.25, 1., fingers)*(0.35+0.65*uGrip); }
+    for (int i = 0; i < 4; i++) {                    // someone else's hand in this water: a ring of light, pearl if it is at the sink
+      if (float(i) >= uRN) break;
+      float hr = length(q-uRQ[i].xy), rp = 0.034+0.012*uRQ[i].z;
+      vec3 tint = mix(BONE, kiri(atan(q.y-uRQ[i].y, q.x-uRQ[i].x)/6.28318 + 0.03*uTime), 0.6*uRQ[i].w);
+      b += tint*0.22*exp(-pow((hr-rp)/0.0035, 2.))*(0.45+0.55*uRQ[i].z);
+    }
+    // the stream landing: a little white water where it falls, only while it runs
+    { vec2 tq = q-uTapQ; float t2 = dot(tq,tq);
+      b += BONE*uWater*exp(-t2/0.00022)*(0.10+0.16*vnoise(tq*260.+vec2(0., -uTime*9.)));
+      float ring = exp(-pow((sqrt(t2)-0.006-uDrip*0.09)/0.003, 2.))*exp(-uDrip*2.2)*(1.-uWater);   // the last drops
+      b += BONE*0.22*ring; }
+    // the drain: nothing comes back from its shadow; a hairline of light runs round the edge of it
+    { float rs = RD*0.86;
+      float pr = exp(-pow((r-rs*1.05)/(rs*0.05), 2.));
+      b = b*(1.-0.45*smoothstep(rs*2.4, rs, r))*(1.-smoothstep(rs, rs*0.86, r)) + BONE*pr*0.10*(0.85+0.15*cos(atan(q.y,q.x)-0.6-uTime*0.12));   // a faint neutral edge: no glow
+      // the plug: a pearl disc over the hole while it is held shut
+      float disc = smoothstep(RD*1.18+aa, RD*1.18-aa, r);
+      vec3 nacre = mix(vec3(0.56,0.57,0.60), kiri(0.55 + 0.25*dot(q, vec2(-0.6,0.8))/RD + 0.01*uTime), 0.16)*(0.55+0.45*dot(normalize(vec3(q, 0.04)), normalize(vec3(-0.5,0.6,0.6))));
+      b = mix(b, nacre*0.8, disc*uPlug);
+}
+    col = mix(col, b, smoothstep(0.002, -0.006, sd));
+  }
+  // rim: one quiet hairline, catching the light on the upper left
+  float sd2 = sdBox(q);
+  vec2 sc = gl_FragCoord.xy/uRes-0.5;
+  col *= 1.-0.75*dot(sc,sc);
+  float lip = smoothstep(aa, 0., sd2 - 0.009)*smoothstep(-aa, 0., sd2);                 // the sink's steel lip, a few pixels wide
+  float sheen = 0.35 + 0.65*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
+  vec3 steel = vec3(0.10,0.105,0.11)*(0.7 + 0.6*sheen) + BONE*0.10*sheen*smoothstep(0.009, 0.0, abs(sd2 - 0.0012)/0.0012*0.009);
+  col = mix(col, steel, lip*0.9);                        // dark brushed steel, catching the light on the upper left
+  o = vec4(max(col,0.),1.);
+}`,
+};
+if (K > 0) {                                           // ?k: the k lines join the shaders here, so with no flag every shader is today's, letter for letter
+  const put = (name, at, code, how) => { if (!FS[name].includes(at)) throw new Error(`k: ${name} has no "${at}"`);
+    FS[name] = FS[name].replace(at, how === 'swap' ? code : how === 'before' ? code + at : at + code); };
+  const FLOW = 'vec2 p = vUv - uDt*texture(uVel, vUv).xy;', SIGNED = 'vec2 p = vUv - uDt*uKs*texture(uVel, vUv).xy;';   // uKs: -1 while the water runs backwards
+  put('advect', 'uniform float uDt, uDiss;', ' uniform float uKs;'); put('advect', FLOW, SIGNED, 'swap');
+  put('dye', 'uniform vec2 uTap; uniform vec4 uGrab;', ' uniform float uKs, uKRev, uKSoft, uKDr;');
+  put('dye', FLOW, 'vec2 p = vUv - uDt*uKs*(1. + uKDr*exp(-dot(vUv-C, vUv-C)/0.02))*texture(uVel, vUv).xy;', 'swap');   // 9 draining, the picture near the hole runs ahead of the rest
+  // 1 backwards, the drain gives the dream back: it stops taking, and the picture re-forms freshest round the hole.  4 while a hand is in, the picture stops re-forming
+  put('dye', 'smoothstep(RD*uDrainR, RD*0.5, r));', 'smoothstep(RD*uDrainR, RD*0.5, r)*(1.-uKRev));', 'swap');
+  put('dye', 'float fresh = exp(-dot(a,a)/(SF*SF*5.));', ' fresh = mix(fresh, 3.*exp(-r*r/(SF*SF*5.)), uKRev);');
+  put('dye', '*smoothstep(RD, 0.10, r)*(1.-held));', '*mix(smoothstep(RD, 0.10, r), smoothstep(RD*0.8, RD*1.6, r), uKRev)*(1.-held)*(1.-0.85*uKSoft));', 'swap');
+  put('display', 'void main(){', `uniform vec4 uKH;                  // the hole: the ring's radius, the turn of each copy, the picture's mip level at 1:1, how soft
+uniform vec4 uKB;                  // the beat: its phase, its strength, the shimmer's clock, how clear
+uniform float uKI, uKF, uKFm, uKT, uKE; // 7 how iridescent; 8 how far the second face has surfaced, and which face; how far the picture leans to the hole
+float kLod = 0., kDeep = 0.;
+vec4 kdye(vec2 p){ return textureLod(uDye, p, kLod); }
+const float KS = 2.4;              // each copy of the basin is this many times smaller than the last
+vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again, inside out, smaller and turned; inside that, again; without end
+  float d = log(uKH.x/r)/log(KS), a = atan(q.y, q.x) + uKH.y*d;       // d: how many copies in
+  return uKH.x*pow(KS, 1. - abs(1. - mod(d, 2.)))*vec2(cos(a), sin(a));   // out to the wall and back
+}
+`, 'before');
+  put('display', 'float r = length(q), aa = 1.5/uS;', `
+  float kb = 0.5 - 0.5*cos(uKB.x + r*7.); kb = kb*kb*(3. - 2.*kb);     // 3 the beat: each one runs in from the wall to the drain
+  float kin = uKB.y*smoothstep(0., -0.07, sdBox(q));                    // the water beats; the steel holds still
+  vec2 kn = q/max(r, 1e-4); q -= kn*0.006*(kb - 0.5)*kin;
+  q *= 1. + uKT*smoothstep(0., -0.10, sdBox(q));                        // ?kn: time drawn. A slow clock lets the picture ease out from the hole; a fast one pulls it in
+  vec2 kshim = kn*0.0016*kin*(1. - kb)*sin(r*800. - uKB.z*85. + 6.*vnoise(q*30.));   // between beats, a fine fast shimmer
+  float kr = length(q); kLod = uKH.z;
+  if (kr < uKH.x && kr > 1e-4) { vec2 q1 = khole(q, kr); kLod += log2(length(q1)/kr); kDeep = log(uKH.x/kr)/log(KS); q = q1; }
+  kLod = max(0., kLod) + uKH.w;                                          // 4 soft: the picture read from a smaller copy of itself`);
+  put('display', 'vec2 ql = q;', ' ql += kshim;');
+  put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', ' c = clamp(c + (c - textureLod(uDye, p, kLod + 2.5).rgb)*0.7*uKB.w, 0., 1.);   // 4 clear: sharper than the water has been');
+  put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'b *= 1. + 0.07*kin*(kb - 0.5); ', 'before');
+  put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'col = mix(col, b, smoothstep(0.002, -0.006 - uKE*(0.05 + 0.08*vnoise(q*6. + 0.02*uTime)), sd));', 'swap');   // ?kb: no clear border, the water fades unevenly into the dark
+  put('display', 'col = mix(col, steel, lip*0.9);', 'col = mix(col, steel, lip*0.9*(1. - uKE));', 'swap');   // and the steel lip goes
+  put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', `
+    if (uKFm < 0.5) { vec3 g = textureLod(uDye, C + vec2(-ql.x, ql.y)*0.62 + 0.04*vec2(sin(uTime*0.05), cos(uTime*0.037)), max(0., uKH.z) + 2.4).rgb;   // 8 the dream again: mirrored, larger, soft, adrift
+      c = clamp(c*(1. + 1.1*uKF*(lum(g) - 0.35)) + g*0.22*uKF*(1. - c), 0., 1.); }                                                  // it shades the water more than it shows on it
+    else {                                                                                  // 8 with ?kf: the face stands upright over the drain, and the drain is its mouth
+      vec2 f = ql - vec2(0.014*sin(uTime*0.05), 0.085 + 0.008*cos(uTime*0.037));            // its centre: above the hole, adrift
+      vec2 h = vec2(abs(f.x), f.y), e = (h - vec2(0.066, 0.030))/vec2(0.036, 0.021), m = ql/vec2(0.070, 0.026);   // a face is the same left and right
+      float ov = smoothstep(1.05, 0.5, length(vec2(f.x, f.y + 0.02)/vec2(0.175, 0.225)));   // its oval, soft at the edge
+      vec3 g = textureLod(uDye, C + vec2(h.x*0.8 + 0.06, f.y*0.8 + 0.05), max(0., uKH.z) + 1.3).rgb;   // its skin: the dream folded on itself, one half twice
+      float eye = exp(-dot(e, e)), mouth = exp(-dot(m, m));                                 // two hollows, and the hole widened
+      float ridge = exp(-pow(f.x/0.013, 2.))*smoothstep(0.045, -0.02, f.y)*smoothstep(-0.075, -0.03, f.y);   // light down a nose
+      c = clamp(c*(1. - uKF*ov*min(1., 0.85*eye + 0.6*mouth)) + uKF*ov*(0.20*g*(1. - eye) + 0.10*ridge)*(1. - c), 0., 1.); }`);
+  put('display', 'c += BONE*pow(max(dot(n,Hh),0.),40.)*0.22*mix(0.4, 1., L);', `
+    { vec3 ki = kiri(1.6*lum(c) + 14.*length(gr) + 0.5*kDeep + 0.04*uTime + 0.35*vnoise(ql*9. + uTime*0.05));   // 7 the film is as thick as the water is bright, steep and deep
+      c = mix(c, c*ki*1.7, 0.30*uKI*smoothstep(0.15, 0.7, lum(c)));                                                // mother of pearl on the bright water
+      c += ki*uKI*(0.30*pow(max(dot(n,Hh),0.), 10.) + 0.9*length(gr))*mix(0.4, 1., L); }                           // and in its wet light`);
+  put('display', 'pearl(1.3*film + lum(c) + 0.04*uTime)*0.07*film*lum(c)', 'mix(pearl(1.3*film + lum(c) + 0.04*uTime)*0.07, kiri(1.3*film + lum(c) + 0.04*uTime)*0.18, uKI)*film*lum(c)', 'swap');   // 7 the bubbles wear the film too, over their pearl
+  if (KM > 0) {                                        // ?km: a slow field over the basin; where it is high the picture re-forms and fades up to 33 times slower. The tap always pours the present
+    put('dye', 'uniform vec2 uTap; uniform vec4 uGrab;', ' uniform vec2 uKM;');   // its strength now, and its clock
+    put('dye', 'd.rgb *= exp(-uFade*uDt);', `float kmem = exp(-3.5*uKM.x*smoothstep(0.45, 0.62, 0.65*vnoise(vUv*4. + vec2(0.013, -0.008)*uKM.y) + 0.35*vnoise(vUv*9. + 7. - vec2(0.020, 0.011)*uKM.y)));
+  d.rgb *= exp(-uFade*uDt*kmem);`, 'swap');
+    put('dye', 'float rate = uPour + uTapPour*fresh;', 'float rate = uPour*kmem + uTapPour*fresh;', 'swap');
+  }
+  if (KV > 0) {                                        // ?kv: the fold. One half of the basin is drawn in toward the crease, through it, and out the other side: at the end each half is the other's mirror
+    put('display', 'uniform vec4 uKH;', 'uniform vec2 uKVf;                 // how far the basin has folded over, and how far it has turned inside out\nfloat kside = 0., kcr = 1., kfore = 1., kunder = 0.;\n', 'before');
+    put('display', 'float r = length(q), aa = 1.5/uS;', `
+  { float ka = 0.15*sin(uTime*0.03); vec2 kc2 = vec2(cos(ka), sin(ka)); kcr = dot(q, kc2);     // the crease runs from the tap through the drain, and leans a little, slowly
+    kside = smoothstep(0., 0.012, kcr); float kc = cos(3.14159*uKVf.x), kp = kcr/(kc >= 0. ? max(kc, 0.02) : min(kc, -0.02)); kfore = abs(kc); vec2 kq0 = q; if (kcr > 0.) q += (kp - kcr)*kc2; if (kcr > 0. && sdBox(q) > -0.01) { q = kq0; kunder = 1.; } }   // turning, the half is squeezed toward the crease; past edge-on it lies down mirrored; where it does not reach, the dark under it`);
+    put('display', 'vec2 ql = q;', ' kLod += kside*(1. - kunder)*min(4., log2(1./max(kfore, 0.0625)));   // seen edge-on, the folding half is read from a much smaller copy of the picture: a soft sheet, not bars');
+    put('display', 'b *= 1. - 0.38*min(men, 1.)*L;', ' b *= mix(1., mix(0.22 + 0.78*kfore, 0.30 + 0.25*smoothstep(0., 0.25, kcr - 0.46*kfore), kunder), kside)*(1. - 0.30*sin(3.14159*uKVf.x)*exp(-kcr*kcr/0.00012));   // a folding half turns from the light; the crease is a shadow while it folds');
+    put('display', 'float bowl = mix(0.32,1.,smoothstep(0.,-0.07,sd))*(1.+0.12*dot(q/B, normalize(vec2(-0.6,0.8))));', ' bowl = mix(bowl, (1.25 - 0.6*smoothstep(0.02, 0.36, length(q)))*(1. - 0.12*dot(q/B, normalize(vec2(-0.6,0.8)))), uKVf.y);   // draining, depth turns inside out: the bowl is lit as a dome');
+  }
+  if (KW > 0) {                                        // ?kw: warmth out. Warm is red and green both above blue (gold, copper, brown); rose and the cool tones are left alone
+    put('display', 'uniform vec4 uKH;', 'uniform float uKW;\n', 'before');
+    put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', ' c = mix(c, vec3(lum(c)), uKW*clamp((min(c.r, c.g) - c.b)*6., 0., 1.));');
+  }
+  FS.display = FS.display.split('texture(uDye,').join('kdye(');
+}
+
+function program(name){
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(name+': '+gl.getShaderInfoLog(s)); return s; };
+  const p = gl.createProgram();
+  gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, COMMON+FS[name]));
+  gl.bindAttribLocation(p, 0, 'aPos'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(name+': '+gl.getProgramInfoLog(p));
+  const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const nm = gl.getActiveUniform(p, i).name; u[nm] = gl.getUniformLocation(p, nm); }
+  return { p, u };
+}
+const P = Object.fromEntries(Object.keys(FS).map((k) => [k, program(k)]));
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+function texture(filter){
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return tex;
+}
+function target(size){
+  const tex = texture(gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, size, size, 0, gl.RGBA, gl.HALF_FLOAT, null);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.viewport(0, 0, size, size); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+  return { tex, fbo, w:size, h:size };
+}
+const pair = (size) => { let a = target(size), b = target(size); return { get read(){ return a; }, get write(){ return b; }, swap(){ [a, b] = [b, a]; } }; };
+const vel = pair(SIM), prs = pair(SIM), dye = pair(DYE), curl = target(SIM), dvg = target(SIM);
+function frameTex(){ const t = texture(gl.LINEAR); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([3, 3, 4, 255])); return t; }
+
+let unit = 0;
+const use = (prog) => { gl.useProgram(prog.p); unit = 0; return prog.u; };
+const bind = (loc, tex) => { gl.activeTexture(gl.TEXTURE0+unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(loc, unit++); };
+function draw(t){
+  if (t) { gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo); gl.viewport(0, 0, t.w, t.h); }
+  else { gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height); }
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+// ---- the spring: whatever it dreamed last, and whether it is still dreaming
+const live = { A:frameTex(), B:frameTex(), mix:1, every:2, seq:null, lastNew:-1e9, have:false, prompt:'', tap:true };
+const STALE = () => Math.max(20, 8*live.every)*1000;
+function upload(im){
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  if (!live.have) { gl.bindTexture(gl.TEXTURE_2D, live.A); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, im); }
+  [live.A, live.B] = [live.B, live.A];
+  if (!live.have) [live.A, live.B] = [live.B, live.A];
+  gl.bindTexture(gl.TEXTURE_2D, live.B); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, im);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  live.mix = 0; live.have = true; live.lastNew = performance.now();
+}
+// on the public site, a spring that stops answering may have moved (a restart opens a new tunnel): ask the pointer again
+let lastAnswer = performance.now(), lastAsk = 0;
+function repoint(){
+  if (!location.hostname.endsWith('github.io') || params.get('img')) return;   // the sink keeps its own spring
+  const now = performance.now(); if (now - lastAnswer < 15000 || now - lastAsk < 15000) return;
+  lastAsk = now;
+  fetch(POINTER_HOME + '?t=' + Date.now(), { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed && j.feed !== SPRING) { SPRING = j.feed; live.seq = null; } }).catch(() => {});
+}
+async function poll(){
+  if (!SPRING || document.hidden) return true;
+  try {
+    const base = new URL(SPRING, location.href), ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 4000);
+    const r = await fetch(new URL('now.json', base), { cache:'no-store', signal:ctl.signal }); clearTimeout(tm);
+    if (!r.ok) { repoint(); return false; }
+    const j = await r.json(); lastAnswer = performance.now();
+    if (!(SRC === 'sink' && lever)) live.tap = j.tap !== false;
+    live.face = !!j.face;                                                // the spring sees a face at the sink            // the sink's lever, wherever it is
+    if (j.seq === live.seq) return true;
+    const first = live.seq === null; live.seq = j.seq;
+    if (first && Date.now()/1000 - j.t > STALE()/1000) return true;     // a spring that stopped long ago: no water yet
+    live.every = Math.max(0.6, Math.min(8, +j.every || 2));
+    live.prompt = String(j.prompt || '').slice(0, 160);
+    const file = !BIG && j.small ? j.small : j.frame;                // 2560 x 1920 for big screens, 1280 x 960 otherwise
+    const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) { upload(im); springAt = performance.now(); } };   // a slow old frame never lands after a newer one
+    im.src = new URL(file, base).href;
+    return true;
+  } catch (e) { repoint(); return false; }
+}
+let pollWait = 1200;                                   // a spring that does not answer is asked less often
+const IMG = params.get('img'), BUBBLES = params.get('bubbles') !== '0', GLASS = params.get('glass') === '0' ? 0 : 1;   // ?glass=0: no glass (the documents show the layers one by one)   // ?img=<picture>: pour one picture, no spring (the documents use it to show the water's layers); ?bubbles=0: none
+if (IMG) { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { upload(im); live.prompt = ''; }; im.src = new URL(IMG, location.href).href; }
+else (function tick(){ poll().then((ok) => { pollWait = ok ? 1200 : Math.min(15000, pollWait*1.6); setTimeout(tick, pollWait); }); })();
+
+// ---- ?reservoir: water while the spring sleeps. When no spring answers, the page pours stored dreams through the live fluid: runs of frames
+// the spring dreamed earlier (reservoir/index.json, beside the page), the runs in a fresh order every visit, the frames of a run in order, so
+// the picture morphs. A spring that answers takes the tap back at once. No flag: no reservoir, and no water without a spring.
+const RES = params.has('reservoir') && !IMG, RES_LINE = 'water = reservoir.pour()  # stored dreams: the spring is asleep';
+const res = { on:false, runs:null, every:5, order:[], i:0, j:-1, next:0, busy:false };
+let springAt = -1e9;                                   // when the spring's last frame landed
+function resShuffle(){ res.order = res.runs.map((_, n) => n); for (let n = res.order.length - 1; n > 0; n--) { const m = Math.floor(Math.random()*(n + 1)); [res.order[n], res.order[m]] = [res.order[m], res.order[n]]; } }
+function resPour(){                                    // twice a second: is the spring asleep, and is the next stored frame due?
+  const asleep = () => performance.now() - springAt > STALE();
+  if (!res.runs || document.hidden || lever) return;
+  if (!asleep()) { res.on = false; return; }
+  if (!res.on) { res.on = true; live.prompt = ''; live.tap = true; live.every = res.every; res.next = 0; }
+  if (res.busy || performance.now() < res.next) return;
+  if (++res.j >= res.runs[res.order[res.i]].length) { res.j = 0;                       // the next dream; when every dream has poured, a new order
+    if (++res.i >= res.order.length) { const last = res.order[res.i - 1]; do resShuffle(); while (res.order.length > 1 && res.order[0] === last); res.i = 0; } }
+  const im = new Image(); res.busy = true;
+  im.onload = () => { res.busy = false; if (res.on && asleep()) { upload(im); res.next = performance.now() + res.every*1000; } };
+  im.onerror = () => { res.busy = false; res.next = performance.now() + 2000; };
+  im.src = new URL('reservoir/' + res.runs[res.order[res.i]][res.j], location.href).href;
+}
+if (RES) fetch(new URL('reservoir/index.json', location.href), { cache:'no-cache' }).then((r) => r.json()).then((m) => {
+  const runs = m && Array.isArray(m.runs) ? m.runs.map((r) => Array.isArray(r) ? r.filter((f) => /^[\w.-]+\.jpg$/.test(f)) : []).filter((r) => r.length) : [];
+  if (!runs.length) return;
+  res.runs = runs; res.every = Math.max(1.5, Math.min(8, +m.every || 5)); resShuffle(); setInterval(resPour, 500); resPour(); }).catch(() => {});
+
+// ---- one water: every basin shares its hands. A touch travels as an anonymous event over public Nostr relays: where a hand is
+// in the water, whether it grips, and whether it is at the sink. No accounts, nothing stored; relays pass it on and keep nothing.
+const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net'];
+const NKIND = 20777, NTAG = 'synkhole-basin', SRC = params.has('sink') ? 'sink' : params.has('hand') ? 'hand' : 'web';   // hand: a phone opened from the sink's QR code
+const net = { lu:0, lv:0, on:false, sk:null, pk:'', fin:null, socks:[], out:[], lastSend:0, wasDown:false, remote:new Map() };
+async function netStart(){
+  if (params.has('solo')) return;
+  try {
+    const nt = await import('https://esm.sh/nostr-tools@2.25.2/pure');
+    net.sk = nt.generateSecretKey(); net.pk = nt.getPublicKey(net.sk); net.fin = nt.finalizeEvent; net.on = true;
+    for (const url of RELAYS) connect(url);
+  } catch (e) {}
+}
+function connect(url){
+  let ws; try { ws = new WebSocket(url); } catch (e) { return; }
+  const sock = { ws, open:false }; net.socks.push(sock);
+  ws.onopen = () => { sock.open = true; ws.send(JSON.stringify(['REQ', 'b' + Math.random().toString(36).slice(2, 9), { kinds:[NKIND], '#t':[NTAG], since:Math.floor(Date.now()/1000)-5 }])); };
+  ws.onmessage = (m) => { try { const d = JSON.parse(m.data); if (d[0] === 'EVENT' && d[2]) receive(d[2]); } catch (e) {} };
+  ws.onclose = () => { sock.open = false; net.socks = net.socks.filter((x) => x !== sock); setTimeout(() => connect(url), 8000 + Math.random()*8000); };
+  ws.onerror = () => {};
+}
+function receive(ev){
+  if (!ev || ev.pubkey === net.pk || ev.kind !== NKIND || typeof ev.content !== 'string') return;
+  let c; try { c = JSON.parse(ev.content); } catch (e) { return; }
+  if (!c || !Array.isArray(c.p) || c.p.length > 24) return;
+  if (!net.remote.has(ev.pubkey) && net.remote.size >= 16) return;
+  const now = performance.now(), r = net.remote.get(ev.pubkey) || { q:[], x:0.5, y:0.5, px:null, py:null, down:false, t0:0, last:0, src:'web' };
+  c.p.forEach((pt, i) => { const u = +pt[0], v = +pt[1];
+    if (Number.isFinite(u) && Number.isFinite(v) && Math.abs(u-0.5) < BX && Math.abs(v-0.5) < BY) r.q.push([u, v, now + 180 + i*150/c.p.length]); });
+  if (r.q.length > 96) r.q.splice(0, r.q.length-96);
+  const down = !!c.d; if (down && !r.down) r.t0 = now + 180;
+  r.down = down; r.src = c.s === 'sink' || c.s === 'hand' ? c.s : 'web'; r.last = now;
+  net.remote.set(ev.pubkey, r);
+}
+function send(force){
+  if (!net.on) return;
+  const now = performance.now();
+  if (!force && (now-net.lastSend < 150 || (!net.out.length && hand.down === net.wasDown))) return;
+  net.lastSend = now; net.wasDown = hand.down;
+  const p = net.out.splice(0).slice(-24);
+  try {
+    const ev = net.fin({ kind:NKIND, created_at:Math.floor(Date.now()/1000), tags:[['t', NTAG]], content:JSON.stringify({ p, d: hand.down ? 1 : 0, s: SRC }) }, net.sk);
+    const msg = JSON.stringify(['EVENT', ev]);
+    for (const x of net.socks) if (x.open) try { x.ws.send(msg); } catch (e) {}
+  } catch (e) {}
+}
+const RH = new Float32Array(16), RG = new Float32Array(4), RQ = new Float32Array(16); let rn = 0;
+function others(){                                    // replay each other hand a moment late, as it moved
+  const now = performance.now(), cl = (x) => Math.max(-0.6, Math.min(0.6, x)); rn = 0;
+  for (const [k, r] of net.remote) {
+    if (now-r.last > 4000 && !r.q.length) { net.remote.delete(k); continue; }
+    let ix = 0, iy = 0;
+    const k = r.src === 'hand' && SRC === 'sink' ? 8 : 4;   // a phone at the sink is the sink's own hand: it pushes the water there twice as hard
+    while (r.q.length && r.q[0][2] <= now) { const [u, v] = r.q.shift(); if (r.px !== null) { ix += (u-r.px)*k; iy += (v-r.py)*k; } r.px = r.x = u; r.py = r.y = v; }
+    if (!r.down && now-r.last > 1200) r.px = r.py = null;
+    if (rn >= 4 || (!r.down && now-r.last > 1200)) continue;
+    const g = r.down && now >= r.t0 ? Math.exp(-(now-r.t0)/1700) : 0;
+    RH.set([r.x, r.y, cl(ix), cl(iy)], rn*4); RG[rn] = g; RQ.set([r.x-0.5, r.y-0.5, g, r.src === 'web' ? 0 : 1], rn*4);   // pearl: a hand at the sink, or a phone in front of it rn++;
+  }
+}
+
+// ---- the hand, the plug, the water
+const hand = { x:0, y:0, on:false, u:0.5, v:0.5, vx:0, vy:0, t:0, down:false, t0:0 };
+const stir = { x:0.5, y:0.5, vx:0, vy:0 };
+let faceAmt = 0, drainAmt = 0, water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
+const toSim = (x, y) => [0.5 + (x-view.cx)/view.S, 0.5 + (view.cy-y)/view.S];
+function moveTo(ev){
+  const [u, v] = toSim(ev.clientX, ev.clientY), t = performance.now(), dt = Math.max(0.008, (t-hand.t)/1000);
+  if (hand.on) {
+    const k = Math.min(1, dt/0.06);
+    hand.vx += (Math.max(-1.5, Math.min(1.5, (u-hand.u)/dt)) - hand.vx)*k; hand.vy += (Math.max(-1.5, Math.min(1.5, (v-hand.v)/dt)) - hand.vy)*k;
+    if (!hand.down) { stir.vx += Math.max(-0.6, Math.min(0.6, (u-hand.u)*4)); stir.vy += Math.max(-0.6, Math.min(0.6, (v-hand.v)*4)); }
+  }
+  hand.x = ev.clientX; hand.y = ev.clientY; hand.u = u; hand.v = v; hand.t = t; hand.on = true; stir.x = u; stir.y = v;
+  if (Math.abs(u-0.5) < BX && Math.abs(v-0.5) < BY && (hand.down || Math.hypot(u-net.lu, v-net.lv) > 0.002)) { net.out.push([+u.toFixed(3), +v.toFixed(3)]); net.lu = u; net.lv = v; }
+}
+const CAMERA = params.has('camera') && params.has('sink');
+// at the sink, the camera in the print sees whoever stands there: a frame every 2 s goes to the spring, which dreams them while they stay. Nothing is kept.
+async function watchSink(){
+  if (!CAMERA || !SPRING || !navigator.mediaDevices) return;
+  for (;;) {
+    let stream = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio:false });
+      const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = stream; await v.play();
+      const c = document.createElement('canvas');
+      for (;;) {
+        c.width = v.videoWidth || 640; c.height = v.videoHeight || 480; c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.8));   // one frame, sent and never kept
+        await fetch(new URL('face', new URL(SPRING, location.href)), { method:'POST', headers:{ 'X-Face-Key': params.get('key') || '' }, body:blob });
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    } catch (e) { if (stream) stream.getTracks().forEach((t) => t.stop()); await new Promise((r) => setTimeout(r, 10000)); }   // no camera yet: try again
+  }
+}
+watchSink();
+function reach(on){
+  if (on === hand.down) return;
+  hand.down = on; document.body.classList.toggle('held', on);
+  if (on) { hand.t0 = performance.now(); net.out.push([+hand.u.toFixed(3), +hand.v.toFixed(3)]); if (K > 0) gripEl.textContent = ''; }
+  else {                                              // let go: what was held goes the way of the water, down the drain
+    if (K > 0) kOut(performance.now());
+    const dx = 0.5-hand.u, dy = 0.5-hand.v, dl = Math.hypot(dx, dy) || 1;
+    stir.x = hand.u; stir.y = hand.v; stir.vx += 0.30*dx/dl; stir.vy += 0.30*dy/dl; gulp = Math.max(gulp, 0.5);
+  }
+  send(true);
+}
+canvas.addEventListener('pointermove', moveTo);
+canvas.addEventListener('pointerdown', (ev) => { moveTo(ev); popAt(hand.u, hand.v); try { canvas.setPointerCapture(ev.pointerId); } catch (e) {} reach(true); });
+canvas.addEventListener('pointerup', (ev) => { reach(false); if (ev.pointerType !== 'mouse') hand.on = false; });
+canvas.addEventListener('pointercancel', () => { reach(false); hand.on = false; });
+canvas.addEventListener('pointerleave', () => { if (!hand.down) hand.on = false; });
+canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
+// the space bar: on the web, the plug; at the sink, the lever, which is the tap: down, generation stops, no data flows, and every basin drains
+let lever = false;
+function tap(on){
+  lever = !on; live.tap = on;
+  try { fetch(new URL('tap', new URL(SPRING, location.href)), { method:'POST', headers:{ 'X-Face-Key': params.get('key') || '' }, body: on ? 'on' : 'off' }); } catch (e) {}
+}
+addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { if (SRC === 'sink') tap(false); else plug = true; } } });
+addEventListener('keyup', (e) => { if (e.code === 'Space') { if (SRC === 'sink') tap(true); else { plug = false; gulp = 1; } } });
+addEventListener('blur', () => { reach(false); if (lever) tap(true); if (plug) { plug = false; gulp = 1; } });   // a lost window never leaves the sink off
+
+// ---- ?k: the weirder water. kq.w is the current's clock (1 true, 0 stalled, below 0 backwards); kq.d is the picture's, a little late
+const kss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }, kh = (n) => { const x = Math.sin(n*127.1 + 3.7)*43758.5453; return x - Math.floor(x); };
+const kq = { w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
+  late:[], lh:{ u:0.5, v:0.5, vx:0, vy:0 }, ls:{ x:0.5, y:0.5, vx:0, vy:0 }, lg:0, ld:false };
+const kMip = K > 0 ? gl.createSampler() : null;          // the far copies and the soft water are read from smaller copies of the picture
+if (kMip) { gl.samplerParameteri(kMip, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.samplerParameteri(kMip, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.samplerParameteri(kMip, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.samplerParameteri(kMip, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); }
+// ?kc: the code, hidden. kc=rim: no line under the basin; one short line, lost = mm:ss, shows only in the clear breath, small along the drain's rim. Any other kc: no code at all
+let kRim = null;
+if (KC) codeEl.style.display = 'none';
+if (KC === 'rim') { const mk = (n) => document.createElementNS('http://www.w3.org/2000/svg', n), svg = mk('svg'), path = mk('path'), text = mk('text'), tp = mk('textPath');
+  svg.setAttribute('aria-hidden', 'true'); Object.assign(svg.style, { position:'fixed', inset:'0', width:'100%', height:'100%', pointerEvents:'none', opacity:'0', mixBlendMode:'difference' });   // the line inverts the water under it: dark on bright, pale on dark
+  path.id = 'krim'; path.setAttribute('fill', 'none'); tp.setAttribute('href', '#krim'); tp.setAttribute('startOffset', '25%'); text.setAttribute('text-anchor', 'middle');
+  Object.assign(text.style, { fontFamily:'var(--mono)', letterSpacing:'.22em', fill:'var(--bone)' });
+  text.append(tp); svg.append(path, text); document.body.append(svg); kRim = { svg, path, text, tp, key:'', said:'' }; }
+function kRimDraw(){                                  // once a frame: where the rim is, what it says, how clear
+  const r = RD_PX()*1.55, key = `${view.cx} ${view.cy} ${r}`;
+  if (key !== kRim.key) { kRim.key = key; kRim.path.setAttribute('d', `M${view.cx - r},${view.cy}A${r},${r} 0 1 1 ${view.cx + r},${view.cy}A${r},${r} 0 1 1 ${view.cx - r},${view.cy}`);
+    kRim.text.style.fontSize = Math.max(9, Math.min(13, 0.0105*view.S)) + 'px'; }
+  if (kq.lost !== kRim.said) kRim.tp.textContent = kRim.said = kq.lost;
+  kRim.svg.style.opacity = (0.85*kq.clear).toFixed(3);
+}
+const RD_PX = () => 0.030*view.S;                     // the drain's radius on the page (RD in the shaders)
+function kBack(t){                                    // 1: one stretch backwards in every 36 s, 6 to 14 s long at k = 1 (0 forwards, 1 backwards)
+  const T = 36, n = Math.floor(t/T), x = t - n*T, len = (6 + 8*kh(n))*KN, at = 8 + (T - 12 - len)*kh(n + 0.5);
+  return kss(at, at + 2, x)*(1 - kss(at + len, at + len + 2, x));
+}
+function kSkip(t){                                    // 6: every 17 s the pour slows to almost nothing, holds for 1 to 3 s, then skips to catch up
+  const T = 17, n = Math.floor(t/T), x = t - n*T, at = 3 + 6*kh(n + 0.7), go = at + 1.2 + (1 + 2*kh(n + 0.3))*KN;   // at: the pour starts to slow; go: it skips
+  return 1 - 0.96*Math.min(1, 2*KN)*kss(at, at + 1.2, x)*(1 - kss(go, go + 0.3, x)) + 3*KN*kss(go, go + 0.3, x)*(1 - kss(go + 0.5, go + 1.3, x));
+}
+function kDrain(p, s){                                // 9: draining, the clock runs slow at first (0.3 of true speed as the tap closes), then fast (3 times by the end)
+  return (1 - 0.7*s*kss(0, 0.12, p)*(1 - kss(0.25, 0.6, p)))*(1 + 2*s*kss(0.45, 0.95, p));
+}
+function kTick(dt, now){                              // once a frame: the clocks, the breath, the beat; returns the current's time step
+  const x = (now - kq.out)/1000, B = 4*Math.min(1, kq.inFor/1.5);   // 4: on the way out, clear for one breath of up to 4 s (a hand that only dipped in gets less)
+  const cl = kOn('4') && !hand.down && x < B ? kss(0, 0.4, x)*(1 - kss(B - 1.2, B, x)) : 0;
+  kq.clear += (cl - kq.clear)*(1 - Math.exp(-dt/0.15));
+  kq.soft += ((kOn('4') && hand.down ? 1 : 0) - kq.soft)*(1 - Math.exp(-dt/(hand.down ? 1.2 : 0.3)));
+  if (kq.due && (hand.down || x >= B - 1.2)) { kq.due = false; if (!hand.down) { gulp = Math.max(gulp, 0.5 + 0.5*K); kq.swal = 1; } }   // then it drains: the breath out is a swallow
+  kq.swal *= Math.exp(-dt/1.5);
+  kq.e = K*(1 - kq.clear);                              // how weird the water is right now: for that breath, not at all
+  const wild = water*(1 - kq.clear);                    // backwards and the stutter only while the water runs: the drain runs one way
+  kq.full = water > 0.9 ? kq.full + dt : 0;             // how long the basin has been full
+  kq.dr = lastWaterOn ? 0 : 1 - water;                  // 9: how far the basin has drained: 0 while the tap runs, 1 when the water is gone
+  kq.dw += (1 + (kDrain(kq.dr, KD*(1 - kq.clear)) - 1)*Math.min(1, 8*left) - kq.dw)*(1 - Math.exp(-dt/0.3));   // the drain's own clock; true again once nothing is left
+  kq.w = (1 + ((kOn('1') ? 1 - 2*Math.min(1, 1.5*KN)*kBack(simTime) : 1)*(kOn('6') ? kSkip(simTime) : 1) - 1)*wild)*kq.dw;
+  kq.lean += ((KLEAN ? 0.05*Math.max(-1.8, Math.min(2.5, kq.w - 1)) : 0) - kq.lean)*(1 - Math.exp(-dt/0.25));   // ?kn: the clock, drawn as a lean to the hole
+  if (KV > 0) { const T = 46, n = Math.floor(simTime/T), x = simTime - n*T, at = 12 + 10*kh(n + 0.2);   // ?kv: once in every 46 s the basin folds over (7 s), lies mirrored (6 s) and opens (7 s); never in the clear breath
+    kq.fold += (KV*kss(at, at + 7, x)*(1 - kss(at + 13, at + 20, x))*(1 - kq.clear) - kq.fold)*(1 - Math.exp(-dt/0.2)); }
+  const lag = kOn('6') ? 0.9*KN : 0;                    // 6: the picture runs up to 0.9 s behind its current
+  kq.hist.push([simTime, kq.w]); while (kq.hist.length > 1 && kq.hist[1][0] <= simTime - lag) kq.hist.shift();
+  kq.d = kq.hist[0][1]; kq.t += dt*kq.w; kq.bub += dt*kq.w;
+  kq.amp = kOn('3') ? kq.e*kss(0.02, 0.3, drainAmt) : 0;   // 3: draining, the basin beats: 1 Hz as the hole opens, 3 Hz at its deepest (Vesuna 2020, doi:10.1038/s41586-020-2731-9)
+  kq.hz = 1 + 2*Math.min(1, drainAmt/0.6); kq.ph += 2*Math.PI*kq.hz*dt; kq.pulse = 0.5 - 0.5*Math.cos(kq.ph);
+  return dt*Math.abs(kq.w);
+}
+function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
+  kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
+  kq.ls.vx = kq.ls.vy = 0;
+  while (kq.late.length && kq.late[0].at <= now) { const p = kq.late.shift();
+    kq.lh.u = p.u; kq.lh.v = p.v; kq.lh.vx = p.vx; kq.lh.vy = p.vy; kq.lg = p.g; kq.ld = p.d; kq.ls.x = p.sx; kq.ls.y = p.sy; kq.ls.vx += p.svx; kq.ls.vy += p.svy; }
+}
+function kEcho(){                                     // 6, past k = 0.5: a second hand answers from across the drain, and holds the water still there
+  if (K <= 0.5 || rn >= 4 || !kq.ld) return;
+  const m = 2*K - 1; RH.set([1 - kq.lh.u, 1 - kq.lh.v, -kq.ls.vx*m, -kq.ls.vy*m], rn*4); RG[rn] = kq.lg*m; RQ.set([0.5 - kq.lh.u, 0.5 - kq.lh.v, kq.lg*m, 0], rn*4); rn++;
+}
+function kOut(now){                                   // the hand comes out: 5 says how long it was in; 4 clears for a breath, then swallows
+  kq.inFor = (now - hand.t0)/1000; kq.out = now; kq.due = kOn('4');
+  if (kOn('5')) { const s = Math.round(kq.inFor); kq.lost = `lost = ${String(Math.floor(s/60)).padStart(2, '0')}:${String(s%60).padStart(2, '0')}`; gripEl.textContent = kq.lost; }
+}
+const Q0 = 0.005, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
+function step(dt){
+  const now = performance.now(), fresh = live.tap && live.have && (IMG || now-live.lastNew < STALE());
+  water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 10)));   // off: the pour slows over about ten seconds
+  if (fresh && !lastWaterOn) flood = 1;              // it floods back
+  lastWaterOn = fresh;
+  left = water > 0.5 ? 1 : left*Math.exp(-dt/45);     // the water off: what is left runs out, slowly
+  drainAmt = (1 - water)*left;                         // no water: what is left swirls down the drain, then the basin is black
+  if (water < 0.2 && now-dripAt > 3600 + 2400*Math.sin(simTime)) { dripAt = now; drip = 0; }
+  drip += dt;
+  const dv = K > 0 ? kTick(dt, now) : dt, dd = K > 0 ? dt*Math.abs(kq.d) : dt, wt = K > 0 ? kq.t : simTime;   // ?k: the current's time step, the picture's, and the water's own clock
+  const dripQ = drip < 0.12 ? 0.35*Q0*left : 0;
+  const Q = Q0*water*(1 + 1.6*flood) + dripQ;
+  const Qd = Q0*Math.max(water, 0.6*left)*(plug ? 0.12 : 1)*(1 + 2.5*gulp + 4*drainAmt)*(K > 0 ? 1 + 0.5*kq.amp*kq.pulse : 1);   // ?k: the drain pulls on the beat
+  grip = hand.down ? Math.exp(-(now-hand.t0)/1700) : Math.max(0, grip-dt*3);
+  live.mix = Math.min(1, live.mix + dt/live.every);
+  const tap = [TAP[0] + 0.004*Math.sin(simTime*0.7), TAP[1] + 0.003*Math.sin(simTime*0.9+1)];
+  let hs = hand, st = stir, gs = grip, sg = 1;         // ?k: the hand the water feels may be a late one, and water running backwards is pushed the other way round
+  if (K > 0) { sg = kq.w < 0 ? -1 : 1; if (kOn('6')) { kLate(now); hs = kq.lh; st = kq.ls; gs = kq.lg; } }
+
+  let u = use(P.curl); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(curl);
+  u = use(P.force); bind(u.uVel, vel.read.tex); bind(u.uCurl, curl.tex);
+  gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dv); gl.uniform1f(u.uConf, 0.01); gl.uniform1f(u.uTime, wt);
+  gl.uniform1f(u.uSwirl, 0.0006*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp + 5*drainAmt)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, 0.15*water*(1 + flood));
+  gl.uniform2f(u.uStirPos, st.x, st.y); gl.uniform2f(u.uStirVel, st.vx*sg, st.vy*sg); gl.uniform2f(u.uTap, tap[0], tap[1]);
+  gl.uniform4f(u.uGrab, hs.u, hs.v, gs, 0.06); gl.uniform2f(u.uGrabVel, hs.vx*sg, hs.vy*sg);
+  others(); if (kOn('6')) kEcho(); gl.uniform4fv(u['uRH[0]'], RH); gl.uniform1fv(u['uRG[0]'], RG); gl.uniform1f(u.uRN, rn);
+  draw(vel.write); vel.swap(); stir.vx = stir.vy = 0;
+  u = use(P.advect); bind(u.uVel, vel.read.tex); bind(u.uSrc, vel.read.tex); gl.uniform1f(u.uDt, dv); gl.uniform1f(u.uDiss, 0.35); if (K > 0) gl.uniform1f(u.uKs, sg);
+  draw(vel.write); vel.swap();
+  u = use(P.diverge); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); gl.uniform1f(u.uQ, Q); gl.uniform1f(u.uQd, Qd);
+  gl.uniform2f(u.uTap, tap[0], tap[1]); draw(dvg);
+  u = use(P.pressure); gl.uniform1f(u.uH, H);
+  for (let i = 0; i < PI_N; i++) { unit = 0; bind(u.uP, prs.read.tex); bind(u.uDiv, dvg.tex); draw(prs.write); prs.swap(); }
+  u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(vel.write); vel.swap();
+  u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uImgA, live.A); bind(u.uImgB, live.B);
+  gl.uniform1f(u.uDt, dd); gl.uniform1f(u.uMix, live.mix); faceAmt += ((live.prompt.includes('--oref you') ? 1 : 0) - faceAmt)*(1 - Math.exp(-dt/2));   // a face in the dream: the water re-forms it fast, so the likeness stays clean
+  gl.uniform1f(u.uPour, water*(0.05 + 0.3*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2) + 0.8*faceAmt + (K > 0 ? 3*K*kq.clear : 0))); gl.uniform1f(u.uTapPour, 0.5*water);   // ?k, clear: the picture re-forms at once
+  gl.uniform1f(u.uFade, 0.015 + 0.01*(1-water) + 0.18*(1-water)*(1-left)); gl.uniform1f(u.uDrainR, 1.6 + 7*drainAmt + (K > 0 ? 2.5*K*kq.swal : 0)); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hs.u, hs.v, gs, 0.06);
+  if (K > 0) { gl.uniform1f(u.uKs, kq.d < 0 ? -1 : 1); gl.uniform1f(u.uKRev, Math.max(0, Math.min(1, -kq.d))); gl.uniform1f(u.uKSoft, kq.e*kq.soft); if (KM > 0) gl.uniform2f(u.uKM, KM*water*(1 - kq.clear)*kss(10, 30, kq.full), kq.t);   // ?km: no memory in the clear breath, nor once the water stops, nor while the basin first fills (a patch that held the dark read as a hole)
+    gl.uniform1f(u.uKDr, 0.75*Math.max(0, kq.dw - 1)); }
+  draw(dye.write); dye.swap();
+  flood *= Math.exp(-dt/2.5); gulp *= Math.exp(-dt/1.5);
+  simTime += dt;
+}
+
+// soap bubbles, a cauldron's worth: they come up from the basin (small, faint, then sharp as they reach the surface), bloom over half a minute
+// while the swirl carries them toward the drain, then pop: at the end of their life, at the drain, as the water drains, or under a finger.
+// Only while the water runs; never more than sixteen.
+const NB = 16, BUB = new Float32Array(NB*4), BS = new Float32Array(NB), bubs = []; let nextBub = 0, lastBub = 0;
+const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.random()*2-1)*BY*0.6, a:Math.random()*6.283 }));   // a cauldron: bubbles keep coming up where it is hottest
+const POP = 3.2;                                      // a gooey pop: about three seconds to melt back
+const bubNow = () => K > 0 ? kq.bub : performance.now()/1000;   // ?k: the bubbles keep the water's clock, so they can run backwards
+function popBub(b, t){ if (b.pop) return; b.pop = t;
+  const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
+  stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.03*b.x/dl + 0.012*(Math.random() - 0.5); stir.vy += 0.03*b.y/dl + 0.012*(Math.random() - 0.5); }
+function popAt(u, v){ const t = bubNow(); let hit = false;
+  bubs.forEach((b) => { if (!b.pop && Math.hypot(u-0.5-b.x, v-0.5-b.y) < b.r*1.1) { popBub(b, t); hit = true; } }); return hit; }
+function blow(){
+  const t = bubNow(), dt = Math.min(0.1, t - (lastBub || t)); lastBub = t;
+  vents.forEach((v) => { v.a += (Math.random() - 0.5)*dt; v.x = Math.max(-BX*0.7, Math.min(BX*0.7, v.x + Math.cos(v.a)*0.004*dt)); v.y = Math.max(-BY*0.7, Math.min(BY*0.7, v.y + Math.sin(v.a)*0.004*dt)); });
+  if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a big slow one; often a glob of two or three
+    const R = 0.015 + 0.14*Math.pow(Math.random(), 2.2), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
+    const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
+    const life = 5 + 70*R + Math.random()*10, n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;
+    bubs.push({ x, y, R, r:0, born:t, life, pop:0, seed:Math.random() });
+    for (let k = 0; k < n && bubs.length < NB; k++) { const r2 = R*(0.3 + 0.5*Math.random()), a2 = Math.random()*6.283;
+      bubs.push({ x:x + Math.cos(a2)*(R + r2)*0.8, y:y + Math.sin(a2)*(R + r2)*0.8, R:r2, r:0, born:t + Math.random()*1.5, life:life*(0.5 + 0.5*Math.random()), pop:0, seed:Math.random() }); }
+    nextBub = t + 0.3 + Math.random()*0.9; }
+  if (dt < 0 && BUBBLES && t < kq.unpop && bubs.length < NB && water > 0.5) {   // ?k, backwards: a bubble un-pops. Goo gathers into a skin, the dome shrinks and sinks
+    const R = 0.02 + 0.10*Math.pow(Math.random(), 2), life = 5 + 70*R + Math.random()*10;
+    bubs.push({ x:(Math.random()*2-1)*(BX-R)*0.8, y:(Math.random()*2-1)*(BY-R)*0.8, R, r:0, born:t - POP - life*(0.6 + 0.35*Math.random()), life, pop:t - POP + 0.02, seed:Math.random() });
+    kq.unpop = t - 0.6 - 1.2*Math.random(); }
+  if (dt >= 0) kq.unpop = t;
+  BUB.fill(0); BS.fill(0);
+  for (let i = bubs.length - 1; i >= 0; i--) { const b = bubs[i], age = t - b.born, a = age/b.life;
+    if (dt < 0) { if (b.pop && t < b.pop) b.pop = 0; if (age < 0) { bubs.splice(i, 1); continue; } }   // ?k, backwards: the pop undoes itself; a bubble younger than nothing is gone
+    if (!b.pop) {                                                       // carried: a slow turn round the drain, a slower pull into it
+      const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004 + 0.06*drainAmt, pull = 0.0015 + 0.03*drainAmt;   // draining: round and into the drain
+      const nx = b.x - (b.y*w + b.x/d*pull)*dt, ny = b.y + (b.x*w - b.y/d*pull)*dt; b.x = nx; b.y = ny;
+      if (dt >= 0 && (a >= 1 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.25))) popBub(b, t); }   // no water, no bubbles: they pop as it drains
+    if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
+  bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = Math.min(1, age/b.life);
+    const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
+    const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
+    b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
+    if (b.pop) { const k = Math.min(1, (t - b.pop)/POP), m = k*k*(3 - 2*k); BUB.set([b.x, b.y, b.r*(1 + 0.18*m), -(1 - m)], i*4); }
+    else BUB.set([b.x, b.y, b.r, 0.08 + 0.92*up], i*4); });
+}
+function render(){
+  const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
+  if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; }
+  blow(); const d = view.dpr, u = use(P.display); bind(u.uDye, dye.read.tex); gl.uniform4fv(u['uBub[0]'], BUB); gl.uniform1fv(u['uBs[0]'], BS);
+  gl.uniform2f(u.uCenter, view.cx*d, (view.h-view.cy)*d); gl.uniform2f(u.uRes, pw, ph); gl.uniform1f(u.uS, view.S*d);
+  gl.uniform2f(u.uCursor, hand.x*d, (view.h-hand.y)*d); gl.uniform1f(u.uCursorOn, hand.on ? 1 : 0);
+  gl.uniform2f(u.uTapQ, TAP[0]-0.5, TAP[1]-0.5); gl.uniform1f(u.uTime, K > 0 ? kq.t : simTime);
+  gl.uniform1f(u.uGlass, GLASS); gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uGrip, grip); gl.uniform1f(u.uWater, water); gl.uniform1f(u.uPlug, plugAmt); gl.uniform1f(u.uDrip, drip);
+  gl.uniform4fv(u['uRQ[0]'], RQ); gl.uniform1f(u.uRN, rn);
+  const mips = kOn('2') || kOn('4') || kOn('8');                   // ?k: the hole's far copies and the soft water are read from smaller copies of the picture
+  if (mips) { gl.generateMipmap(gl.TEXTURE_2D); gl.bindSampler(0, kMip); }
+  if (K > 0) { gl.uniform4f(u.uKH, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), mips ? Math.log2(dye.read.w/(view.S*d)) : -99, 2.2*kq.e*kq.soft);
+    gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
+    gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*Math.pow(0.5 + 0.5*Math.sin(simTime*0.29 + 1.3), 2) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE); }   // 8: up for a few seconds in every 22
+  draw(null); if (mips) gl.bindSampler(0, null);
+}
+
+let lastText = '';
+function words(){
+  const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : RES && res.on && water > 0.5 ? RES_LINE : 'water = None';
+  if (t !== lastText) {                               // two lines at most, rebuilt only when the words change
+    lastText = t;
+    if (water > 0.5 && live.prompt) {                  // the prompt on one line, the second prompt blended into it (after '~') on the next
+      const [a, b] = live.prompt.split(' ~ '), mk = (cls, txt) => { const e = document.createElement('span'); e.className = cls; e.textContent = txt; return e; };
+      waterEl.textContent = '';
+      const face = a.endsWith(' --oref you'), l1 = mk('ln', 'water = dream("'), pr = mk('', face ? a.slice(0, -11) : a); pr.id = 'pr';
+      l1.append(pr); if (face) l1.append(' ', mk('oref', '--oref you')); l1.append(b ? '' : '")'); waterEl.append(l1);
+      if (b) { const l2 = mk('ln', '~ '); l2.append(mk('tr', b), '")'); waterEl.append(l2); } }
+    else waterEl.textContent = t;
+    codeEl.classList.toggle('dry', !(water > 0.5 && live.prompt));
+    fitCode(); }
+}
+
+let last = performance.now();
+function frame(now){
+  const dt = Math.min(1/30, Math.max(0, (now-last)/1000)); last = now;
+  holdAmt += ((hand.down ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.25));
+  plugAmt += ((plug ? 1 : 0)-plugAmt)*(1-Math.exp(-dt/0.15));
+  if (dt > 0) step(dt);
+  render(); words(); if (kRim) kRimDraw(); send(false);
+  nextFrame(frame);
+}
+addEventListener('resize', layout);
+window.__snap = (q) => canvas.toDataURL('image/jpeg', q || 0.82);
+window.__basin = { get t(){ return simTime; }, get water(){ return water; }, get seq(){ return live.seq; }, get grip(){ return grip; }, get prompt(){ return live.prompt; }, get have(){ return live.have; }, get others(){ return net.remote.size; }, get net(){ return net.socks.filter((x) => x.open).length; },
+  get drain(){ return drainAmt; }, get k(){ return K; }, get kq(){ return kq; },
+  get res(){ return RES ? { on:res.on, runs:res.runs ? res.runs.length : 0, order:res.order.join(' '), run:res.order[res.i], frame:res.j } : null; } };
+const nextFrame = params.has('snap') ? (f) => setTimeout(() => f(performance.now()), 16) : requestAnimationFrame;   // ?snap runs on timers, so stills render even off screen
+nextFrame(frame);
+netStart();
+})();
+</script>
+</body>
+</html>
