@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+# the refill: one allocation of dream, for the hours no spring is awake. The reservoir the page pours when the spring sleeps
+# (reservoir/ beside the page; banked by hand from a walk of the spring) is dreamed again here, on a CPU with no Mac near it:
+# .github/workflows/refill.yml in this repo runs this on a GitHub runner, once a day or more often.
+#
+# The loop (--from, --banked): new water is dreamed out of the last. The spring keeps its taste by pulling every dream back toward
+# one of Kat's own pictures; those stay private, so stored water stands where her pictures stand: eight frames with the grade taken
+# back off (ungrade), from the water she banked by hand (which never changes until she banks again, so the loop cannot wander
+# off). The walk starts on a frame of the last water, so each refill grows out of the one before. Everything else is the spring's
+# own, kept beside this file: spring.py (the prompt grammar, the sizes, the strengths, the waypoints, the grade) and latent.py
+# (the Catmull-Rom walk). A change there changes the refill.
+# If the last water is missing or has left the light and warmth of her pictures, the refill starts again from the banked water.
+# Text only (no --from): every dream from its words alone, out of noise; the last resort when there is no stored water at all.
+#
+# One walk a refill: --dreams new dreams, three waypoints on the way to each, --per frames a stretch; cut into --passages passages,
+# which the page pours in a fresh order each visit. Each frame is graded once, enlarged plainly to --width (the spring's Real-ESRGAN
+# would take about a minute a frame on a CPU) and packed the way the banked one is packed: a00.jpg ... and index.json, 6 MB at most.
+# No face from the sink can be in it: there is no camera here, the omni reference (IP-Adapter) is never loaded, and a reservoir
+# whose prompts carry --oref is never dreamed from.
+#
+#   python3 refill/refill.py --from <the last reservoir> --banked <the banked one> --out <folder>     the loop
+#   python3 refill/refill.py --out <folder>                                                           text only
+#   --anchor N     how many of the eight taste frames come from the banked water (default 8: all; the last water is then the walk's
+#                  start only). Tested 2026-11-17, 18 refills in a row: 0 darkened and stopped at refill 9, 4 darkened slowly, 8 held.
+#   --days N       a test: N refills in a row, each out of the last, in <folder>/day01 ..., with <folder>_drift.jpg and .jsonl
+#   --selftest     no model: the grade and its undoing on a ramp; with --from, the look of that water
+import argparse, datetime, json, math, os, pathlib, random, secrets, shutil, sys, time
+from types import SimpleNamespace as Knot
+import numpy as np
+from PIL import Image
+HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
+from spring import prompts, sd_prompt, W, H, STEPS, GUID, DREAM_S, WORDS_MIX, WP_F, WP_STR, WP_STEPS, NEG, harmonize, COOL, GOLD_TONE, CONTRAST, BLACK_GAMMA, GAIN
+
+HERS_LIGHT, HERS_WARM = (88.0, 157.7), (0.0039, 0.1214)   # the light and warmth of her eight moodboard pictures, by look() (measured
+TASTE_N = 8                                               # 2026-11-17; the pictures themselves stay private). The spring leans on eight
+LUM = np.array([0.299, 0.587, 0.114], np.float32)
+T0, WOKE = time.time(), datetime.datetime.now(datetime.timezone.utc)
+def say(*a): print(f'{time.time() - T0:7.1f}s ', *a, flush=True)
+
+def look(im):                                           # mean light, and how much of the picture is warm: the spring's own measure
+    x = np.asarray(im.convert('RGB'), np.float32)
+    return float((x @ LUM).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
+def lit(l): return HERS_LIGHT[0] - 8 <= l <= HERS_LIGHT[1] + 8
+def hers(l, w): return lit(l) and w <= HERS_WARM[1]   # in the light of her pictures, no warmer than the warmest: this piece has no gold, so no warmth is asked for
+def fill(im):                                           # crop to the dream's 4:3, never stretch
+    im = im.convert('RGB'); s = max(W/im.width, H/im.height); im = im.resize((round(im.width*s), round(im.height*s)), Image.LANCZOS)
+    l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
+
+def ungrade(im):
+    """harmonize() taken back off a stored frame, so it can be dreamed from and graded once more without the grade piling up refill
+    on refill: the S-curve and the black gamma run backwards, then the light the tint took is given back (red over blue says how
+    much of a pixel was turned gold). The colour stays the grade's own; the light is the dream's again."""
+    n = np.asarray(im.convert('RGB'), np.float32)/255
+    lo, hi = 1/(1 + math.exp(2*CONTRAST)), 1/(1 + math.exp(-2*CONTRAST))      # what the S-curve makes of black, and of white
+    n = np.clip((n/GAIN)**(1/BLACK_GAMMA), lo, hi)
+    n = 0.5 + np.log(n/(1 - n))/(4*CONTRAST)
+    c, g = np.array(COOL, np.float32), np.array(GOLD_TONE, np.float32)
+    rho = n[..., 0]/np.maximum(n[..., 2], 1e-3)
+    gold = np.clip((c[2]*rho - c[0])/((g[0] - c[0]) + (c[2] - g[2])*rho), 0, 1)[..., None]
+    n = n/((1 - gold)*float(c @ LUM) + gold*float(g @ LUM))
+    return Image.fromarray((np.clip(n, 0, 1)*255).round().astype(np.uint8))
+
+def stored(src, rng, n):
+    """Up to n frames of a stored water as taste: ungraded, each still in the light and warmth of her pictures. None from a water
+    that is missing, or that was dreamed with a face at the sink. Returns the frames and when that water was made."""
+    if not src or n <= 0: return [], None
+    try:
+        m = json.loads((src/'index.json').read_text()); names = [f for r in m['runs'] for f in r]
+    except Exception as e: say(f'no water in {src} ({e!r})'); return [], None
+    if any('--oref' in p for p in m.get('prompts', [])): say(f'{src} was dreamed with a face at the sink: never dreamed from'); return [], None
+    taste, seen, made = [], 0, m.get('made_at') or m.get('made')
+    for f in rng.sample(names, len(names)):
+        im = ungrade(fill(Image.open(src/f))); l, w = look(im); seen += 1
+        if hers(l, w): taste.append(Knot(name=f, im=im, light=l, warm=w))
+        if len(taste) == n: break
+    say(f'{src} (made {made}): {len(taste)} of {seen} frames looked at are in her light and warmth: ' + ', '.join(f'{t.name} {t.light:.0f}/{t.warm:.3f}' for t in taste))
+    return taste, made
+
+class Spring:
+    """The spring's dreaming on a CPU: Stable Diffusion 1.5 with the LCM-LoRA fused in, loaded as the spring loads it (from the
+    half-precision files, half the download, run in full precision), without the omni reference."""
+    def __init__(self):
+        import torch
+        from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler
+        from latent import slerp, catmull, Vae
+        torch.set_num_threads(os.cpu_count() or 4)
+        pipe = StableDiffusionImg2ImgPipeline.from_pretrained('stable-diffusion-v1-5/stable-diffusion-v1-5', variant='fp16', torch_dtype=torch.float32,
+                                                              safety_checker=None, requires_safety_checker=False)
+        pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
+        pipe.load_lora_weights('latent-consistency/lcm-lora-sdv1-5', weight_name='pytorch_lora_weights.safetensors'); pipe.fuse_lora(); pipe.unload_lora_weights()
+        pipe.unet.to(memory_format=torch.channels_last); pipe.vae.to(memory_format=torch.channels_last)   # the layout a CPU convolves fastest
+        pipe.set_progress_bar_config(disable=True)
+        self.torch, self.pipe, self.slerp, self.catmull, self.V, self.spent = torch, pipe, slerp, catmull, Vae(pipe.vae, 'cpu'), 0.
+        self.E0, self.NE = self.embed(sd_prompt('vanitas'))            # the negative is the same for every dream
+        say(f'awake: {torch.get_num_threads()} threads')
+    def embed(self, prompt):
+        with self.torch.no_grad(): return self.pipe.encode_prompt(prompt, 'cpu', 1, True, NEG)
+    def dream(self, init, E, s, steps, seed):           # img2img in latent space, as the spring's dream_lat
+        t0 = time.time(); g = self.torch.Generator().manual_seed(seed)
+        z = self.pipe(prompt_embeds=E, negative_prompt_embeds=self.NE, image=init, strength=s, num_inference_steps=steps,
+                      guidance_scale=GUID, generator=g, output_type='latent').images.float()
+        if not self.torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
+        self.spent += time.time() - t0; return z
+
+def walk(S, start, taste, dreams, per, rng):
+    """One walk of the spring: from a first place (a frame of the last water; in text only, a first dream) through `dreams` new
+    dreams, three dreamed waypoints on the way to each, drawn as `per` frames a stretch on one Catmull-Rom path through them all.
+    Returns the frames as dreamed (ungraded), the words of each dream, and the look of each."""
+    torch, words_of = S.torch, prompts({'i': 0})        # a walk of its own through her grammar each time, from the machine's entropy
+    zs = [S.V.enc(t.im) for t in taste]
+    def key(K):                                         # a new dream: out of the last one pulled toward stored water, or out of noise
+        (w1, p1), (w2, p2) = next(words_of), next(words_of)
+        E = torch.lerp(S.embed(p1)[0], S.embed(p2)[0], rng.uniform(*WORDS_MIX)); seed = secrets.randbits(62)
+        if zs: pull = rng.randrange(len(zs)); init, s = S.slerp(rng.uniform(0.35, 0.6), K.z, zs[pull]), rng.uniform(*DREAM_S)
+        else: pull, init, s = None, torch.zeros(1, 4, H//8, W//8), 1.0
+        z = S.dream(init, E, s, STEPS, seed); l, w = look(S.V.dec(z))
+        words = f"{w1} ~ {w2.replace('vanitas ', '', 1)}"; say(f'dream: {words}   (light {l:.0f}, warm {w:.3f}{"" if hers(l, w) else ", outside hers"})')
+        return Knot(z=z, E=E, seed=seed, pull=pull, words=words, look=(l, w))
+    def bend(A, B):                                     # the middle of the way, pulled toward a third stored frame
+        mid = S.slerp(0.5, A.z, B.z)
+        if not zs: return mid
+        return S.slerp(rng.uniform(0.2, 0.4), mid, zs[rng.choice([i for i in range(len(zs)) if i not in (A.pull, B.pull)] or list(range(len(zs))))])
+    def way(A, B, det, n):                              # a place on the way, dreamed with the words halfway between and the noise of the dream ahead
+        f = WP_F[n]; init = S.slerp(f, S.slerp(f, A.z, det), S.slerp(f, det, B.z))
+        return Knot(z=S.dream(init, torch.lerp(A.E, B.E, f), WP_STR[n], WP_STEPS, B.seed))
+    if start: K = Knot(z=S.V.enc(start.im), E=S.E0, seed=secrets.randbits(62), pull=None, words=None)
+    else: K = key(None)
+    knots, keys = [K], [K] if K.words else []
+    for _ in range(dreams):
+        B = key(K); det = bend(K, B); knots += [way(K, B, det, n) for n in range(3)] + [B]; keys.append(B); K = B
+    z, frames, t0 = [k.z for k in knots], [], time.time()
+    for seg in range(len(z) - 1):
+        win = [z[max(seg - 1, 0)], z[seg], z[seg + 1], z[min(seg + 2, len(z) - 1)]]
+        frames += [S.V.dec(S.catmull(i/per, *win)) for i in range(1, per + 1)]      # each stretch ends on its knot: the last frame is the last dream
+    say(f'{len(frames)} frames drawn, {(time.time() - t0)/len(frames):.1f}s each; dreaming took {S.spent:.0f}s so far')
+    return frames, [k.words for k in keys], [k.look for k in keys]
+
+def pack(frames, out, passages, width, budget, index):
+    """The reservoir as the banked one is written: a00.jpg ... (a, b, c: the passages; 00, 01: their frames in order) and
+    index.json, the quality walked down, then the width, until it fits. The names are the same every refill, so an index a
+    browser or the CDN kept for a few minutes still finds every frame. Written beside `out` and swapped in whole."""
+    n, tmp, q = len(frames)//passages, out.with_name(out.name + '.new'), 84
+    while True:
+        if tmp.exists(): shutil.rmtree(tmp)
+        tmp.mkdir(parents=True); runs = [[f'{chr(97 + p)}{i:02d}.jpg' for i in range(n)] for p in range(passages)]
+        for p, run in enumerate(runs):
+            for i, name in enumerate(run):
+                im = frames[p*n + i]; im.resize((width, round(width*im.height/im.width)), Image.LANCZOS).save(tmp/name, quality=q, optimize=True, progressive=True)
+        (tmp/'index.json').write_text(json.dumps({'every': index['every'], 'runs': runs, **{k: v for k, v in index.items() if k != 'every'}}, indent=1) + '\n')
+        total = sum(f.stat().st_size for f in tmp.iterdir())
+        if total <= budget: break
+        if q > 56: q -= 4
+        else: width = round(width*0.88/16)*16
+    if out.exists(): shutil.rmtree(out)
+    tmp.rename(out); return width, q, total
+
+def day(S, src, banked, out, a, rng):
+    anchor = min(a.anchor, TASTE_N) if banked else 0
+    last, made = stored(src, rng, max(TASTE_N - anchor, 1))             # at least one frame of the last water: the walk starts on it
+    bank, made_b = stored(banked, rng, anchor)
+    if src and len(last) < min(3, max(TASTE_N - anchor, 1)):            # the last water is missing, or has left her light and warmth
+        say('the last water cannot be dreamed from: starting again from the banked water'); last = []
+        bank, made_b = stored(banked, rng, TASTE_N) if banked else ([], None)
+    start, taste = (last or bank or [None])[0], last[:TASTE_N - anchor] + bank
+    if len(taste) < 3: say('no stored water to lean on: dreamed from the words alone'); start, taste = None, []
+    way = 'text' if not taste else 'loop' if last else 'banked'
+    frames, words, looks = walk(S, start, taste, a.dreams, a.per, rng)
+    if not any(lit(l) for l, _ in looks) and way == 'loop' and banked:   # the walk from the last water went dark or blown: once more, from the banked water
+        say('none of these dreams is in the light of her pictures: dreamed again from the banked water')
+        bank, made_b = stored(banked, rng, TASTE_N); last = []
+        if len(bank) >= 3: start, taste, way = bank[0], bank, 'banked'; frames, words, looks = walk(S, start, taste, a.dreams, a.per, rng)
+    if not any(lit(l) for l, _ in looks):                               # black or blown water is never poured; warmth only picks the taste
+        sys.exit('none of these dreams is in the light of her pictures: nothing written, the last water stays')
+    how = {'text': 'from the words alone',
+           'banked': f'out of the water banked by hand ({made_b}): the last water, or the walk from it, had left her light',
+           'loop': f'out of the water of {made}; for taste, {len(taste) - len(bank)} of its frames' + (f' and {len(bank)} of the water banked by hand ({made_b})' if bank else '')}[way]
+    index = {'every': a.every, 'made': WOKE.date().isoformat(), 'made_at': WOKE.strftime('%Y-%m-%dT%H:%MZ'),   # made_at: when this run began; the workflow reads it to know when the next is due
+             'from': f'one walk of {len(words)} dreams, dreamed on a CPU {how} (refill/refill.py), {a.per} frames a stretch',
+             'prompts': words, 'frames_without_a_logged_prompt': 0, 'note': 'no frame was dreamed with a face at the sink'}
+    shown = [harmonize(f) for f in frames]
+    width, q, total = pack(shown, out, a.passages, a.width, a.budget, index)
+    say(f'wrote {out}: {a.passages} passages of {len(frames)//a.passages} frames, {way}, {width} px wide, quality {q}, {total} bytes ({total/1e6:.2f} MB)')
+    return {'way': way, 'looks': looks, 'shown_light': round(float(np.mean([look(f)[0] for f in shown])), 1), 'bytes': total, 'thumb': shown[-1].resize((240, 180), Image.LANCZOS)}
+
+def selftest(src):
+    """The grade, then its undoing, gives the light back: on a grey ramp within 3 of 255, on a warm one (the accent, now pearl) within 8."""
+    ramp = np.linspace(24, 230, 256, dtype=np.float32)[None].repeat(4, 0)
+    for name, tint, top, tol in [('grey', (1, 1, 1), 230, 3), ('warm', (1.25, 1.0, 0.55), 190, 8)]:
+        x = np.clip(ramp[..., None]*np.array(tint, np.float32), 0, 255)[:, ramp[0] <= top]
+        back = np.asarray(ungrade(harmonize(Image.fromarray(x.round().astype(np.uint8)))), np.float32)
+        err = float(np.abs(back @ LUM - x.round() @ LUM).max()); print(f'selftest {name}: light comes back within {err:.2f} of 255')
+        if err > tol: sys.exit('selftest failed: ungrade() no longer undoes harmonize()')
+    if src:
+        m = json.loads((src/'index.json').read_text()); L = [look(ungrade(fill(Image.open(src/f)))) for r in m['runs'] for f in r]
+        print(f'{src}: {sum(hers(*x) for x in L)} of {len(L)} frames in her light and warmth; light {min(x[0] for x in L):.0f} to {max(x[0] for x in L):.0f}, '
+              f'warm {min(x[1] for x in L):.4f} to {max(x[1] for x in L):.4f} (hers: {HERS_LIGHT[0]:.0f} to {HERS_LIGHT[1]:.0f}, {HERS_WARM[0]:.4f} to {HERS_WARM[1]:.4f})')
+
+def main():
+    ap = argparse.ArgumentParser(); ap.add_argument('--from', dest='src', default=''); ap.add_argument('--banked', default=''); ap.add_argument('--out', default='reservoir')
+    ap.add_argument('--anchor', type=int, default=8); ap.add_argument('--dreams', type=int, default=3); ap.add_argument('--per', type=int, default=5); ap.add_argument('--passages', type=int, default=6)
+    ap.add_argument('--width', type=int, default=1024); ap.add_argument('--every', type=float, default=5); ap.add_argument('--budget', type=int, default=5_900_000)
+    ap.add_argument('--days', type=int, default=1); ap.add_argument('--selftest', action='store_true')
+    a = ap.parse_args(); rng = random.SystemRandom()
+    src, banked, out = (pathlib.Path(x) if x else None for x in (a.src, a.banked, a.out))
+    if a.selftest: return selftest(src)
+    if (4*a.dreams*a.per) % a.passages: sys.exit(f'{4*a.dreams*a.per} frames do not cut into {a.passages} equal passages')
+    S = Spring()
+    if a.days == 1: day(S, src, banked, out, a, rng); say('done'); return
+    thumbs = []                                          # the test: does the loop hold its look, refill on refill?
+    with open(out.with_name(out.name + '_drift.jsonl'), 'w') as log:
+        for d in range(1, a.days + 1):
+            r = day(S, src, banked, out/f'day{d:02d}', a, rng); src = out/f'day{d:02d}'; thumbs.append(r.pop('thumb'))
+            log.write(json.dumps(dict(r, day=d)) + '\n'); log.flush(); say(f'refill {d} of {a.days}: {r}')
+    cols = 10; sheet = Image.new('RGB', (cols*240, -(-len(thumbs)//cols)*180))
+    for i, t in enumerate(thumbs): sheet.paste(t, ((i % cols)*240, (i//cols)*180))
+    sheet.save(out.with_name(out.name + '_drift.jpg'), quality=85); say('done')
+
+if __name__ == '__main__':
+    main()
