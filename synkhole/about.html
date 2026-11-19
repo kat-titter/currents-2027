@@ -3,789 +3,281 @@
 <head>
 <meta charset="utf-8">
 <meta property="og:title" content="[syn[k]]hole, dry season: about the piece">
-<meta property="og:description" content="[syn[k]]hole, dry season, by kat titterton. a proposed installation: a sink with no water. in the basin a screen pours a machine's dreams as slow water with a sheen: a still life of skulls, flowers, soap bubbles.">
+<meta property="og:description" content="[syn[k]]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/about.html">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark light">
 <title>[syn[k]]hole, dry season: about the piece</title>
+<meta name="description" content="[syn[k]]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
 <link rel="icon" href="data:,">
-<meta name="description" content="[syn[k]]hole, dry season, by kat titterton. a proposed installation: a sink with no water. in the basin a screen pours a machine's dreams as slow water with a sheen: a still life of skulls, flowers, soap bubbles.">
-<!-- One page, two media. On screen: the documentation of the piece, the live basin first, eight numbered sections, each opened by
-     one drawing that moves in the piece's own motion (slow, melting, pearl on black). Printed (Letter): the description sheet for
-     CURRENTS 2027, field 17 (NAMES=description bash currents_2027/print.sh); print and reduced motion show every drawing at its end state.
-     Figures live beside it in doc/ (small WebP). FORM after Kat's own Vanitas Veritas web doc (documents/), not its content or colours.
-     TEXT: a Claude draft in Kat's voice, 2026-11-17. Hers, word for word: the name, "sync == sink", and "the most beautiful things
-     usually have something nasty about them". The rest is hers to rewrite. The long text is kept beside this file as about_long.html. -->
-<script>(function(){var t=new URLSearchParams(location.search).get('theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
-<!-- THE PIECE'S ADDRESSES, written here and nowhere else in this file. The piece has its own home folder, and its public address
-     is the home value below (Kat: "Yes, currents-2027", 2026-11-17; live once she publishes). frame stays relative. frame: what the hero frames, the piece's own page beside this
-     one, at its own default look (LOOK in index.html: k = 0.25, memory, the code on the drain's rim), the coordinator's call
-     on 2026-11-17. To frame her earlier water instead (the code line under the basin, no memory):
-     frame:'index.html?kn=off&kf=off&kb=off&kc=off&km=off'. home: the piece's address, used
-     by "the link" and the footer; once it is absolute it prints in full on paper. code: the piece's own repository (CURRENTS, not
-     the earlier vanitas veritas repo; Kat, 2026-11-17: "hyperlinks to piece and about should also reflect currents not tiat").
-     Nothing in this page links to the page itself. -->
-<script>
-  var PIECE = { frame:'index.html',
-                home:'https://kat-titter.github.io/currents-2027/synkhole/',
-                code:'https://github.com/kat-titter/currents-2027' };
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('[data-piece]').forEach(function (el) { el[el.tagName === 'IFRAME' ? 'src' : 'href'] = PIECE[el.getAttribute('data-piece')]; });
-    // drawings rest while off screen; with no script they simply keep moving
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle('idle', !e.isIntersecting); }); });
-      document.querySelectorAll('svg.mv').forEach(function (s) { io.observe(s); });
-    }
-  });
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap">
+<!-- The page about [syn[k]]hole, dry season, redrawn 2026-11-19 to look like the piece now looks: the same dots of light on black, the same pearl film,
+     the same black hole. Kat: "more negative space. thinner, sparser text and design ... cyrptic, shamanistic, computational, serif font" and
+     "about page design should resonate design and style with the piece itself - colors, shapes, density".
+     The ground is a field of dots drawn at the screen's own pixels; the pictures are drawn as dots too, from synkhole/doc/. Reduced motion and ?still hold everything still. -->
 <style>
-  /* The piece's own look (sync.html): ink ground, bone text, dim for labels, one mono stack, lowercase.
-     One accent, the water's pearl sheen (sync.html --pearl: cyan, violet, rose at low strength). It means one thing: the water is here,
-     or this part is built. Dark is the piece, so dark is the default; ?theme=light and print flip to ink on white.
-     Spacing on 3, 5, 8, 13, 21, 34, 55, 89. Type near 12, 13, 15, 17, 23, 34. */
-  :root { --ink:#030304; --bone:#e4dfd2; --dim:#8a8d93; --line:#1c1d21; --mass:#0d0e10; --rim:#15161a; --hole:#000;
-    --p1:#bfe6ee; --p2:#cfc9f2; --p3:#f2c9dd;
-    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color-scheme:dark; }
-  :root[data-theme="light"] { --ink:#fff; --bone:#14171a; --dim:#5b6166; --line:#c9cdd1; --mass:#eef0f1; --rim:#dfe3e5; --hole:#fff;
-    --p1:#0092ba; --p2:#684cd6; --p3:#d2347c; color-scheme:light; }
+  :root { --ink:#030304; --bone:#e4dfd2; --text:#d6d1c4; --dim:#8a8d93; --cy:#59e6ff; --vi:#9e7aff; --ro:#ff73b8;
+    --serif:"Cormorant Garamond", "Iowan Old Style", Georgia, serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --film:conic-gradient(from 210deg, var(--cy), var(--vi), var(--ro), var(--cy)); }
   * { box-sizing:border-box; }
-  html { -webkit-text-size-adjust:100%; background:var(--ink); }
-  body { margin:0; background:var(--ink); color:var(--bone); font:15px/1.75 var(--mono); }
-  .wrap { max-width:792px; margin:0 auto; padding:0 16px 89px; overflow-wrap:break-word; }
+  html { background:var(--ink); scroll-behavior:smooth; }
+  body { margin:0; background:var(--ink); color:var(--text); font:400 20px/1.62 var(--serif); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  main p, main li, main h2, main dt, main dd { text-shadow:0 0 7px var(--ink), 0 0 3px var(--ink), 0 0 1px var(--ink); }   /* the dots stay behind the words */
+  a { color:var(--bone); text-decoration:underline; text-decoration-color:rgba(158,122,255,.75); text-decoration-thickness:1px; text-underline-offset:4px; }
+  a:hover, a:focus-visible { color:#fff; text-decoration-color:var(--ro); }
+  .mono { font:300 12px/1.7 var(--mono); letter-spacing:.06em; color:var(--dim); }
+  code { font:300 .72em/1 var(--mono); color:var(--bone); letter-spacing:.02em; }
+  em { font-style:italic; font-weight:300; }
 
-  /* the cover: a meta row, the piece live, the title block */
-  .meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:3px 21px; max-width:1180px; margin:0 auto; padding:13px 16px;
-    font-size:12px; letter-spacing:.16em; color:var(--dim); }
-  .hero { max-width:1180px; margin:0 auto; }
-  .basin { display:block; width:100%; height:min(84vh, 76vw); border:0; background:#030304; }
-  .still { display:none; }
-  .waterline { height:1px; margin:0 0 34px; background:linear-gradient(90deg, var(--p1), var(--p2), var(--p3)); }
-  h1 { margin:0 0 13px; font:400 34px/1.2 var(--mono); letter-spacing:.12em; }
-  .epi { margin:0 0 21px; font:13px/1.6 var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .lede { margin:0; font-size:23px; line-height:1.45; max-width:30em; }
-  p { margin:0 0 13px; }
-  code { font:inherit; color:var(--bone); }
-  a { color:var(--bone); text-decoration:underline; text-decoration-thickness:1px; text-decoration-color:var(--dim); text-underline-offset:3px; }
-  a:hover { text-decoration-color:var(--bone); }
-  a:focus-visible, .term:focus-visible { outline:1px solid var(--bone); outline-offset:3px; }
-  .verse { margin:21px 0 0; color:var(--dim); }
+  /* the ground: a field of dots, fixed behind everything */
+  #field { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+  /* four thin corner marks frame the screen, as a viewfinder would */
+  .frame i { position:fixed; width:22px; height:22px; z-index:3; pointer-events:none; border:0 solid rgba(228,223,210,.32); }
+  .frame i:nth-child(1) { left:16px; top:16px; border-width:1px 0 0 1px; }  .frame i:nth-child(2) { right:16px; top:16px; border-width:1px 1px 0 0; }
+  .frame i:nth-child(3) { left:16px; bottom:16px; border-width:0 0 1px 1px; } .frame i:nth-child(4) { right:16px; bottom:16px; border-width:0 1px 1px 0; }
+  .bar { position:fixed; z-index:4; left:48px; right:48px; top:18px; display:flex; justify-content:space-between; pointer-events:none; }
+  .bar a, .bar span { pointer-events:auto; color:var(--dim); text-decoration:none; }
+  .bar a:hover { color:var(--bone); }
+  #lost { position:fixed; z-index:4; left:48px; bottom:17px; margin:0; }
+  #lost b { font-weight:400; color:var(--bone); }
 
-  /* a section: a number, a title, its lead beside one moving drawing; then the rest at the text measure */
-  section { position:relative; margin-top:89px; padding-top:34px; }
-  section::before, .claim::before { content:""; position:absolute; left:0; right:0; top:0; height:1px; opacity:.55;
-    background:linear-gradient(90deg, var(--p1), var(--p2), var(--p3)); }
-  .claim { position:relative; margin-top:34px; border-top:0; }
-  .claim div { border-color:color-mix(in oklab, var(--p2) 18%, var(--line)); }
-  .claim dt { color:var(--p1); }
-  .claim dd { font-size:15px; }
-  .open { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); grid-template-areas:"fig head"; gap:34px; align-items:start; margin-bottom:34px; }
-  .open > figure { grid-area:fig; margin:0; }
-  .open > .head { grid-area:head; }
-  .no { display:block; font-size:34px; line-height:1; color:var(--p2); letter-spacing:.04em; }
-  h2 { margin:13px 0 13px; font:400 23px/1.3 var(--mono); letter-spacing:.08em; }
-  .head p { font-size:17px; line-height:1.65; }
-  h3 { display:flex; justify-content:space-between; gap:13px; margin:55px 0 13px; font:400 13px/1.6 var(--mono); letter-spacing:.14em; color:var(--bone); }
-  h3 small { font-size:12px; letter-spacing:0; color:var(--dim); text-align:right; }
+  main { position:relative; z-index:1; }
+  section { position:relative; padding:0 48px; margin:34vh 0 0; display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 33rem) minmax(0, 1.5fr); column-gap:56px; }
+  section > * { grid-column:2; }
+  .kick { grid-column:1; justify-self:end; display:flex; align-items:baseline; gap:14px; position:sticky; top:42vh; align-self:start; margin:0; text-align:right; }
+  .kick h2 { margin:0; font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; }
+  .ring { width:13px; height:13px; flex:none; border-radius:50%; background:var(--film); align-self:center;
+    -webkit-mask:radial-gradient(circle, transparent 5px, #000 5.5px, #000 6.2px, transparent 6.7px); mask:radial-gradient(circle, transparent 5px, #000 5.5px, #000 6.2px, transparent 6.7px); }
+  p { margin:0 0 1.05em; }
+  .quiet { color:var(--dim); }
+  .say { font-size:25px; line-height:1.42; font-weight:300; color:var(--bone); }
 
-  /* 01 the wall text, in its own panel: the mark and the label left, the statement right */
-  .wall { position:relative; display:grid; grid-template-columns:200px minmax(0, 1fr); gap:34px; padding:34px; border:1px solid color-mix(in oklab, var(--p2) 22%, var(--line)); border-radius:3px;
-    background:linear-gradient(135deg, color-mix(in oklab, var(--p1) 7%, var(--mass)), color-mix(in oklab, var(--p2) 6%, var(--mass)) 50%, color-mix(in oklab, var(--p3) 7%, var(--mass))); }
-  .wall::before { content:""; position:absolute; left:34px; right:34px; top:-1px; height:1px; background:linear-gradient(90deg, var(--p1), var(--p2), var(--p3)); }
-  .wall figure { margin:0 0 21px; }
-  .tomb { margin:0; padding:13px 0 0; list-style:none; border-top:1px solid var(--line); font-size:12px; line-height:1.6; color:var(--dim); }
-  .tomb li:first-child { color:var(--bone); }
-  .wall .say p { font-size:17px; line-height:1.65; }
-  .wall .say p:last-child { margin:21px 0 0; font-size:13px; color:var(--dim); }
+  /* the opening */
+  .hero { min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 13vh; }
+  .hero .where { position:absolute; left:48px; top:64px; margin:0; }
+  .hero h1 { margin:0; font:300 clamp(64px, 12.4vw, 210px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
+  .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
+  .hero .sub { margin:.5em 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
+  .hero .lede { margin:1.6em 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
+  .hero .sync { margin:1.4em 0 0 .15em; }
+  .hero .cue { position:absolute; left:50%; bottom:46px; transform:translateX(-50%); margin:0; }
+  .hero .cue::after { content:""; display:block; width:1px; height:34px; margin:10px auto 0; background:linear-gradient(var(--dim), transparent); animation:fall 2.6s ease-in-out infinite; }
+  @keyframes fall { 0% { transform:scaleY(0); transform-origin:top; } 50% { transform:scaleY(1); transform-origin:top; } 51% { transform-origin:bottom; } 100% { transform:scaleY(0); transform-origin:bottom; } }
+  .thesis { margin-top:22vh; }
+  .thesis p { font:300 clamp(28px, 3.1vw, 44px)/1.22 var(--serif); color:var(--bone); max-width:16em; }
+  .thesis p.quiet { color:var(--dim); font-style:italic; }
+  .thesis { grid-template-columns:minmax(0, 1fr) minmax(0, 46rem) minmax(0, .8fr); }
 
-  /* a word a stranger trips on: a card on hover, focus or tap; inline on paper */
-  .term { position:relative; border-bottom:1px dotted var(--dim); cursor:help; }
-  .card { display:none; position:absolute; left:0; top:1.75em; z-index:2; width:240px; padding:8px 13px; border:1px solid var(--line); border-radius:3px;
-    background:var(--mass); color:var(--bone); font-size:13px; line-height:1.6; }
-  .term:hover .card, .term:focus .card { display:block; }
+  /* after House of Leaves (Danielewski): the word is coloured wherever it falls, notes open in the margin and inside each other, edits stay struck, a line falls in */
+  .h { background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; }
+  sup.fn { font:400 10.5px/0 var(--mono); color:#cfc4fb; margin-left:2px; vertical-align:super; }
+  .note { grid-column:3; align-self:start; max-width:19rem; margin:.35em 0 0; font:300 12.5px/1.75 var(--mono); letter-spacing:.02em; color:var(--dim); }
+  .note b { font-weight:400; color:#cfc4fb; margin-right:.6em; }
+  .note .note { margin:.9em 0 0 1.4em; padding-left:.9em; border-left:1px solid rgba(207,196,251,.3); }
+  s { text-decoration-color:var(--ro); text-decoration-thickness:1px; color:var(--dim); }
+  .mirror { transform:scaleX(-1); opacity:.28; margin-top:-.7em; filter:blur(.3px); }
+  .fall { margin:1.6em 0 2.4em; font-style:italic; font-weight:300; color:var(--bone); }
+  .fall span { display:block; line-height:1.15; }
+  .fall .ring { display:inline-block; margin:.6em 0 0; }
 
-  /* figures step in on both sides. pictures: the text measure less 21 px a side; labels 12 px or more at any width */
-  figure { margin:21px 21px 0; }
-  figure + p, .fig + p, table + p, .after, .row + p, .in + p { margin-top:21px; }
-  .in { margin:21px 21px 0; } .cap.in { margin-top:8px; }
-  .fig { margin:34px auto 0; max-width:440px; }
-  img { display:block; width:100%; height:auto; border-radius:3px; background:#000; box-shadow:0 0 21px -8px color-mix(in oklab, var(--p2) 45%, transparent); }
-  figcaption, .cap { margin:8px 0 0; font-size:12px; line-height:1.6; color:var(--dim); }
-  svg { display:block; width:100%; height:auto; }
-  svg text { font-family:var(--mono); }
-  .t-n { font-size:13px; fill:var(--bone); }
-  .t-g { font-size:12px; fill:var(--dim); }
-  /* the drawings are instruments (Kat's pick, "a instrument", 17 Nov 2026): measured sections at true radii, hairlines, dotted
-     construction, ticks, mono readouts, the piece's clocks traced as its code runs them (about_figs.py). Pearl marks one thing:
-     the water as it runs now (the k 0.25 ring, the clock's trace, a built stream). The basin's edge is implied, as in the piece. */
-  .hl { fill:none; stroke:var(--bone); stroke-width:.8; stroke-linecap:round; stroke-linejoin:round; }
-  .hd, .dl { fill:none; stroke:var(--dim); stroke-width:.7; stroke-linecap:round; }
-  .cn { fill:none; stroke:var(--dim); stroke-width:.6; stroke-dasharray:1 3; stroke-linecap:round; }
-  .tk { fill:none; stroke:var(--dim); stroke-width:.6; }
-  .grid, .rule { fill:none; stroke:var(--line); stroke-width:1; }
-  .trace { fill:none; stroke:var(--bone); stroke-width:.9; stroke-linejoin:round; stroke-linecap:round; }
-  .trace-p { fill:none; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; }
-  .mass-l { fill:color-mix(in oklab, var(--p2) 6%, var(--mass)); }
-  .hole-d { fill:var(--ink); stroke:var(--bone); stroke-width:.8; }
-  .ndl { fill:var(--bone); }
-  .t-r { font-size:12px; fill:var(--bone); }
-  .node { fill:var(--ink); stroke:var(--bone); stroke-width:.8; }
-  .chev { fill:none; stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round; }
-  .s-c { stop-color:var(--p1); } .s-v { stop-color:var(--p2); } .s-r { stop-color:var(--p3); }
-  .hole { fill:var(--hole); }
-  .faint { opacity:.35; }
-  .tw { transform-box:view-box; transform:rotate(31.51deg); }
-  .face { opacity:.5; }
+  /* the label on the wall */
+  .label { margin:0 0 2.2em; }
+  .label b { font-weight:400; color:var(--bone); }
 
-  /* the drawings' motion, the piece's own: slow in, slow out, time that stalls and then slips. Each element's resting style is its
-     end state, so reduced motion and print simply stop the animation. Off screen a drawing rests (.idle). */
-  .bead { fill:none; stroke:var(--bone); stroke-width:4; stroke-linecap:round; stroke-dasharray:.01 12.5; }
-  .mv .flow { stroke-dasharray:1 3; animation:stall 46s linear infinite; }
-  .mv .glide { animation:glide 2.5s cubic-bezier(.6,0,.4,1) infinite; }
-  .mv .tw { animation:twist 57.1s linear infinite; }
-  .mv .scroll102 { animation:scroll102 102s linear infinite; }
-  .mv .step5 { animation:frame5 10s steps(4, jump-none) infinite; }
-  .mv .blade { transform-box:view-box; animation:blade 34s ease-in-out infinite; }
-  .mv .face { animation:face 21.7s linear infinite; }
-  .mv .clearb { animation:clearb 9s ease-in-out infinite; }
-  .mv .breathe { animation:breathe 9s ease-in-out infinite; }
-  .mv .draw { stroke-dasharray:100; animation:draw 34s ease-in-out infinite; }
-  .mv .sleep { animation:sleep 34s ease-in-out infinite; }
-  .mv .wake { animation:wake 34s ease-in-out infinite; }
-  .mv .flow.sleep { animation:stall 46s linear infinite, sleep 34s ease-in-out infinite; }
-  .mv .reach { transform-box:view-box; animation:reach 21s ease-in-out infinite; }
-  .mv .ripple { transform-box:view-box; animation:ripple 8s cubic-bezier(.2,.6,.3,1) infinite; }
-  .mv .ripple.d2 { animation-delay:-2.7s; } .mv .ripple.d3 { animation-delay:-5.4s; }
-  .mv.idle * { animation-play-state:paused; }
-  @keyframes stall { 0% { stroke-dashoffset:0; } 40% { stroke-dashoffset:-40; } 52% { stroke-dashoffset:-42; } 60% { stroke-dashoffset:-56; } 100% { stroke-dashoffset:-100; } }
-  @keyframes glide { from { stroke-dashoffset:0; } to { stroke-dashoffset:-12.5; } }
-  @keyframes breathe { 0%, 100% { opacity:1; } 45%, 60% { opacity:.15; } }
-  @keyframes draw { 0% { stroke-dashoffset:100; opacity:1; } 70%, 92% { stroke-dashoffset:0; opacity:1; } 100% { stroke-dashoffset:0; opacity:0; } }
-  @keyframes sleep { 0%, 50%, 100% { opacity:1; } 60%, 90% { opacity:.12; } }
-  @keyframes wake { 0%, 50%, 100% { opacity:.45; } 60%, 90% { opacity:1; } }
-  @keyframes reach { 0%, 100% { transform:rotate(-16deg); } 35%, 75% { transform:rotate(0deg); } }
-  @keyframes ripple { 0% { transform:scale(.2); opacity:0; } 20% { opacity:.9; } 100% { transform:scale(1); opacity:0; } }
-  /* figure keyframes, generated by about_figs.py from the piece's own clocks */
-  @keyframes frame5 { from { transform:translateX(0); } to { transform:translateX(180px); } }
-  @keyframes twist { 0.00% { transform:rotate(31.51deg); } 4.17% { transform:rotate(35.22deg); } 8.33% { transform:rotate(38.67deg); } 12.50% { transform:rotate(41.64deg); } 16.67% { transform:rotate(43.92deg); } 20.83% { transform:rotate(45.35deg); } 25.00% { transform:rotate(45.84deg); } 29.17% { transform:rotate(45.35deg); } 33.33% { transform:rotate(43.92deg); } 37.50% { transform:rotate(41.64deg); } 41.67% { transform:rotate(38.67deg); } 45.83% { transform:rotate(35.22deg); } 50.00% { transform:rotate(31.51deg); } 54.17% { transform:rotate(27.81deg); } 58.33% { transform:rotate(24.35deg); } 62.50% { transform:rotate(21.38deg); } 66.67% { transform:rotate(19.11deg); } 70.83% { transform:rotate(17.68deg); } 75.00% { transform:rotate(17.19deg); } 79.17% { transform:rotate(17.68deg); } 83.33% { transform:rotate(19.11deg); } 87.50% { transform:rotate(21.38deg); } 91.67% { transform:rotate(24.35deg); } 95.83% { transform:rotate(27.81deg); } 100.00% { transform:rotate(31.51deg); } }
-  @keyframes scroll102 { from { transform:translateX(0); } to { transform:translateX(-420.00px); } }
-  @keyframes blade { 0%, 50%, 100% { transform:rotate(0deg); } 60%, 90% { transform:rotate(-67.4deg); } }
-  @keyframes face { 0% { opacity:0.482; } 5% { opacity:0.500; } 10% { opacity:0.469; } 15% { opacity:0.397; } 20% { opacity:0.301; } 25% { opacity:0.201; } 30% { opacity:0.114; } 35% { opacity:0.053; } 40% { opacity:0.018; } 45% { opacity:0.003; } 50% { opacity:0.000; } 55% { opacity:0.000; } 60% { opacity:0.000; } 65% { opacity:0.006; } 70% { opacity:0.025; } 75% { opacity:0.067; } 80% { opacity:0.136; } 85% { opacity:0.228; } 90% { opacity:0.329; } 95% { opacity:0.420; } 100% { opacity:0.482; } }
-  @keyframes clearb { 0%, 40%, 100% { opacity:.18; } 55%, 75% { opacity:1; } }
-  @media (prefers-reduced-motion: reduce) { .mv * { animation:none !important; } }
-
-  /* rows of pictures: a count that fills its rows */
-  .row { display:grid; gap:8px; }
+  /* pictures, drawn as dots */
+  figure { margin:2.4em 0 2.6em; }
+  figure.dots canvas { display:block; width:100%; }
+  figcaption { margin-top:12px; }
+  .row { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin:2.4em 0 2.6em; }
+  .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .row figure { margin:0; }
-  .c2 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
-  .c3 { grid-template-columns:repeat(3, minmax(0, 1fr)); }
-  .c4 { grid-template-columns:repeat(4, minmax(0, 1fr)); }
-  .glass { aspect-ratio:4 / 3; border-radius:3px; background:#000; border:1px solid var(--line); }
-  .sum { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap:8px; align-items:start; }
-  .sum figure { margin:0; }
-  .sum > span { padding-top:13%; color:var(--dim); }
-  .pick { outline:1px dashed var(--bone); outline-offset:2px; }
+  .wide { grid-column:2 / 4; max-width:46rem; }
 
-  /* tables: one row per thing */
-  table { width:100%; border-collapse:collapse; font-size:13px; line-height:1.6; margin-top:21px; }
-  th, td { padding:8px 13px 8px 0; text-align:left; vertical-align:top; font-weight:400; border-bottom:1px solid var(--line); }
-  thead th { color:var(--dim); font-size:12px; letter-spacing:.06em; }
-  tbody th { color:var(--bone); }
-  tbody td { color:var(--dim); }
-  th:last-child, td:last-child { padding-right:0; }
-  .st { width:21px; padding-right:0; }
-  .lin tbody th { color:var(--dim); } .lin tbody td:last-child { color:var(--bone); }
-  .moves .n { width:21px; color:var(--dim); }
-  .moves th span { display:block; margin-top:3px; color:var(--dim); }
-  .moves .ev { width:46%; }
-  .moves .ev figcaption { margin-top:3px; }
-  .moves pre, .code { margin:0; font:13px/1.75 var(--mono); color:var(--bone); white-space:pre-wrap; }
-  .code { margin:21px 21px 0; padding:13px; border:1px solid var(--line); border-radius:3px; }
-  .mark { display:inline-block; position:relative; width:10px; height:10px; border-radius:50%; vertical-align:-1px; }
-  .mark.on, .mark.was::after { background:linear-gradient(135deg, var(--p1), var(--p2), var(--p3)); }
-  .mark.was { border:1px solid transparent; background:linear-gradient(var(--ink), var(--ink)) padding-box, linear-gradient(135deg, var(--p1), var(--p2), var(--p3)) border-box; }
-  .mark.was::after { content:""; position:absolute; inset:2px; border-radius:50%; }
-  .mark.off { border:1px solid var(--dim); }
-  .key { display:flex; flex-wrap:wrap; gap:3px 21px; margin:13px 0 0; color:var(--dim); font-size:12px; }
-  .key .mark { margin-right:8px; }
-  .key > span { white-space:nowrap; }
+  /* lists: steps, moves, works, supplies */
+  ol, dl { list-style:none; margin:1.8em 0 2.2em; padding:0; }
+  .steps li { display:grid; grid-template-columns:3.2em minmax(0, 1fr); column-gap:10px; padding:14px 0; border-top:1px solid rgba(228,223,210,.10); }
+  .steps li:last-child { border-bottom:1px solid rgba(228,223,210,.10); }
+  .steps .n { font:300 12px/2.3 var(--mono); color:var(--dim); }
+  .steps h3 { display:inline; margin:0; font:400 21px/1.4 var(--serif); color:var(--bone); }
+  .steps .ai { margin-left:.7em; font:300 11.5px/1 var(--mono); letter-spacing:.06em; color:var(--dim); }
+  .steps .ai.on { color:#bfeef7; }
+  .steps p { grid-column:2; margin:.25em 0 0; font-size:18.5px; color:var(--dim); }
+  .steps p code { font-size:12.5px; }
+  .lin li { display:grid; grid-template-columns:1.6em minmax(0, 1fr); column-gap:8px; padding:12px 0; border-top:1px solid rgba(228,223,210,.10); }
+  .lin li:last-child { border-bottom:1px solid rgba(228,223,210,.10); }
+  .lin .who { color:var(--bone); }
+  .lin .takes { grid-column:2; color:var(--dim); font-style:italic; font-size:18.5px; }
+  .mk { width:9px; height:9px; margin-top:.55em; border-radius:50%; }
+  .mk.on { background:var(--film); }
+  .mk.off { background:var(--film); -webkit-mask:radial-gradient(circle, transparent 3.2px, #000 3.7px); mask:radial-gradient(circle, transparent 3.2px, #000 3.7px); }
+  .key { display:flex; gap:22px; align-items:center; margin:-1em 0 2em; }
+  .key span { display:inline-flex; align-items:center; gap:8px; }
+  .key .mk { margin:0; }
+  .supply div { display:grid; grid-template-columns:minmax(0, 11em) minmax(0, 1fr); column-gap:18px; padding:10px 0; border-top:1px solid rgba(228,223,210,.10); }
+  .supply dt { color:var(--bone); } .supply dd { margin:0; color:var(--dim); font-size:18.5px; }
+  .built li { display:flex; align-items:baseline; gap:12px; padding:5px 0; }
+  .built .mk { flex:none; margin-top:0; transform:translateY(-1px); }
 
-  /* a spec sheet: label left, value right, one row per need */
-  .spec { margin:21px 0 0; padding:0; border-top:1px solid var(--line); font-size:13px; line-height:1.6; }
-  .spec div { display:grid; grid-template-columns:144px minmax(0, 1fr); gap:13px; padding:8px 0; border-bottom:1px solid var(--line); }
-  .spec dt { color:var(--dim); letter-spacing:.06em; }
-  .spec dd { margin:0; }
+  /* the live piece */
+  .live { position:relative; aspect-ratio:4/3; margin:2.4em 0 1.2em; overflow:hidden; border-radius:50%/37.5%; box-shadow:0 0 0 1px rgba(228,223,210,.08); }
+  .live iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--ink); }
+  .foot { margin:30vh 0 0; padding-bottom:18vh; }
+  .foot ul { list-style:none; margin:0 0 2.6em; padding:0; }
+  .foot li { padding:4px 0; }
+  .foot .sign { font:300 italic 30px/1.2 var(--serif); color:var(--bone); margin-top:2.6em; }
 
-  /* how the water is made: one dream, step by step */
-  .steps { margin:0; padding:0; list-style:none; }
-  .steps > li { margin-top:34px; }
-  .steps h3 { margin:0 0 8px; }
+  /* reveals: a block rises a little as it comes into view */
+  .rv [data-r] { transition:opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .rv [data-r]:not(.up) { opacity:0; transform:translateY(14px); }
+  @media (prefers-reduced-motion:reduce) { .hero .cue::after { animation:none; } html { scroll-behavior:auto; } }
 
-  .foot { margin-top:89px; padding-top:21px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; justify-content:space-between; gap:13px 34px; }
-  .foot p { margin:0; }
-  .links { margin:0; padding:0; list-style:none; display:flex; gap:21px; }
-  .works { margin:0; padding:0; list-style:none; }
-  .works li { margin-bottom:8px; }
-
-  @media (max-width:700px) {
-    .basin { height:min(84vh, 100vw); }
-    h1 { font-size:21px; letter-spacing:.1em; }
-    .lede { font-size:17px; }
-    .open { grid-template-columns:minmax(0, 1fr); grid-template-areas:"head" "fig"; gap:21px; }
-    .open > figure { max-width:440px; }
-    .wall { grid-template-columns:minmax(0, 1fr); gap:21px; padding:21px; }
-    .wall::before { left:21px; right:21px; }
-    .wall figure { max-width:200px; }
-    figure, .code, .in { margin-left:0; margin-right:0; }
-    .c4 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
-    .c3.big { grid-template-columns:repeat(2, minmax(0, 1fr)); } .c3.big > :first-child { grid-column:1 / -1; }
-    thead tr, tbody tr { display:grid; grid-template-columns:21px 1fr; padding:8px 0; border-bottom:1px solid var(--line); }
-    th, td { display:block; grid-column:2; width:auto; padding:0; border:0; }
-    .st, .moves .n { grid-column:1; grid-row:1 / 4; }
-    .moves .ev { width:auto; margin-top:8px; }
-    thead th:empty { display:none; }
-    .spec div { grid-template-columns:minmax(0, 1fr); gap:0; }
-    h3 { display:block; } h3 small { display:block; text-align:left; }
-    .foot { display:block; } .links { margin-top:13px; font-size:14px; }
+  @media (max-width:960px) {
+    section { grid-template-columns:minmax(0, 1fr); padding:0 28px; margin-top:22vh; }
+    section > *, .wide, .kick, .note { grid-column:1; }
+    .note { margin:-.4em 0 1.6em 1.2em; padding-left:.9em; border-left:1px solid rgba(207,196,251,.3); max-width:none; }
+    .kick { position:static; justify-self:start; text-align:left; margin-bottom:1.6em; }
+    .thesis { grid-template-columns:minmax(0, 1fr); }
+    .bar { left:28px; right:28px; } #lost { left:28px; }
+    .hero { padding:0 28px 15vh; } .hero .where { left:28px; top:56px; }
   }
-  @page { size:8.5in 11in; margin:.7in .8in;
-    @top-left { content:"[syn[k]]hole, dry season  katherine titterton"; font:8pt ui-monospace, Menlo, monospace; color:#5b6166; }
-    @bottom-right { content:counter(page) " / " counter(pages); font:8pt ui-monospace, Menlo, monospace; color:#5b6166; } }
-  @media print {
-    :root { --ink:#fff; --bone:#14171a; --dim:#5b6166; --line:#c9cdd1; --mass:#f6f7f7; --rim:#dfe3e5; --hole:#fff;
-      --p1:#0092ba; --p2:#684cd6; --p3:#d2347c; color-scheme:light; }
-    * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-    .mv * { animation:none !important; }
-    img { box-shadow:none; }
-    html, body { background:#fff; }
-    body { font-size:9pt; line-height:1.5; }
-    .wrap { max-width:none; padding:0; }
-    .meta { padding:0 0 6pt; font-size:7.5pt; }
-    .hero { max-width:none; }
-    .basin { display:none; }
-    .still { display:block; width:100%; height:2.4in; object-fit:cover; }
-    .waterline { margin-bottom:10pt; }
-    h1 { font-size:17pt; margin-bottom:4pt; } .lede { font-size:11pt; max-width:none; } .epi { font-size:8pt; margin-bottom:6pt; }
-    p { margin-bottom:6pt; orphans:3; widows:3; }
-    section { margin-top:16pt; padding-top:8pt; }
-    .open { gap:16pt; margin-bottom:8pt; break-inside:avoid; }
-    .no { font-size:15pt; } h2 { font-size:12pt; margin:4pt 0 6pt; } .head p { font-size:9.5pt; }
-    h3 { margin:12pt 0 4pt; font-size:8pt; break-after:avoid; } h3 small { font-size:7.5pt; }
-    .wall { padding:12pt; gap:16pt; grid-template-columns:1.7in minmax(0, 1fr); break-inside:avoid; }
-    .wall::before { left:12pt; right:12pt; }
-    .wall figure { margin-bottom:8pt; }
-    .wall .say p { font-size:9.5pt; } .wall .say p:last-child { font-size:8pt; margin-top:8pt; }
-    .tomb { font-size:7.5pt; padding-top:6pt; }
-    .term { border:0; }
-    .card { display:inline; position:static; width:auto; padding:0; border:0; background:none; font-size:inherit; color:var(--dim); }
-    .card::before { content:" ("; } .card::after { content:")"; }
-    figure, .fig, tr, .sum, .row, .code, .foot, .pair, .spec div { break-inside:avoid; }
-    figure { margin:8pt auto 0; max-width:2.6in; }
-    .fig { max-width:3in; margin-top:8pt; }
-    .open > figure { max-width:none; margin:0; }
-    .pair { display:grid; grid-template-columns:1fr 1fr; gap:13pt; align-items:end; }
-    .pair .fig { max-width:none; margin-top:0; }
-    .in { margin:8pt auto 0; max-width:5.4in; } .cap.in { max-width:none; margin-top:4pt; }
-    .c3 { max-width:4.2in; } .c3.big { grid-template-columns:repeat(3, minmax(0, 1fr)); } .c3.big > :first-child { grid-column:auto; } .sum { max-width:4.4in; }
-    .row figure { max-width:none; margin:0; }
-    figure + p, .fig + p, table + p, .after, .row + p, .in + p { margin-top:8pt; }
-    figcaption, .cap, .key { font-size:7.5pt; margin-top:3pt; }
-    table { font-size:8pt; margin-top:8pt; } th, td { padding:4pt 8pt 4pt 0; }
-    thead th { font-size:7.5pt; }
-    .moves .ev { width:34%; } .moves pre { font-size:8pt; }
-    .code { font-size:8pt; padding:6pt 8pt; margin:8pt 0 0; }
-    .spec { font-size:8pt; margin-top:6pt; } .spec div { padding:3pt 0; grid-template-columns:1.4in minmax(0, 1fr); }
-    .steps > li { margin-top:10pt; break-inside:avoid; }
-    .foot { display:block; margin-top:16pt; padding-top:6pt; } .links { display:block; margin-top:6pt; }
-    .lin tbody th::after { content:attr(data-u); display:block; font-size:7.5pt; overflow-wrap:anywhere; }
-    .foot a[href^="http"]::after, .works a::after, .url[href^="http"]::after { content:"  " attr(href); color:var(--dim); font-size:7.5pt; overflow-wrap:anywhere; }
+  @media (max-width:600px) {
+    body { font-size:18.5px; }
+    section { padding:0 20px; margin-top:18vh; }
+    .bar { left:24px; right:24px; top:20px; } #lost { left:24px; bottom:19px; }
+    .frame i { width:16px; height:16px; }
+    .frame i:nth-child(1), .frame i:nth-child(3) { left:10px; } .frame i:nth-child(2), .frame i:nth-child(4) { right:10px; }
+    .frame i:nth-child(1), .frame i:nth-child(2) { top:10px; } .frame i:nth-child(3), .frame i:nth-child(4) { bottom:10px; }
+    .hero { padding:0 20px 17vh; } .hero .where { left:20px; top:50px; }
+    .hero .lede { font-size:19px; }
+    .say { font-size:22px; }
+    .row { grid-template-columns:minmax(0, 1fr); gap:28px; } .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+    .steps li { grid-template-columns:2.6em minmax(0, 1fr); }
+    .steps h3 { font-size:19.5px; } .steps p, .lin .takes, .supply dd { font-size:17.5px; }
+    .supply div { grid-template-columns:minmax(0, 1fr); }
   }
+  @media print { #field, .frame, .bar, #lost, .cue, .live { display:none; } body { background:#fff; color:#111; } .rv [data-r] { opacity:1; transform:none; } }
 </style>
 </head>
 <body>
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<nav class="bar mono"><a data-piece="frame" href="index.html">[syn[k]]hole</a><span id="count" aria-hidden="true">00 / 08</span></nav>
+<p id="lost" class="mono" aria-hidden="true">lost = <b>00:00</b></p>
 
-<div class="meta"><span>currents 2027, installations</span><span>el museo cultural de santa fe, railyard art district, june 2027</span></div>
-<div class="hero">
-  <iframe class="basin" data-piece="frame" title="the piece, live: a basin seen from above. water runs from the tap to the drain, carrying a dream. press and hold to reach in." loading="eager"></iframe>
-  <img class="still" src="doc/water.webp" width="1280" height="960" alt="the basin seen from above: pale water with a pearl sheen turns round a small black drain, bubbles at its edge.">
-</div>
-
-<main class="wrap">
-<div class="waterline" aria-hidden="true"></div>
-
-<header id="piece">
-  <h1>[syn[k]]hole, dry season</h1>
-  <!-- the page that pours the water is sync.html, and the piece is a sink: one word, said twice -->
-  <pre class="epi">sync == sink</pre>
-  <p class="lede">a sink with no water in it. the water is a machine dreaming, and every day it runs out.</p>
-  <dl class="spec claim">
-    <div><dt>thesis</dt><dd>beautiful water, and inside it something nasty: near the drain, time and space stop holding.</dd></div>
-    <div><dt>takeaway</dt><dd>a dreaming machine runs on a budget, and so do we.</dd></div>
-  </dl>
-</header>
-
-<!-- 01 -->
-<section id="wall">
-  <div class="head"><span class="no">01</span><h2>wall text</h2></div>
-  <div class="wall">
-    <div>
-      <figure>
-        <svg class="mv" viewBox="0 0 200 200" role="img" aria-label="the piece as one mark, drawn to scale: water winds three times from the tap into the drain; round the drain the ring where the basin shows again, at k = 0.25, and dotted, where it sits at k = 1.">
-          <defs><linearGradient id="wm" gradientUnits="userSpaceOnUse" x1="80.8" y1="80.8" x2="119.2" y2="119.2"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-          <path class="tk" d="M186,100L193,100M185.5,109L188.5,109.3M184.1,117.9L187.1,118.5M181.8,126.6L184.6,127.5M178.6,135L181.3,136.2M174.5,143L180.5,146.5M169.6,150.5L172,152.3M163.9,157.5L166.1,159.6M157.5,163.9L159.6,166.1M150.5,169.6L152.3,172M143,174.5L146.5,180.5M135,178.6L136.2,181.3M126.6,181.8L127.5,184.6M117.9,184.1L118.5,187.1M109,185.5L109.3,188.5M100,186L100,193M91,185.5L90.7,188.5M82.1,184.1L81.5,187.1M73.4,181.8L72.5,184.6M65,178.6L63.8,181.3M57,174.5L53.5,180.5M49.5,169.6L47.7,172M42.5,163.9L40.4,166.1M36.1,157.5L33.9,159.6M30.4,150.5L28,152.3M25.5,143L19.5,146.5M21.4,135L18.7,136.2M18.2,126.6L15.4,127.5M15.9,117.9L12.9,118.5M14.5,109L11.5,109.3M14,100L7,100M14.5,91L11.5,90.7M15.9,82.1L12.9,81.5M18.2,73.4L15.4,72.5M21.4,65L18.7,63.8M25.5,57L19.5,53.5M30.4,49.5L28,47.7M36.1,42.5L33.9,40.4M42.5,36.1L40.4,33.9M49.5,30.4L47.7,28M57,25.5L53.5,19.5M65,21.4L63.8,18.7M73.4,18.2L72.5,15.4M82.1,15.9L81.5,12.9M91,14.5L90.7,11.5M100,14L100,7M109,14.5L109.3,11.5M117.9,15.9L118.5,12.9M126.6,18.2L127.5,15.4M135,21.4L136.2,18.7M143,25.5L146.5,19.5M150.5,30.4L152.3,28M157.5,36.1L159.6,33.9M163.9,42.5L166.1,40.4M169.6,49.5L172,47.7M174.5,57L180.5,53.5M178.6,65L181.3,63.8M181.8,73.4L184.6,72.5M184.1,82.1L187.1,81.5M185.5,91L188.5,90.7"/>
-          <path class="cn" d="M100,18V40M100,160V182M18,100H40M160,100H182"/>
-          <circle class="cn" cx="100" cy="100" r="46.7"/>
-          <path class="hl faint" d="M100,22L106.1,22.7L112.1,23.8L117.9,25.4L123.6,27.4L129,29.9L134.3,32.7L139.2,36L143.9,39.6L148.2,43.5L152.2,47.8L155.9,52.3L159.1,57L162,62L164.4,67.2L166.4,72.5L168,77.9L169.2,83.4L169.9,88.9L170.1,94.5L170,100L169.4,105.5L168.4,110.8L166.9,116.1L165.1,121.2L162.9,126.1L160.3,130.7L157.4,135.2L154.2,139.4L150.7,143.3L146.9,146.9L142.8,150.1L138.5,153L134.1,155.6L129.4,157.8L124.7,159.6L119.8,161L114.9,162L109.9,162.7L105,162.9L100,162.8L95.1,162.2L90.3,161.3L85.6,160L81,158.4L76.6,156.4L72.4,154.1L68.4,151.5L64.7,148.6L61.2,145.4L58,142L55,138.4L52.4,134.6L50.1,130.6L48.2,126.4L46.6,122.1L45.3,117.8L44.4,113.4L43.8,108.9L43.6,104.4L43.7,100L44.2,95.6L45,91.3L46.1,87.1L47.6,83L49.4,79L51.4,75.3L53.8,71.7L56.4,68.3L59.2,65.2L62.3,62.3L65.6,59.7L69,57.3L72.6,55.3L76.3,53.5L80.1,52.1L84.1,50.9L88,50.1L92,49.6L96,49.4L100,49.5L103.9,49.9L107.8,50.7L111.6,51.7L115.3,53L118.8,54.6L122.2,56.4L125.4,58.5L128.4,60.9L131.2,63.4L133.8,66.2L136.2,69.1L138.3,72.2L140.1,75.4L141.7,78.8L143,82.2L144,85.7L144.8,89.3L145.2,92.8L145.4,96.4L145.3,100L144.9,103.5L144.3,107L143.3,110.4L142.2,113.7L140.7,116.9L139.1,119.9L137.2,122.8L135.1,125.5L132.8,128L130.3,130.3L127.7,132.4L124.9,134.3L122.1,136L119.1,137.4L116,138.6L112.8,139.5L109.6,140.2L106.4,140.6L103.2,140.7L100,140.6L96.8,140.3L93.7,139.7L90.7,138.9L87.7,137.8L84.9,136.5L82.1,135L79.6,133.4L77.1,131.5L74.9,129.4L72.8,127.2L70.9,124.9L69.2,122.4L67.7,119.8L66.4,117.1L65.4,114.3L64.6,111.5L64,108.6L63.6,105.8L63.5,102.9L63.6,100L63.9,97.2L64.4,94.4L65.1,91.6L66.1,89L67.2,86.4L68.6,84L70.1,81.7L71.8,79.5L73.6,77.5L75.6,75.6L77.7,73.9L79.9,72.4L82.3,71L84.7,69.9L87.1,69L89.7,68.2L92.2,67.7L94.8,67.4L97.4,67.2L100,67.3L102.6,67.6L105.1,68.1L107.5,68.7L109.9,69.6L112.2,70.6L114.4,71.8L116.4,73.2L118.4,74.7L120.2,76.3L121.9,78.1L123.4,80L124.8,82L126,84.1L127,86.2L127.8,88.5L128.5,90.7L129,93L129.3,95.4L129.4,97.7L129.3,100L129.1,102.3L128.7,104.5L128.1,106.7L127.3,108.9L126.4,110.9L125.3,112.9L124.1,114.8L122.7,116.5L121.2,118.1L119.6,119.6L117.9,121L116.1,122.2L114.3,123.3L112.3,124.2L110.3,125L108.3,125.6L106.2,126L104.2,126.3L102.1,126.4L100,126.3L97.9,126.1L95.9,125.7L94,125.2L92,124.5L90.2,123.7L88.4,122.7L86.8,121.6L85.2,120.4L83.7,119L82.4,117.6L81.2,116.1L80.1,114.5L79.1,112.8L78.3,111.1L77.6,109.3L77.1,107.5L76.7,105.6L76.4,103.7L76.3,101.9L76.4,100L76.6,98.2L76.9,96.3L77.4,94.6L78,92.9L78.8,91.2L79.6,89.6L80.6,88.1L81.7,86.7L82.9,85.4L84.2,84.2L85.6,83.1L87,82.1L88.5,81.3L90.1,80.5L91.7,79.9L93.3,79.4L95,79.1L96.7,78.9L98.3,78.8L100,78.8"/>
-          <path class="hl flow" pathLength="100" d="M100,22L106.1,22.7L112.1,23.8L117.9,25.4L123.6,27.4L129,29.9L134.3,32.7L139.2,36L143.9,39.6L148.2,43.5L152.2,47.8L155.9,52.3L159.1,57L162,62L164.4,67.2L166.4,72.5L168,77.9L169.2,83.4L169.9,88.9L170.1,94.5L170,100L169.4,105.5L168.4,110.8L166.9,116.1L165.1,121.2L162.9,126.1L160.3,130.7L157.4,135.2L154.2,139.4L150.7,143.3L146.9,146.9L142.8,150.1L138.5,153L134.1,155.6L129.4,157.8L124.7,159.6L119.8,161L114.9,162L109.9,162.7L105,162.9L100,162.8L95.1,162.2L90.3,161.3L85.6,160L81,158.4L76.6,156.4L72.4,154.1L68.4,151.5L64.7,148.6L61.2,145.4L58,142L55,138.4L52.4,134.6L50.1,130.6L48.2,126.4L46.6,122.1L45.3,117.8L44.4,113.4L43.8,108.9L43.6,104.4L43.7,100L44.2,95.6L45,91.3L46.1,87.1L47.6,83L49.4,79L51.4,75.3L53.8,71.7L56.4,68.3L59.2,65.2L62.3,62.3L65.6,59.7L69,57.3L72.6,55.3L76.3,53.5L80.1,52.1L84.1,50.9L88,50.1L92,49.6L96,49.4L100,49.5L103.9,49.9L107.8,50.7L111.6,51.7L115.3,53L118.8,54.6L122.2,56.4L125.4,58.5L128.4,60.9L131.2,63.4L133.8,66.2L136.2,69.1L138.3,72.2L140.1,75.4L141.7,78.8L143,82.2L144,85.7L144.8,89.3L145.2,92.8L145.4,96.4L145.3,100L144.9,103.5L144.3,107L143.3,110.4L142.2,113.7L140.7,116.9L139.1,119.9L137.2,122.8L135.1,125.5L132.8,128L130.3,130.3L127.7,132.4L124.9,134.3L122.1,136L119.1,137.4L116,138.6L112.8,139.5L109.6,140.2L106.4,140.6L103.2,140.7L100,140.6L96.8,140.3L93.7,139.7L90.7,138.9L87.7,137.8L84.9,136.5L82.1,135L79.6,133.4L77.1,131.5L74.9,129.4L72.8,127.2L70.9,124.9L69.2,122.4L67.7,119.8L66.4,117.1L65.4,114.3L64.6,111.5L64,108.6L63.6,105.8L63.5,102.9L63.6,100L63.9,97.2L64.4,94.4L65.1,91.6L66.1,89L67.2,86.4L68.6,84L70.1,81.7L71.8,79.5L73.6,77.5L75.6,75.6L77.7,73.9L79.9,72.4L82.3,71L84.7,69.9L87.1,69L89.7,68.2L92.2,67.7L94.8,67.4L97.4,67.2L100,67.3L102.6,67.6L105.1,68.1L107.5,68.7L109.9,69.6L112.2,70.6L114.4,71.8L116.4,73.2L118.4,74.7L120.2,76.3L121.9,78.1L123.4,80L124.8,82L126,84.1L127,86.2L127.8,88.5L128.5,90.7L129,93L129.3,95.4L129.4,97.7L129.3,100L129.1,102.3L128.7,104.5L128.1,106.7L127.3,108.9L126.4,110.9L125.3,112.9L124.1,114.8L122.7,116.5L121.2,118.1L119.6,119.6L117.9,121L116.1,122.2L114.3,123.3L112.3,124.2L110.3,125L108.3,125.6L106.2,126L104.2,126.3L102.1,126.4L100,126.3L97.9,126.1L95.9,125.7L94,125.2L92,124.5L90.2,123.7L88.4,122.7L86.8,121.6L85.2,120.4L83.7,119L82.4,117.6L81.2,116.1L80.1,114.5L79.1,112.8L78.3,111.1L77.6,109.3L77.1,107.5L76.7,105.6L76.4,103.7L76.3,101.9L76.4,100L76.6,98.2L76.9,96.3L77.4,94.6L78,92.9L78.8,91.2L79.6,89.6L80.6,88.1L81.7,86.7L82.9,85.4L84.2,84.2L85.6,83.1L87,82.1L88.5,81.3L90.1,80.5L91.7,79.9L93.3,79.4L95,79.1L96.7,78.9L98.3,78.8L100,78.8"/>
-          <circle class="hl" cx="100" cy="22" r="2.5"/>
-          <circle cx="100" cy="100" r="19.2" fill="none" stroke="url(#wm)" stroke-width="1.2"/>
-          <circle class="hole-d" cx="100" cy="100" r="10"/>
-        </svg>
-      </figure>
-      <ul class="tomb">
-        <li>katherine titterton</li>
-        <li>[syn[k]]hole, dry season, 2027</li>
-        <li>a basin, a touch screen, one small computer</li>
-        <li>30 x 25 x 34 in (76 x 64 x 86 cm)</li>
-      </ul>
-    </div>
-    <div class="say">
-      <p>the most beautiful things usually have something nasty about them. here it is the drain, the [syn[k]]hole, where you lose time.</p>
-      <p>an endless feed has no bottom. this hole does. ai drinks real water and our hours. here both run out, and you get out.</p>
-      <p>it fills once each morning of the festival. every hand in this room spends it.</p>
-      <p>ai: stable diffusion 1.5 with lcm-lora dreams the water live on its own computer, toward pictures i chose by hand in midjourney.</p>
-    </div>
-  </div>
+<main>
+<section class="hero" id="top">
+  <p class="where mono">currents 2027, installations<br>el museo cultural de santa fe, june 2027</p>
+  <h1>[syn<span class="k">[k]</span>]hole</h1>
+  <p class="sub">dry season</p>
+  <p class="lede">a basin whose water is a machine dreaming.<br>every day it runs out.</p>
+  <p class="mono sync">sync == sink</p>
+  <p class="cue mono">katherine titterton</p>
 </section>
 
-<!-- 02 -->
-<section id="work">
-  <div class="open">
-    <div class="head">
-      <span class="no">02</span><h2>the work</h2>
-      <p>in the basin a screen pours a <span class="term" tabindex="0">vanitas<span class="card" role="tooltip">the old still life of skulls, flowers and soap bubbles</span></span> still life that won't hold still, one frame about every 2.5 seconds: slow for a computer, about right for a tide pool. come close.</p>
-    </div>
-    <figure>
-      <svg class="mv" viewBox="0 0 360 240" role="img" aria-label="the basin from above, to scale: the tap pours a little above the drain, and the current winds one and a half turns into it, a dream carried along it; one frame about every 2.5 seconds; a hand rests in the water.">
-        <defs><linearGradient id="pw" gradientUnits="userSpaceOnUse" x1="164.9" y1="86.9" x2="195.1" y2="117.1"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-        <path class="hd" d="M56.5,11.6H48.5M59.5,8.6V0.6M303.5,11.6H311.5M300.5,8.6V0.6M56.5,192.4H48.5M59.5,195.4V203.4M303.5,192.4H311.5M300.5,195.4V203.4"/>
-        <rect class="cn" x="59.5" y="11.6" width="241" height="180.8"/>
-        <path class="hl faint" d="M180,53.2L181.9,53.4L183.8,53.8L185.7,54.2L187.5,54.7L189.3,55.2L191.1,55.8L192.8,56.5L194.5,57.2L196.2,58L197.9,58.9L199.4,59.8L201,60.8L202.5,61.8L203.9,62.9L205.3,64.1L206.7,65.3L208,66.5L209.2,67.8L210.4,69.1L211.5,70.5L212.6,71.9L213.6,73.3L214.6,74.8L215.4,76.2L216.3,77.8L217,79.3L217.7,80.9L218.3,82.5L218.9,84.1L219.4,85.7L219.8,87.3L220.2,88.9L220.5,90.6L220.7,92.2L220.9,93.9L221,95.5L221,97.1L221,98.8L220.9,100.4L220.8,102L220.6,103.6L220.3,105.2L219.9,106.7L219.5,108.3L219.1,109.8L218.6,111.3L218,112.7L217.4,114.2L216.7,115.5L216,116.9L215.2,118.2L214.4,119.5L213.5,120.8L212.6,122L211.7,123.2L210.7,124.3L209.7,125.4L208.6,126.4L207.5,127.4L206.3,128.3L205.2,129.2L204,130.1L202.8,130.9L201.5,131.6L200.2,132.3L198.9,132.9L197.6,133.5L196.3,134L195,134.5L193.6,134.9L192.3,135.3L190.9,135.6L189.5,135.8L188.2,136L186.8,136.2L185.4,136.2L184.1,136.3L182.7,136.2L181.3,136.2L180,136L178.7,135.9L177.4,135.6L176.1,135.4L174.8,135L173.5,134.6L172.3,134.2L171,133.8L169.9,133.2L168.7,132.7L167.5,132.1L166.4,131.4L165.4,130.7L164.3,130L163.3,129.3L162.3,128.5L161.4,127.6L160.5,126.8L159.6,125.9L158.8,125L158,124L157.3,123L156.6,122L155.9,121L155.3,120L154.7,118.9L154.2,117.8L153.7,116.7L153.3,115.6L152.9,114.5L152.5,113.4L152.2,112.2L152,111.1L151.8,110L151.6,108.8L151.5,107.7L151.4,106.5L151.4,105.4L151.4,104.3L151.5,103.1L151.6,102L151.7,100.9L151.9,99.8L152.1,98.7L152.4,97.6L152.7,96.6L153.1,95.5L153.5,94.5L153.9,93.5L154.4,92.5L154.9,91.6L155.4,90.7L156,89.8L156.6,88.9L157.2,88.1L157.9,87.2L158.6,86.4L159.3,85.7L160.1,85L160.8,84.3L161.6,83.6L162.4,83L163.3,82.4L164.1,81.9L165,81.4L165.9,80.9L166.8,80.4L167.7,80L168.6,79.7L169.6,79.3L170.5,79L171.4,78.8L172.4,78.6L173.3,78.4L174.3,78.3L175.3,78.2L176.2,78.1L177.2,78.1L178.1,78.1L179.1,78.2L180,78.3L180.9,78.4L181.8,78.5L182.8,78.7L183.6,79L184.5,79.2L185.4,79.5L186.2,79.9L187.1,80.2L187.9,80.6L188.7,81L189.5,81.5L190.2,82L190.9,82.5L191.7,83L192.3,83.5L193,84.1L193.6,84.7L194.2,85.3L194.8,86L195.3,86.7L195.9,87.3L196.4,88L196.8,88.7L197.2,89.5L197.6,90.2L198,91L198.3,91.7L198.7,92.5L198.9,93.3L199.2,94.1L199.4,94.9L199.6,95.6L199.7,96.4L199.8,97.2L199.9,98L199.9,98.8L200,99.6L200,100.4L199.9,101.2L199.8,102L199.7,102.8L199.6,103.5L199.4,104.3L199.2,105L199,105.8L198.8,106.5L198.5,107.2L198.2,107.9L197.9,108.6L197.5,109.3L197.1,109.9L196.7,110.5L196.3,111.1L195.9,111.7L195.4,112.3L194.9,112.8L194.4,113.4L193.9,113.9L193.4,114.4L192.8,114.8L192.2,115.3L191.7,115.7L191.1,116L190.5,116.4L189.8,116.7L189.2,117L188.6,117.3L187.9,117.6L187.3,117.8L186.6,118L186,118.2L185.3,118.3L184.6,118.5L184,118.5L183.3,118.6L182.6,118.7L182,118.7L181.3,118.7L180.7,118.6L180,118.6"/>
-        <path class="bead glide" pathLength="100" d="M180,53.2L181.9,53.4L183.8,53.8L185.7,54.2L187.5,54.7L189.3,55.2L191.1,55.8L192.8,56.5L194.5,57.2L196.2,58L197.9,58.9L199.4,59.8L201,60.8L202.5,61.8L203.9,62.9L205.3,64.1L206.7,65.3L208,66.5L209.2,67.8L210.4,69.1L211.5,70.5L212.6,71.9L213.6,73.3L214.6,74.8L215.4,76.2L216.3,77.8L217,79.3L217.7,80.9L218.3,82.5L218.9,84.1L219.4,85.7L219.8,87.3L220.2,88.9L220.5,90.6L220.7,92.2L220.9,93.9L221,95.5L221,97.1L221,98.8L220.9,100.4L220.8,102L220.6,103.6L220.3,105.2L219.9,106.7L219.5,108.3L219.1,109.8L218.6,111.3L218,112.7L217.4,114.2L216.7,115.5L216,116.9L215.2,118.2L214.4,119.5L213.5,120.8L212.6,122L211.7,123.2L210.7,124.3L209.7,125.4L208.6,126.4L207.5,127.4L206.3,128.3L205.2,129.2L204,130.1L202.8,130.9L201.5,131.6L200.2,132.3L198.9,132.9L197.6,133.5L196.3,134L195,134.5L193.6,134.9L192.3,135.3L190.9,135.6L189.5,135.8L188.2,136L186.8,136.2L185.4,136.2L184.1,136.3L182.7,136.2L181.3,136.2L180,136L178.7,135.9L177.4,135.6L176.1,135.4L174.8,135L173.5,134.6L172.3,134.2L171,133.8L169.9,133.2L168.7,132.7L167.5,132.1L166.4,131.4L165.4,130.7L164.3,130L163.3,129.3L162.3,128.5L161.4,127.6L160.5,126.8L159.6,125.9L158.8,125L158,124L157.3,123L156.6,122L155.9,121L155.3,120L154.7,118.9L154.2,117.8L153.7,116.7L153.3,115.6L152.9,114.5L152.5,113.4L152.2,112.2L152,111.1L151.8,110L151.6,108.8L151.5,107.7L151.4,106.5L151.4,105.4L151.4,104.3L151.5,103.1L151.6,102L151.7,100.9L151.9,99.8L152.1,98.7L152.4,97.6L152.7,96.6L153.1,95.5L153.5,94.5L153.9,93.5L154.4,92.5L154.9,91.6L155.4,90.7L156,89.8L156.6,88.9L157.2,88.1L157.9,87.2L158.6,86.4L159.3,85.7L160.1,85L160.8,84.3L161.6,83.6L162.4,83L163.3,82.4L164.1,81.9L165,81.4L165.9,80.9L166.8,80.4L167.7,80L168.6,79.7L169.6,79.3L170.5,79L171.4,78.8L172.4,78.6L173.3,78.4L174.3,78.3L175.3,78.2L176.2,78.1L177.2,78.1L178.1,78.1L179.1,78.2L180,78.3L180.9,78.4L181.8,78.5L182.8,78.7L183.6,79L184.5,79.2L185.4,79.5L186.2,79.9L187.1,80.2L187.9,80.6L188.7,81L189.5,81.5L190.2,82L190.9,82.5L191.7,83L192.3,83.5L193,84.1L193.6,84.7L194.2,85.3L194.8,86L195.3,86.7L195.9,87.3L196.4,88L196.8,88.7L197.2,89.5L197.6,90.2L198,91L198.3,91.7L198.7,92.5L198.9,93.3L199.2,94.1L199.4,94.9L199.6,95.6L199.7,96.4L199.8,97.2L199.9,98L199.9,98.8L200,99.6L200,100.4L199.9,101.2L199.8,102L199.7,102.8L199.6,103.5L199.4,104.3L199.2,105L199,105.8L198.8,106.5L198.5,107.2L198.2,107.9L197.9,108.6L197.5,109.3L197.1,109.9L196.7,110.5L196.3,111.1L195.9,111.7L195.4,112.3L194.9,112.8L194.4,113.4L193.9,113.9L193.4,114.4L192.8,114.8L192.2,115.3L191.7,115.7L191.1,116L190.5,116.4L189.8,116.7L189.2,117L188.6,117.3L187.9,117.6L187.3,117.8L186.6,118L186,118.2L185.3,118.3L184.6,118.5L184,118.5L183.3,118.6L182.6,118.7L182,118.7L181.3,118.7L180.7,118.6L180,118.6"/>
-        <circle class="hl" cx="180" cy="53.2" r="3"/>
-        <circle cx="180" cy="102" r="15.1" fill="none" stroke="url(#pw)" stroke-width="1.2"/>
-        <circle class="hole-d" cx="180" cy="102" r="7.9"/>
-        <circle class="hd breathe" cx="121.5" cy="140.4" r="17" stroke-dasharray="2 3"/>
-        <text class="t-g" x="189" y="48.2">tap</text>
-        <text class="t-g" x="203.1" y="120">drain</text>
-        <text class="t-g" x="145.5" y="144.4">hand</text>
-        <path class="tk" d="M59.5,212.4H239.5M59.5,208.4V216.4M119.5,208.4V216.4M179.5,208.4V216.4M239.5,208.4V216.4M74.5,210.4V214.4M89.5,210.4V214.4M104.5,210.4V214.4M134.5,210.4V214.4M149.5,210.4V214.4M164.5,210.4V214.4M194.5,210.4V214.4M209.5,210.4V214.4M224.5,210.4V214.4"/>
-        <path class="hl step5" d="M59.5,203.4V221.4" style="transform-box:view-box"/>
-        <text class="t-g" x="59.5" y="234.4">0</text>
-        <text class="t-g" x="119.5" y="234.4" text-anchor="middle">2.5</text>
-        <text class="t-g" x="179.5" y="234.4" text-anchor="middle">5</text>
-        <text class="t-g" x="239.5" y="234.4" text-anchor="middle">7.5 s</text>
-        <text class="t-g" x="300.5" y="216.4" text-anchor="end">frames</text>
-      </svg>
-    </figure>
-  </div>
-  <figure><img src="doc/sink.webp" width="1100" height="825" alt="a dark room. a black plinth the height of a kitchen counter, and in its top a glowing basin of pale water."></figure>
-  <p>reach in. the water follows your hand for about a second, then slips through your fingers.</p>
-  <figure><img src="doc/hand.webp" width="800" height="600" alt="the same basin with a hand in it: the water is dragged into soft folds."></figure>
+<section class="thesis">
+  <p data-r>beautiful water, and inside it something nasty: near the drain, time and space stop holding.</p>
+  <p class="quiet" data-r>a dreaming machine runs on a budget, and so do we.</p>
 </section>
 
-<!-- 03 -->
-<section id="idea">
-  <div class="open">
-    <div class="head">
-      <span class="no">03</span><h2>the idea</h2>
-      <p>i built this water to be classically beautiful. the nasty thing is inside it: near the drain it stops keeping time and place.</p>
-    </div>
-    <figure>
-      <svg class="mv" viewBox="0 0 360 240" role="img" aria-label="the hole as an instrument, to scale: round the drain the ring, 0.14 of a basin unit at k = 1 and 0.0575 at k = 0.25; inside it the basin again, 2.4 times smaller, turned 0.3 to 0.8 radians at k = 1, and again inside that; beside it the clock of the water at k = 0.25 over the last 34 seconds, stalling, skipping and running backwards.">
-        <defs><linearGradient id="ir" gradientUnits="userSpaceOnUse" x1="67" y1="83" x2="141" y2="157"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient><clipPath id="ic"><circle cx="104" cy="120" r="90"/></clipPath><clipPath id="itr"><rect x="216" y="138" width="140" height="80"/></clipPath></defs>
-        <path class="tk" d="M197,120L204,120M196.5,129.7L199.5,130M195,139.3L197.9,140M192.4,148.7L195.3,149.7M189,157.8L191.7,159M184.5,166.5L190.6,170M179.2,174.7L181.7,176.4M173.1,182.2L175.3,184.2M166.2,189.1L168.2,191.3M158.7,195.2L160.4,197.7M150.5,200.5L154,206.6M141.8,205L143,207.7M132.7,208.4L133.7,211.3M123.3,211L124,213.9M113.7,212.5L114,215.5M104,213L104,220M94.3,212.5L94,215.5M84.7,211L84,213.9M75.3,208.4L74.3,211.3M66.2,205L65,207.7M57.5,200.5L54,206.6M49.3,195.2L47.6,197.7M41.8,189.1L39.8,191.3M34.9,182.2L32.7,184.2M28.8,174.7L26.3,176.4M23.5,166.5L17.4,170M19,157.8L16.3,159M15.6,148.7L12.7,149.7M13,139.3L10.1,140M11.5,129.7L8.5,130M11,120L4,120M11.5,110.3L8.5,110M13,100.7L10.1,100M15.6,91.3L12.7,90.3M19,82.2L16.3,81M23.5,73.5L17.4,70M28.8,65.3L26.3,63.6M34.9,57.8L32.7,55.8M41.8,50.9L39.8,48.7M49.3,44.8L47.6,42.3M57.5,39.5L54,33.4M66.2,35L65,32.3M75.3,31.6L74.3,28.7M84.7,29L84,26.1M94.3,27.5L94,24.5M104,27L104,20M113.7,27.5L114,24.5M123.3,29L124,26.1M132.7,31.6L133.7,28.7M141.8,35L143,32.3M150.5,39.5L154,33.4M158.7,44.8L160.4,42.3M166.2,50.9L168.2,48.7M173.1,57.8L175.3,55.8M179.2,65.3L181.7,63.6M184.5,73.5L190.6,70M189,82.2L191.7,81M192.4,91.3L195.3,90.3M195,100.7L197.9,100M196.5,110.3L199.5,110"/>
-        <path class="hl" d="M196.7,148.7A97,97 0 0 1 171.6,189.6" stroke-width="2" opacity=".55"/>
-        <g clip-path="url(#ic)"><g class="tw" style="transform-origin:104px 120px"><rect class="hl" x="-19.2" y="27.6" width="246.4" height="184.8" rx="5"/><g class="tw" style="transform-origin:104px 120px"><rect class="hd" x="52.7" y="81.5" width="102.7" height="77" rx="3.1"/><g class="tw" style="transform-origin:104px 120px"><rect class="hd" x="82.6" y="104" width="42.8" height="32.1" rx="2"/><g class="tw" style="transform-origin:104px 120px"><rect class="hd" x="95.1" y="113.3" width="17.8" height="13.4" rx="1.5"/></g></g></g></g></g>
-        <path class="cn" d="M104,120H206"/>
-        <circle class="cn" cx="104" cy="120" r="90"/>
-        <circle cx="104" cy="120" r="37" fill="none" stroke="url(#ir)" stroke-width="1.2"/>
-        <circle class="hole-d" cx="104" cy="120" r="19.3"/>
-        <g class="tw" style="transform-origin:104px 120px"><path class="ndl" d="M188,120L205,117.8L205,122.2Z"/></g>
-        <text class="t-g" x="202" y="56" text-anchor="end">k 1</text>
-        <text class="t-g" x="74" y="174" text-anchor="end">k 0.25</text>
-        <path class="cn" d="M74,164L77.4,146.6"/>
-        <text class="t-g" x="216" y="18">ring radius</text>
-        <text class="t-g" x="216" y="34">k 1</text>
-        <text class="t-r" x="356" y="34" text-anchor="end">0.140</text>
-        <text class="t-g" x="216" y="50">k 0.25</text>
-        <text class="t-r" x="356" y="50" text-anchor="end">0.0575</text>
-        <text class="t-g" x="216" y="68">each copy</text>
-        <text class="t-r" x="356" y="68" text-anchor="end">1/2.4</text>
-        <path class="rule" d="M216,77H356"/>
-        <text class="t-g" x="216" y="94">turn per copy, rad</text>
-        <text class="t-g" x="216" y="110">k 1</text>
-        <text class="t-r" x="356" y="110" text-anchor="end">0.30 to 0.80</text>
-        <text class="t-g" x="216" y="126">k 0.25</text>
-        <text class="t-r" x="356" y="126" text-anchor="end">0.08 to 0.20</text>
-        <path class="grid" d="M216,150H356M216,170H356"/>
-        <path class="tk" d="M216,190H356"/>
-        <text class="t-g" x="211" y="154" text-anchor="end">2</text>
-        <text class="t-g" x="211" y="174" text-anchor="end">1</text>
-        <text class="t-g" x="211" y="194" text-anchor="end">0</text>
-        <g clip-path="url(#itr)"><g transform="translate(216 140)"><path class="trace scroll102" d="M0,30L0.4,30L0.8,30L1.2,30L1.6,30L2.1,30L2.5,30L2.9,30L3.3,30L3.7,30L4.1,30L4.5,30L4.9,30L5.4,30L5.8,30L6.2,30L6.6,30L7,30L7.4,30L7.8,30L8.2,30L8.6,30L9.1,30L9.5,30L9.9,30L10.3,30L10.7,30L11.1,30L11.5,30L11.9,30L12.4,30L12.8,30L13.2,30L13.6,30L14,30L14.4,30L14.8,30L15.2,30L15.6,30L16.1,30L16.5,30L16.9,30L17.3,30L17.7,30L18.1,30L18.5,30L18.9,30L19.4,30L19.8,30L20.2,30L20.6,30L21,30L21.4,30L21.8,30L22.2,30L22.6,30L23.1,30L23.5,30L23.9,30L24.3,30L24.7,30L25.1,30L25.5,30.2L25.9,31L26.4,32.5L26.8,34.4L27.2,36.5L27.6,38.9L28,41.3L28.4,43.6L28.8,45.6L29.2,47.4L29.6,48.6L30.1,49.2L30.5,49.2L30.9,49.2L31.3,49.2L31.7,49.2L32.1,49.2L32.5,49.2L32.9,49.2L33.4,49.2L33.8,49.2L34.2,49.2L34.6,49.2L35,48.1L35.4,30.3L35.8,7.4L36.2,0L36.6,0L37.1,0.1L37.5,2L37.9,5.9L38.3,10.9L38.7,16.5L39.1,21.9L39.5,26.4L39.9,29.3L40.4,30L40.8,30L41.2,30L41.6,30.1L42,30.6L42.4,31.5L42.8,32.7L43.2,34.2L43.6,36L44.1,37.9L44.5,40L44.9,42.1L45.3,44.4L45.7,46.6L46.1,48.8L46.5,51L46.9,53L47.4,54.8L47.8,56.5L48.2,57.8L48.6,58.9L49,59.6L49.4,60L49.8,60L50.2,60L50.6,60L51.1,60L51.5,60L51.9,60L52.3,60L52.7,60L53.1,60L53.5,60L53.9,60L54.4,60L54.8,60L55.2,60L55.6,60L56,60L56.4,59.8L56.8,59.1L57.2,58.1L57.6,56.8L58.1,55.2L58.5,53.4L58.9,51.4L59.3,49.3L59.7,47.1L60.1,44.8L60.5,42.6L60.9,40.4L61.4,38.3L61.8,36.4L62.2,34.6L62.6,33L63,31.7L63.4,30.8L63.8,30.2L64.2,30L64.6,30L65.1,30L65.5,30L65.9,30L66.3,30L66.7,30L67.1,30L67.5,30L67.9,30L68.4,30L68.8,30L69.2,30L69.6,30L70,30L70.4,30L70.8,30L71.2,30L71.6,30L72.1,30L72.5,30L72.9,30L73.3,30L73.7,30L74.1,30L74.5,30L74.9,30L75.4,30L75.8,30L76.2,30L76.6,30L77,30L77.4,30L77.8,30L78.2,30L78.6,30L79.1,30L79.5,30L79.9,30L80.3,30L80.7,30L81.1,30L81.5,30L81.9,30L82.4,30L82.8,30L83.2,30L83.6,30L84,30L84.4,30L84.8,30L85.2,30L85.6,30L86.1,30L86.5,30L86.9,30L87.3,30L87.7,30L88.1,30L88.5,30L88.9,30L89.4,30L89.8,30L90.2,30L90.6,30L91,30L91.4,30L91.8,30L92.2,30L92.6,30L93.1,30.1L93.5,30.8L93.9,32.2L94.3,34L94.7,36.1L95.1,38.4L95.5,40.8L95.9,43.1L96.4,45.3L96.8,47.1L97.2,48.4L97.6,49.1L98,49.2L98.4,49.2L98.8,49.2L99.2,49.2L99.6,49.2L100.1,49.2L100.5,49.2L100.9,49.2L101.3,49.2L101.7,49.2L102.1,49.2L102.5,49.2L102.9,49.2L103.4,49.2L103.8,49.2L104.2,45.3L104.6,24.2L105,3.4L105.4,0L105.8,0L106.2,0.4L106.6,2.8L107.1,7L107.5,12.3L107.9,17.9L108.3,23.1L108.7,27.3L109.1,29.7L109.5,30L109.9,30L110.4,30L110.8,30L111.2,30L111.6,30L112,30L112.4,30L112.8,30L113.2,30L113.6,30L114.1,30L114.5,30L114.9,30L115.3,30L115.7,30L116.1,30L116.5,30L116.9,30L117.4,30L117.8,30L118.2,30L118.6,30L119,30L119.4,30L119.8,30L120.2,30L120.6,30L121.1,30L121.5,30L121.9,30L122.3,30L122.7,30L123.1,30L123.5,30L123.9,30L124.4,30L124.8,30L125.2,30L125.6,30L126,30L126.4,30L126.8,30L127.2,30L127.6,30L128.1,30L128.5,30L128.9,30L129.3,30L129.7,30L130.1,30L130.5,30L130.9,30L131.4,30L131.8,30L132.2,30L132.6,30L133,30L133.4,30L133.8,30L134.2,30L134.6,30L135.1,30L135.5,30L135.9,30L136.3,30L136.7,30L137.1,30L137.5,30L137.9,30L138.4,30L138.8,30L139.2,30L139.6,30L140,30L140.4,30L140.8,30L141.2,30L141.6,30L142.1,30L142.5,30L142.9,30L143.3,30L143.7,30L144.1,30L144.5,30L144.9,30L145.4,30L145.8,30L146.2,30L146.6,30L147,30L147.4,30L147.8,30L148.2,30L148.6,30L149.1,30L149.5,30L149.9,30L150.3,30L150.7,30L151.1,30L151.5,30L151.9,30L152.4,30L152.8,30L153.2,30L153.6,30L154,30L154.4,30L154.8,30L155.2,30L155.6,30L156.1,30L156.5,30L156.9,30L157.3,30L157.7,30L158.1,30L158.5,30L158.9,30L159.4,30L159.8,30L160.2,30L160.6,30L161,30L161.4,30L161.8,30L162.2,30L162.6,30L163.1,30L163.5,30L163.9,30L164.3,30L164.7,30L165.1,30L165.5,30L165.9,30L166.4,30L166.8,30.5L167.2,31.7L167.6,33.3L168,35.4L168.4,37.7L168.8,40.1L169.2,42.4L169.6,44.6L170.1,46.5L170.5,48L170.9,48.9L171.3,49.2L171.7,49.2L172.1,49.2L172.5,49.2L172.9,49.2L173.4,49.2L173.8,49.2L174.2,49.2L174.6,45.9L175,25.3L175.4,4L175.8,0L176.2,0L176.6,0.3L177.1,2.7L177.5,6.8L177.9,12.1L178.3,17.6L178.7,22.9L179.1,27.1L179.5,29.6L179.9,30L180.4,30L180.8,30L181.2,30L181.6,30L182,30L182.4,30L182.8,30L183.2,30L183.6,30L184.1,30L184.5,30L184.9,30L185.3,30L185.7,30L186.1,30L186.5,30L186.9,30L187.4,30L187.8,30L188.2,30L188.6,30L189,30L189.4,30L189.8,30L190.2,30L190.6,30L191.1,30L191.5,30L191.9,30L192.3,30L192.7,30L193.1,30L193.5,30L193.9,30L194.4,30L194.8,30L195.2,30L195.6,30L196,30L196.4,30L196.8,30L197.2,30L197.6,30L198.1,30L198.5,30L198.9,30L199.3,30L199.7,30L200.1,30L200.5,30L200.9,30L201.4,30L201.8,30L202.2,30L202.6,30L203,30L203.4,30L203.8,30L204.2,30.3L204.6,30.9L205.1,31.9L205.5,33.3L205.9,34.9L206.3,36.7L206.7,38.7L207.1,40.8L207.5,43L207.9,45.2L208.4,47.5L208.8,49.7L209.2,51.8L209.6,53.7L210,55.5L210.4,57L210.8,58.3L211.2,59.2L211.6,59.8L212.1,60L212.5,60L212.9,60L213.3,60L213.7,60L214.1,60L214.5,60L214.9,60L215.4,60L215.8,60L216.2,60L216.6,60L217,60L217.4,60L217.8,60L218.2,60L218.6,60L219.1,60L219.5,60L219.9,60L220.3,60L220.7,60L221.1,60L221.5,60L221.9,60L222.4,60L222.8,60L223.2,60L223.6,60L224,60L224.4,60L224.8,60L225.2,59.9L225.6,59.4L226.1,58.5L226.5,57.3L226.9,55.8L227.3,54.1L227.7,52.2L228.1,50.1L228.5,47.9L228.9,45.8L229.4,43.8L229.8,42.3L230.2,41.5L230.6,41.3L231,41.8L231.4,42.9L231.8,44.3L232.2,45.9L232.6,47.4L233.1,48.6L233.5,49.2L233.9,49.2L234.3,49.2L234.7,49.2L235.1,49.2L235.5,49.2L235.9,49.2L236.4,49.2L236.8,49.2L237.2,49.2L237.6,49.2L238,49.2L238.4,49.2L238.8,49.2L239.2,49.2L239.6,49.2L240.1,36.8L240.5,13.1L240.9,0L241.3,0L241.7,0L242.1,1.3L242.5,4.6L242.9,9.4L243.4,14.9L243.8,20.4L244.2,25.2L244.6,28.7L245,30L245.4,30L245.8,30L246.2,30L246.6,30L247.1,30L247.5,30L247.9,30L248.3,30L248.7,30L249.1,30L249.5,30L249.9,30L250.4,30L250.8,30L251.2,30L251.6,30L252,30L252.4,30L252.8,30L253.2,30L253.6,30L254.1,30L254.5,30L254.9,30L255.3,30L255.7,30L256.1,30L256.5,30L256.9,30L257.4,30L257.8,30L258.2,30L258.6,30L259,30L259.4,30L259.8,30L260.2,30L260.6,30L261.1,30L261.5,30L261.9,30L262.3,30L262.7,30L263.1,30L263.5,30L263.9,30L264.4,30L264.8,30L265.2,30L265.6,30L266,30L266.4,30L266.8,30L267.2,30L267.6,30L268.1,30L268.5,30L268.9,30L269.3,30L269.7,30L270.1,30L270.5,30L270.9,30L271.4,30L271.8,30L272.2,30L272.6,30L273,30L273.4,30L273.8,30L274.2,30L274.6,30L275.1,30L275.5,30L275.9,30L276.3,30L276.7,30L277.1,30L277.5,30L277.9,30L278.4,30L278.8,30L279.2,30L279.6,30L280,30L280.4,30L280.8,30L281.2,30L281.6,30L282.1,30L282.5,30L282.9,30L283.3,30L283.7,30L284.1,30L284.5,30L284.9,30L285.4,30L285.8,30L286.2,30L286.6,30L287,30L287.4,30L287.8,30L288.2,30L288.6,30L289.1,30L289.5,30L289.9,30L290.3,30L290.7,30L291.1,30L291.5,30L291.9,30L292.4,30L292.8,30L293.2,30L293.6,30L294,30L294.4,30L294.8,30L295.2,30L295.6,30L296.1,30L296.5,30L296.9,30L297.3,30L297.7,30L298.1,30L298.5,30L298.9,30L299.4,30L299.8,30L300.2,30L300.6,30L301,30L301.4,30L301.8,30L302.2,30L302.6,30L303.1,30L303.5,30L303.9,30L304.3,30L304.7,30L305.1,30L305.5,30L305.9,30L306.4,30L306.8,30L307.2,30L307.6,30L308,30L308.4,30L308.8,30L309.2,30L309.6,30L310.1,30L310.5,30.3L310.9,31.3L311.3,32.8L311.7,34.7L312.1,37L312.5,39.3L312.9,41.7L313.4,44L313.8,46L314.2,47.6L314.6,48.7L315,49.2L315.4,49.2L315.8,49.2L316.2,49.2L316.6,49.2L317.1,49.2L317.5,49.2L317.9,49.2L318.3,49.2L318.7,49.2L319.1,49.2L319.5,49.2L319.9,49.2L320.4,49.2L320.8,49.2L321.2,39L321.6,15.4L322,0.2L322.4,0L322.8,0L323.2,1L323.6,4.2L324.1,8.9L324.5,14.3L324.9,19.9L325.3,24.8L325.7,28.4L326.1,30L326.5,30L326.9,30L327.4,30L327.8,30L328.2,30L328.6,30L329,30L329.4,30L329.8,30L330.2,30L330.6,30L331.1,30L331.5,30L331.9,30L332.3,30L332.7,30L333.1,30L333.5,30L333.9,30L334.4,30L334.8,30L335.2,30L335.6,30L336,30L336.4,30L336.8,30L337.2,30L337.6,30L338.1,30L338.5,30L338.9,30L339.3,30L339.7,30L340.1,30L340.5,30L340.9,30L341.4,30L341.8,30L342.2,30L342.6,30L343,30L343.4,30L343.8,30L344.2,30L344.6,30L345.1,30L345.5,30L345.9,30L346.3,30L346.7,30L347.1,30L347.5,30L347.9,30L348.4,30L348.8,30L349.2,30L349.6,30L350,30L350.4,30L350.8,30L351.2,30L351.6,30L352.1,30L352.5,30L352.9,30L353.3,30L353.7,30L354.1,30L354.5,30L354.9,30L355.4,30L355.8,30L356.2,30L356.6,30L357,30L357.4,30L357.8,30L358.2,30L358.6,30L359.1,30L359.5,30L359.9,30L360.3,30L360.7,30L361.1,30L361.5,30L361.9,30L362.4,30L362.8,30L363.2,30L363.6,30L364,30L364.4,30L364.8,30L365.2,30.5L365.6,31.7L366.1,33.4L366.5,35.4L366.9,37.7L367.3,40.1L367.7,42.4L368.1,44.6L368.5,46.5L368.9,48L369.4,49L369.8,49.2L370.2,49.2L370.6,49.2L371,49.2L371.4,49.2L371.8,49.2L372.2,49.2L372.6,49.2L373.1,49.2L373.5,49.2L373.9,49.2L374.3,49.2L374.7,49.2L375.1,46.2L375.5,25.8L375.9,4.3L376.4,0L376.8,0L377.2,0.3L377.6,2.6L378,6.7L378.4,11.9L378.8,17.5L379.2,22.8L379.6,27.1L380.1,29.6L380.5,30L380.9,30L381.3,30L381.7,30L382.1,30L382.5,30L382.9,30L383.4,30L383.8,30L384.2,30L384.6,30L385,30L385.4,30L385.8,30L386.2,30L386.6,30L387.1,30L387.5,30L387.9,30L388.3,30L388.7,30L389.1,30L389.5,30L389.9,30L390.4,30L390.8,30L391.2,30L391.6,30L392,30L392.4,30L392.8,30L393.2,30L393.6,30L394.1,30L394.5,30L394.9,30L395.3,30L395.7,30L396.1,30L396.5,30L396.9,30L397.4,30L397.8,30L398.2,30L398.6,30L399,30L399.4,30L399.8,30L400.2,30L400.6,30L401.1,30L401.5,30L401.9,30.1L402.3,30.7L402.7,31.6L403.1,32.8L403.5,34.3L403.9,36L404.4,38L404.8,40.1L405.2,42.2L405.6,44.5L406,46.7L406.4,48.9L406.8,51.1L407.2,53.1L407.6,54.9L408.1,56.5L408.5,57.9L408.9,59L409.3,59.7L409.7,60L410.1,60L410.5,60L410.9,60L411.4,60L411.8,60L412.2,60L412.6,60L413,60L413.4,60L413.8,60L414.2,60L414.6,60L415.1,60L415.5,60L415.9,60L416.3,60L416.7,60L417.1,60L417.5,60L417.9,60L418.4,60L418.8,60L419.2,60L419.6,60L420,60L420.4,30L420.8,30L421.2,30L421.6,30L422.1,30L422.5,30L422.9,30L423.3,30L423.7,30L424.1,30L424.5,30L424.9,30L425.4,30L425.8,30L426.2,30L426.6,30L427,30L427.4,30L427.8,30L428.2,30L428.6,30L429.1,30L429.5,30L429.9,30L430.3,30L430.7,30L431.1,30L431.5,30L431.9,30L432.4,30L432.8,30L433.2,30L433.6,30L434,30L434.4,30L434.8,30L435.2,30L435.6,30L436.1,30L436.5,30L436.9,30L437.3,30L437.7,30L438.1,30L438.5,30L438.9,30L439.4,30L439.8,30L440.2,30L440.6,30L441,30L441.4,30L441.8,30L442.2,30L442.6,30L443.1,30L443.5,30L443.9,30L444.3,30L444.7,30L445.1,30L445.5,30.2L445.9,31L446.4,32.5L446.8,34.4L447.2,36.5L447.6,38.9L448,41.3L448.4,43.6L448.8,45.6L449.2,47.4L449.6,48.6L450.1,49.2L450.5,49.2L450.9,49.2L451.3,49.2L451.7,49.2L452.1,49.2L452.5,49.2L452.9,49.2L453.4,49.2L453.8,49.2L454.2,49.2L454.6,49.2L455,48.1L455.4,30.3L455.8,7.4L456.2,0L456.6,0L457.1,0.1L457.5,2L457.9,5.9L458.3,10.9L458.7,16.5L459.1,21.9L459.5,26.4L459.9,29.3L460.4,30L460.8,30L461.2,30L461.6,30.1L462,30.6L462.4,31.5L462.8,32.7L463.2,34.2L463.6,36L464.1,37.9L464.5,40L464.9,42.1L465.3,44.4L465.7,46.6L466.1,48.8L466.5,51L466.9,53L467.4,54.8L467.8,56.5L468.2,57.8L468.6,58.9L469,59.6L469.4,60L469.8,60L470.2,60L470.6,60L471.1,60L471.5,60L471.9,60L472.3,60L472.7,60L473.1,60L473.5,60L473.9,60L474.4,60L474.8,60L475.2,60L475.6,60L476,60L476.4,59.8L476.8,59.1L477.2,58.1L477.6,56.8L478.1,55.2L478.5,53.4L478.9,51.4L479.3,49.3L479.7,47.1L480.1,44.8L480.5,42.6L480.9,40.4L481.4,38.3L481.8,36.4L482.2,34.6L482.6,33L483,31.7L483.4,30.8L483.8,30.2L484.2,30L484.6,30L485.1,30L485.5,30L485.9,30L486.3,30L486.7,30L487.1,30L487.5,30L487.9,30L488.4,30L488.8,30L489.2,30L489.6,30L490,30L490.4,30L490.8,30L491.2,30L491.6,30L492.1,30L492.5,30L492.9,30L493.3,30L493.7,30L494.1,30L494.5,30L494.9,30L495.4,30L495.8,30L496.2,30L496.6,30L497,30L497.4,30L497.8,30L498.2,30L498.6,30L499.1,30L499.5,30L499.9,30L500.3,30L500.7,30L501.1,30L501.5,30L501.9,30L502.4,30L502.8,30L503.2,30L503.6,30L504,30L504.4,30L504.8,30L505.2,30L505.6,30L506.1,30L506.5,30L506.9,30L507.3,30L507.7,30L508.1,30L508.5,30L508.9,30L509.4,30L509.8,30L510.2,30L510.6,30L511,30L511.4,30L511.8,30L512.2,30L512.6,30L513.1,30.1L513.5,30.8L513.9,32.2L514.3,34L514.7,36.1L515.1,38.4L515.5,40.8L515.9,43.1L516.4,45.3L516.8,47.1L517.2,48.4L517.6,49.1L518,49.2L518.4,49.2L518.8,49.2L519.2,49.2L519.6,49.2L520.1,49.2L520.5,49.2L520.9,49.2L521.3,49.2L521.7,49.2L522.1,49.2L522.5,49.2L522.9,49.2L523.4,49.2L523.8,49.2L524.2,45.3L524.6,24.2L525,3.4L525.4,0L525.8,0L526.2,0.4L526.6,2.8L527.1,7L527.5,12.3L527.9,17.9L528.3,23.1L528.7,27.3L529.1,29.7L529.5,30L529.9,30L530.4,30L530.8,30L531.2,30L531.6,30L532,30L532.4,30L532.8,30L533.2,30L533.6,30L534.1,30L534.5,30L534.9,30L535.3,30L535.7,30L536.1,30L536.5,30L536.9,30L537.4,30L537.8,30L538.2,30L538.6,30L539,30L539.4,30L539.8,30L540.2,30L540.6,30L541.1,30L541.5,30L541.9,30L542.3,30L542.7,30L543.1,30L543.5,30L543.9,30L544.4,30L544.8,30L545.2,30L545.6,30L546,30L546.4,30L546.8,30L547.2,30L547.6,30L548.1,30L548.5,30L548.9,30L549.3,30L549.7,30L550.1,30L550.5,30L550.9,30L551.4,30L551.8,30L552.2,30L552.6,30L553,30L553.4,30L553.8,30L554.2,30L554.6,30L555.1,30L555.5,30L555.9,30L556.3,30L556.7,30L557.1,30L557.5,30L557.9,30L558.4,30L558.8,30L559.2,30L559.6,30L560,30"/></g></g>
-        <text class="t-g" x="286" y="235" text-anchor="middle">clock, last 34 s</text>
-      </svg>
-    </figure>
-  </div>
-
-  <h3>dry season</h3>
-  <p>i freedive on one breath. at el museo cultural the basin gets one too: an allocation of dreaming each morning, ten mornings in all. untouched, it costs nothing; every hand opens the tap, and strangers spend the day's water together.</p>
-  <figure class="fig">
-    <svg id="level" class="mv" viewBox="0 0 360 214" role="img" aria-label="one day at the sink, as proposed: the water left starts at 1, stays level while nobody touches it, steps down each time a hand is in, then drains to black in 37 seconds and stays dry until it is refilled the next morning. inset: as it drains its clock runs slow, 0.3 of true time, then fast, 3 times true time at the end.">
-      <defs><linearGradient id="lv" gradientUnits="userSpaceOnUse" x1="56" y1="44" x2="252" y2="174"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-      <path class="grid" d="M56,109H336"/>
-      <path class="tk" d="M56,44V174H336M52,44H56M52,109H56M52,174H56"/>
-      <path class="cn" d="M336,174V44"/>
-      <path class="trace-p draw" stroke="url(#lv)" pathLength="100" d="M56,44H96L120,70H150L176,100H196L228,142H244L252,174"/>
-      <text class="t-n" x="56" y="14">water left, 1 = the day's allocation</text>
-      <text class="t-g" x="48" y="48" text-anchor="end">1</text>
-      <text class="t-g" x="48" y="113" text-anchor="end">0.5</text>
-      <text class="t-g" x="48" y="178" text-anchor="end">0</text>
-      <text class="t-g" x="60" y="37">nobody</text>
-      <text class="t-g" x="126" y="62">a hand</text>
-      <text class="t-g" x="258" y="158">drain</text>
-      <text class="t-g" x="258" y="172">37 s</text>
-      <text class="t-g" x="310" y="168" text-anchor="middle">dry</text>
-      <text class="t-g" x="330" y="128" text-anchor="end">refill</text>
-      <text class="t-g" x="56" y="192">morning</text>
-      <text class="t-g" x="336" y="192" text-anchor="end">next morning</text>
-      <text class="t-g" x="196" y="209" text-anchor="middle">one day at the sink</text>
-      <text class="t-g" x="230" y="30">drain clock</text>
-      <path class="grid" d="M230,80H326"/>
-      <path class="tk" d="M230,40V100H326M326,97V103"/>
-      <path class="trace" d="M230,80L230.5,80.1L231,80.3L231.4,80.6L231.9,81L232.4,81.6L232.9,82.2L233.4,82.9L233.8,83.6L234.3,84.4L234.8,85.3L235.3,86.1L235.8,87L236.2,87.9L236.7,88.7L237.2,89.6L237.7,90.4L238.2,91.1L238.6,91.8L239.1,92.4L239.6,93L240.1,93.4L240.6,93.7L241,93.9L241.5,94L242,94L242.5,94L243,94L243.4,94L243.9,94L244.4,94L244.9,94L245.4,94L245.8,94L246.3,94L246.8,94L247.3,94L247.8,94L248.2,94L248.7,94L249.2,94L249.7,94L250.2,94L250.6,94L251.1,94L251.6,94L252.1,94L252.6,94L253,94L253.5,94L254,94L254.5,94L255,94L255.4,93.9L255.9,93.9L256.4,93.8L256.9,93.7L257.4,93.6L257.8,93.5L258.3,93.4L258.8,93.2L259.3,93.1L259.8,92.9L260.2,92.7L260.7,92.5L261.2,92.3L261.7,92.1L262.2,91.9L262.6,91.7L263.1,91.5L263.6,91.2L264.1,91L264.6,90.7L265,90.5L265.5,90.2L266,89.9L266.5,89.6L267,89.4L267.4,89.1L267.9,88.8L268.4,88.5L268.9,88.2L269.4,87.9L269.8,87.6L270.3,87.3L270.8,87L271.3,86.7L271.8,86.4L272.2,86.1L272.7,85.8L273.2,85.5L273.7,85.2L274.2,84.9L274.6,84.6L275.1,84.2L275.6,83.9L276.1,83.5L276.6,83.1L277,82.7L277.5,82.2L278,81.8L278.5,81.4L279,80.9L279.4,80.4L279.9,79.9L280.4,79.4L280.9,78.9L281.4,78.4L281.8,77.9L282.3,77.3L282.8,76.8L283.3,76.2L283.8,75.7L284.2,75.1L284.7,74.6L285.2,74L285.7,73.5L286.2,72.9L286.6,72.4L287.1,71.9L287.6,71.4L288.1,70.9L288.6,70.3L289,69.8L289.5,69.3L290,68.7L290.5,68.2L291,67.6L291.4,67.1L291.9,66.5L292.4,65.9L292.9,65.3L293.4,64.8L293.8,64.2L294.3,63.6L294.8,63L295.3,62.4L295.8,61.8L296.2,61.2L296.7,60.6L297.2,60L297.7,59.4L298.2,58.8L298.6,58.2L299.1,57.6L299.6,57L300.1,56.4L300.6,55.8L301,55.2L301.5,54.7L302,54.1L302.5,53.5L303,52.9L303.4,52.4L303.9,51.8L304.4,51.3L304.9,50.7L305.4,50.2L305.8,49.7L306.3,49.1L306.8,48.6L307.3,48.1L307.8,47.7L308.2,47.2L308.7,46.7L309.2,46.2L309.7,45.8L310.2,45.4L310.6,45L311.1,44.6L311.6,44.2L312.1,43.8L312.6,43.4L313,43.1L313.5,42.7L314,42.4L314.5,42.1L315,41.9L315.4,41.6L315.9,41.3L316.4,41.1L316.9,40.9L317.4,40.7L317.8,40.6L318.3,40.4L318.8,40.3L319.3,40.2L319.8,40.1L320.2,40L320.7,40L321.2,40L321.7,40L322.2,40L322.6,40L323.1,40L323.6,40L324.1,40L324.6,40L325,40L325.5,40L326,40"/>
-      <text class="t-g" x="225" y="44" text-anchor="end">3</text>
-      <text class="t-g" x="225" y="84" text-anchor="end">1</text>
-      <text class="t-g" x="225" y="101" text-anchor="end">0.3</text>
-      <text class="t-g" x="230" y="115">0</text>
-      <text class="t-g" x="326" y="115" text-anchor="end">1</text>
-      <text class="t-g" x="278" y="115" text-anchor="middle">drained</text>
-    </svg>
-    <p class="cap">proposed. the drain is built.</p>
-  </figure>
-  <p>spent, it drains to black in under a minute and stays dry until morning. come late and you know who spent it. a dry screen is black glass, and the face in it is yours.</p>
-  <div class="row c3 in">
-    <figure><img src="doc/water.webp" width="1280" height="960" alt="the basin full: pale water with a pearl sheen round the drain."><figcaption>water = 1.00</figcaption></figure>
-    <figure><img src="doc/drain.webp" width="800" height="600" alt="the basin draining: the water is a thin grey swirl round a wide dark drain."><figcaption>water = 0.16</figcaption></figure>
-    <figure><div class="glass" role="img" aria-label="the basin dry: black glass."></div><figcaption>water = None</figcaption></figure>
-  </div>
-
-  <h3>why</h3>
-  <p>training gpt-3 could directly evaporate 700,000 liters of clean freshwater, and global ai demand is projected to withdraw 4.2 to 6.6 billion cubic meters of water in 2027 (li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a>).</p>
-  <p>a machine that dreams and drinks is close to a living thing.</p>
-  <p class="verse">the machine dreams. the taste is chosen. you reach.</p>
+<section id="wall" data-n="01">
+  <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span>wall text</span></h2>
+  <p class="label mono" data-r><b>katherine titterton</b><br>[syn[k]]hole, dry season, 2027<br>a basin, a touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
+  <p class="say" data-r>the most beautiful things usually have something nasty about them. here it is the drain, the [syn[k]]hole, where you lose time.</p>
+  <p data-r>an endless feed has no bottom. this hole does. ai drinks real water and our hours. here both run out, and you get out.</p>
+  <p data-r>it fills once each morning of the festival. every hand in this room spends it.</p>
+  <p class="quiet" data-r>ai: stable diffusion 1.5 with lcm-lora dreams the water live on its own computer, toward pictures i chose by hand in midjourney.</p>
 </section>
 
-<!-- 04 -->
-<section id="methods">
-  <div class="open">
-    <div class="head">
-      <span class="no">04</span><h2>methods</h2>
-      <p>the spring dreams, the fluid pours, and my taste sits upstream of both.</p>
-    </div>
-    <figure>
-      <svg class="mv" viewBox="0 0 360 240" role="img" aria-label="how the water is made: the spring, a laptop, dreams live; a switch passes its dreams to the fluid, a 256 by 256 simulation, and while the spring sleeps it passes a reservoir of stored dreams instead; the fluid pours into the basin, k = 0.25 at its drain, where slow patches remember an older dream.">
-        <defs><linearGradient id="ms" gradientUnits="userSpaceOnUse" x1="296.6" y1="116.9" x2="305.4" y2="125.6"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-        <rect class="hl" x="38" y="44" width="44" height="28" rx="2"/><path class="hl" d="M30,76H90"/>
-        <text class="t-n" x="60" y="96" text-anchor="middle">spring</text>
-        <text class="t-g" x="60" y="112" text-anchor="middle">live</text>
-        <rect class="hl" x="46" y="150" width="34" height="24" rx="2"/>
-        <rect class="hl" x="42" y="154" width="34" height="24" rx="2" style="fill:var(--ink)"/>
-        <rect class="hl" x="38" y="158" width="34" height="24" rx="2" style="fill:var(--ink)"/>
-        <text class="t-n" x="60" y="204" text-anchor="middle">reservoir</text>
-        <text class="t-g" x="60" y="220" text-anchor="middle">stored dreams</text>
-        <path class="hl flow sleep" pathLength="100" d="M94,60C112,60 116,101 126,101"/>
-        <path class="cn wake" d="M90,170C112,170 116,133 126,133"/>
-        <circle class="hl" cx="126" cy="101" r="2"/><circle class="hl" cx="126" cy="133" r="2"/>
-        <g class="blade" style="transform-origin:150px 117px"><path class="hl" d="M150,117L127.9,102.3"/></g>
-        <circle class="hole-d" cx="150" cy="117" r="2.5"/>
-        <text class="t-g" x="132" y="88">live</text>
-        <text class="t-g" x="132" y="143">asleep</text>
-        <path class="hl flow" pathLength="100" d="M153,117H166"/>
-        <circle class="hl" cx="186" cy="117" r="20"/>
-        <path class="hd" d="M201,117L200.6,118.8L200,120.6L199.1,122.2L198.1,123.7L197,125L195.7,126.1L194.3,127L192.8,127.8L191.3,128.3L189.8,128.7L188.3,128.8L186.7,128.8L185.3,128.5L183.9,128.1L182.6,127.5L181.4,126.8L180.3,126L179.3,125L178.5,124L177.9,122.9L177.4,121.7L177,120.5L176.9,119.3L176.8,118.2L176.9,117L177.2,115.9L177.6,114.8L178.1,113.9L178.7,113L179.4,112.2L180.1,111.5L181,110.9L181.9,110.5L182.8,110.2L183.7,109.9L184.6,109.9L185.6,109.9L186.4,110L187.3,110.3L188.1,110.6L188.8,111.1L189.5,111.6L190,112.1L190.5,112.8L190.9,113.4L191.2,114.1L191.4,114.9L191.5,115.6L191.6,116.3L191.5,117L191.3,117.7L191.1,118.3L190.8,118.9L190.4,119.4L190,119.9L189.5,120.3L189,120.7L188.5,120.9L187.9,121.1L187.4,121.3L186.8,121.3L186.3,121.3L185.7,121.2L185.2,121.1L184.7,120.9L184.3,120.6L183.9,120.3L183.6,119.9L183.3,119.6L183,119.2L182.8,118.7L182.7,118.3L182.7,117.9L182.6,117.4L182.7,117L182.8,116.6L182.9,116.2L183.1,115.9L183.3,115.5L183.6,115.2"/>
-        <text class="t-n" x="186" y="157" text-anchor="middle">fluid</text>
-        <text class="t-g" x="186" y="173" text-anchor="middle">256 x 256</text>
-        <path class="hl flow" pathLength="100" d="M206,117H262"/>
-        <path class="hd" d="M264,95H259M266,93V88M338,95H343M336,93V88M264,147.5H259M266,149.5V154.5M338,147.5H343M336,149.5V154.5"/>
-        <rect class="cn" x="266" y="95" width="70" height="52.5"/>
-        <ellipse class="cn" cx="283" cy="110" rx="9" ry="6"/><ellipse class="cn" cx="318" cy="134" rx="8" ry="5"/>
-        <circle cx="301" cy="121.2" r="4.4" fill="none" stroke="url(#ms)" stroke-width="1.2"/>
-        <circle class="hole-d" cx="301" cy="121.2" r="2.3"/>
-        <text class="t-n" x="301" y="168" text-anchor="middle">basin</text>
-        <text class="t-g" x="301" y="184" text-anchor="middle">k = 0.25</text>
-        <text class="t-g" x="301" y="200" text-anchor="middle">memory on</text>
-      </svg>
-    </figure>
+<section id="work" data-n="02">
+  <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span>the work</span></h2>
+  <p class="say" data-r>a screen in the basin pours a vanitas,<sup class="fn">1</sup> the old still life of skulls, flowers and soap bubbles, that won't hold still.</p>
+  <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. a bubble is the fastest of them.</aside>
+  <p data-r>a new frame comes about every 2.5 seconds: slow for a computer, about right for a tide pool. the water is drawn as dots of light, 128 by 96, each as large as its patch of water is bright.</p>
+  <p data-r>the drain is a black hole. it bends the grid of dots round itself, and near its edge each dot's clock runs slow, then stops.<sup class="fn">2</sup></p>
+  <aside class="note" data-r><b>2</b>near a black hole a clock, watched from far away, runs slow and stops at the edge, and light climbing out loses its blue. here the dots do both: they step slower near the drain and go rose.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
+  <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = dream()</figcaption></figure>
+  <p data-r>reach in. the water follows your hand for about a second, then slips through your fingers.</p>
+</section>
+
+<section id="dry" data-n="03">
+  <h2 class="kick"><span class="mono">03</span><span class="ring"></span><span>dry season</span></h2>
+  <p class="say" data-r>i freedive on one breath. the basin gets one too.<sup class="fn">3</sup></p>
+  <aside class="note" data-r><b>3</b>a dive lasts as long as the air you took down. the basin's day lasts as long as the water it got that morning.</aside>
+  <p data-r>an allocation of dreaming each morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. spent, it drains to black in under a minute and stays dry until morning.</p>
+  <div class="row wide" data-r>
+    <figure class="dots" data-src="doc/water.webp"><canvas role="img" aria-label="full"></canvas><figcaption class="mono">water = 1.00</figcaption></figure>
+    <figure class="dots" data-src="doc/drain.webp"><canvas role="img" aria-label="draining"></canvas><figcaption class="mono">water = 0.16</figcaption></figure>
+    <figure class="dots" data-src=""><canvas role="img" aria-label="dry: the dots go out"></canvas><figcaption class="mono">water = None</figcaption></figure>
   </div>
-  <ol class="steps">
-    <li id="taste">
-      <h3>01 taste <small>ai, by hand</small></h3>
-      <p>eight pictures. every dream leans toward one, like a plant toward a window.</p>
-      <div class="row c3 big in">
-        <img class="pick" src="doc/mood1_pearl.webp" width="640" height="478" alt="moodboard picture 01: a skull of white beads over a sleeping face.">
-        <img src="doc/mood6_pearl.webp" width="640" height="478" alt="moodboard picture 06: a white peony glittering on grey.">
-        <img src="doc/mood7_pearl.webp" width="640" height="478" alt="moodboard picture 07: a bright skull between two faces with closed eyes.">
-      </div>
-      <p class="cap in">three of the eight, in the water's own pearl grade.</p>
-    </li>
-    <li id="prompt">
-      <h3>02 prompt <small>not ai</small></h3>
-      <p>44 subjects, 28 moods, 18 lights: more than a million prompts.</p>
-      <pre class="code">vanitas [subject, subject, subject], mood, light</pre>
-    </li>
-    <li id="dream">
-      <h3>03 dream <small>ai</small></h3>
-      <p>3 of 10 steps follow the prompt, so a subject half-surfaces.</p>
-      <div class="sum in">
-        <figure><img src="doc/dream_a.webp" width="400" height="300" alt="dream a, the last dream."><figcaption>dream a</figcaption></figure><span>+</span>
-        <figure><img class="pick" src="doc/mood1_pearl.webp" width="640" height="478" alt="moodboard picture 01."><figcaption>moodboard 01</figcaption></figure><span>=</span>
-        <figure><img src="doc/start_pearl.webp" width="400" height="300" alt="dream a and moodboard 01, blended."><figcaption>start</figcaption></figure><span>→</span>
-        <figure><img src="doc/dream_b.webp" width="640" height="480" alt="dream b: a white flower with ruffled petals on black."><figcaption>dream b</figcaption></figure>
-      </div>
-    </li>
-    <li id="walk">
-      <h3>04 walk <small>ai</small></h3>
-      <figure><img src="doc/walk.webp" width="1440" height="120" alt="a strip of frames from dream a to dream b, each a small step from the last."></figure>
-    </li>
-    <li id="detail">
-      <h3>05 detail <small>ai: real-esrgan, four times larger</small></h3>
-      <figure><img src="doc/detail.webp" width="800" height="300" alt="one corner of dream b twice: enlarged plainly on the left, soft; enlarged by real-esrgan on the right, sharp."></figure>
-    </li>
-    <li id="water">
-      <h3>06 water <small>not ai: a fluid simulation</small></h3>
-      <div class="row c4 in">
-        <figure><img src="doc/layer_water.webp" width="480" height="360" alt="dream b poured as water round the drain."><figcaption>water</figcaption></figure>
-        <figure><img src="doc/layer_glass.webp" width="480" height="360" alt="the same with a fine glass texture over it."><figcaption>glass</figcaption></figure>
-        <figure><img src="doc/layer_bubbles.webp" width="480" height="360" alt="the same with large soft bubbles on the water."><figcaption>bubbles</figcaption></figure>
-        <figure><img src="doc/layer_k.webp" width="480" height="360" alt="the same with a pearl sheen on the bubbles and the water folding at the drain."><figcaption>sheen</figcaption></figure>
-      </div>
-    </li>
-    <li id="code">
-      <h3>07 code <small>ai-assisted: claude code</small></h3>
-    </li>
+  <p data-r>come late and you know who spent it. a dry screen is black glass, and the face in it is yours.</p>
+  <p class="mirror" aria-hidden="true">come late and you know who spent it. a dry screen is black glass, and the face in it is yours.</p>
+  <p class="quiet" data-r>proposed. the drain is built.</p>
+  <p class="quiet" data-r>training gpt-3 could directly evaporate 700,000 liters of clean freshwater, and global ai demand is projected to withdraw 4.2 to 6.6 billion cubic meters of water in 2027 (li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a>). a machine that dreams and drinks is close to a living thing.</p>
+</section>
+
+<section id="methods" data-n="04">
+  <h2 class="kick"><span class="mono">04</span><span class="ring"></span><span>methods</span></h2>
+  <p class="say" data-r>the machine dreams. the taste is chosen. you reach.</p>
+  <ol class="steps" data-r>
+    <li><span class="n">01</span><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney. every dream leans toward one, like a plant toward a window.</p></li>
+    <li><span class="n">02</span><div><h3>prompt</h3><span class="ai">not ai</span></div><p>44 subjects, 28 moods, 18 lights: more than a million prompts. <code>vanitas [subject, subject, subject], mood, light</code></p></li>
+    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora. 3 of 10 steps follow the prompt, so a subject half-surfaces.</p></li>
+    <li><span class="n">04</span><div><h3>walk</h3><span class="ai on">ai</span></div><p>from one dream to the next, frame by frame, through the space the dreams come from.</p></li>
+    <li><span class="n">05</span><div><h3>detail</h3><span class="ai on">ai</span></div><p>real-esrgan, four times larger.</p></li>
+    <li><span class="n">06</span><div><h3>water</h3><span class="ai">not ai</span></div><p>a fluid simulation: water, glass, bubbles, sheen.</p></li>
+    <li><span class="n">07</span><div><h3>light</h3><span class="ai">not ai</span></div><p>the water drawn as dots, pearl at the edges, bent round the drain.</p></li>
+    <li><span class="n">08</span><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
   </ol>
+  <div class="row wide" data-r>
+    <figure class="dots" data-src="doc/mood1_pearl.webp"><canvas role="img" aria-label="one of the eight pictures"></canvas></figure>
+    <figure class="dots" data-src="doc/mood6_pearl.webp"><canvas role="img" aria-label="one of the eight pictures"></canvas></figure>
+    <figure class="dots" data-src="doc/mood7_pearl.webp"><canvas role="img" aria-label="one of the eight pictures"></canvas></figure>
+  </div>
+  <p class="quiet mono" data-r>three of the eight</p>
 </section>
 
-<!-- 05 -->
-<section id="process">
-  <div class="open">
-    <div class="head">
-      <span class="no">05</span><h2>process</h2>
-      <p>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.</p>
-    </div>
-    <figure>
-      <svg id="holefig" class="mv" viewBox="0 0 360 262" role="img" aria-label="the basin from above, to scale, with five numbered places and the drain enlarged three times: 1 the ring round the drain where the basin shows again inside itself, 2 the pour from the tap, 3 a hand, 4 the line of code on the drain's rim, lost = 00:07, 5 a face that rises faintly over the drain, the drain its mouth.">
-        <defs><linearGradient id="hp" gradientUnits="userSpaceOnUse" x1="117.6" y1="113.6" x2="146.4" y2="142.4"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient><linearGradient id="hr" gradientUnits="userSpaceOnUse" x1="262.9" y1="84.9" x2="349.1" y2="171.1"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient><path id="rimp" d="M275.1,128A30.9,30.9 0 1 1 336.9,128"/></defs>
-        <path class="hd" d="M14,41.8H6M17,38.8V30.8M250,41.8H258M247,38.8V30.8M14,214.2H6M17,217.2V225.2M250,214.2H258M247,217.2V225.2"/>
-        <rect class="cn" x="17" y="41.8" width="230" height="172.5"/>
-        <g class="face"><ellipse class="hd" cx="132" cy="108" rx="27" ry="37" stroke-dasharray="1 3"/><ellipse class="hd" cx="122" cy="98" rx="5" ry="3.5"/><ellipse class="hd" cx="142" cy="98" rx="5" ry="3.5"/></g>
-        <circle class="hl" cx="132" cy="81.4" r="3"/>
-        <path class="hl faint" d="M132,81.4L133.8,81.7L135.6,82L137.4,82.4L139.2,82.8L140.9,83.4L142.6,83.9L144.2,84.6L145.9,85.3L147.5,86.1L149,86.9L150.5,87.8L152,88.7L153.4,89.7L154.8,90.8L156.1,91.9L157.4,93L158.7,94.2L159.8,95.4L161,96.7L162,98L163,99.3L164,100.7L164.9,102.1L165.7,103.5L166.5,104.9L167.2,106.4L167.9,107.9L168.5,109.4L169,110.9L169.5,112.5L169.9,114L170.2,115.6L170.5,117.1L170.7,118.7L170.9,120.3L171,121.8L171,123.4L171,124.9L170.9,126.5L170.7,128L170.5,129.5L170.2,131L169.9,132.5L169.5,133.9L169.1,135.4L168.6,136.8L168.1,138.2L167.5,139.5L166.8,140.9L166.2,142.1L165.4,143.4L164.6,144.6L163.8,145.8L162.9,147L162,148.1L161.1,149.1L160.1,150.2L159.1,151.1L158,152.1L157,153L155.9,153.8L154.7,154.6L153.6,155.3L152.4,156L151.2,156.7L149.9,157.3L148.7,157.8L147.4,158.3L146.2,158.8L144.9,159.1L143.6,159.5L142.3,159.8L141,160L139.7,160.2L138.4,160.3L137.1,160.4L135.8,160.4L134.5,160.4L133.3,160.3L132,160.2L130.7,160L129.5,159.8L128.3,159.5L127.1,159.2L125.9,158.8L124.7,158.4L123.5,158L122.4,157.5L121.3,157L120.2,156.4L119.2,155.8L118.2,155.1L117.2,154.4L116.2,153.7L115.3,153L114.4,152.2L113.6,151.4L112.8,150.5L112,149.7L111.2,148.8L110.5,147.8L109.9,146.9L109.3,145.9L108.7,144.9L108.2,143.9L107.7,142.9L107.2,141.9L106.8,140.8L106.4,139.8L106.1,138.7L105.8,137.7L105.6,136.6L105.4,135.5L105.2,134.4L105.1,133.3L105.1,132.3L105.1,131.2L105.1,130.1L105.1,129.1L105.2,128L105.4,127L105.6,125.9L105.8,124.9L106.1,123.9L106.4,122.9L106.7,121.9L107.1,121L107.5,120L107.9,119.1L108.4,118.2L108.9,117.4L109.4,116.5L110,115.7L110.6,114.9L111.2,114.1L111.9,113.4L112.6,112.7L113.3,112L114,111.4L114.7,110.7L115.5,110.2L116.3,109.6L117.1,109.1L117.9,108.6L118.8,108.2L119.6,107.8L120.5,107.4L121.3,107L122.2,106.7L123.1,106.5L124,106.2L124.9,106L125.8,105.9L126.7,105.8L127.6,105.7L128.5,105.6L129.3,105.6L130.2,105.6L131.1,105.7L132,105.8L132.9,105.9L133.7,106L134.6,106.2L135.4,106.4L136.2,106.7L137.1,107L137.8,107.3L138.6,107.6L139.4,108L140.1,108.4L140.9,108.8L141.6,109.2L142.2,109.7L142.9,110.2L143.5,110.7L144.1,111.3L144.7,111.8L145.3,112.4L145.8,113L146.3,113.7L146.8,114.3L147.3,114.9L147.7,115.6L148.1,116.3L148.5,117L148.8,117.7L149.1,118.4L149.4,119.1L149.7,119.9L149.9,120.6L150.1,121.3L150.3,122.1L150.4,122.8L150.5,123.6L150.6,124.3L150.6,125.1L150.6,125.8L150.6,126.5L150.6,127.3L150.5,128L150.4,128.7L150.3,129.4L150.1,130.1L149.9,130.8L149.7,131.5L149.5,132.2L149.2,132.9L149,133.5L148.6,134.1L148.3,134.8L148,135.4L147.6,135.9L147.2,136.5L146.8,137.1L146.3,137.6L145.9,138.1L145.4,138.6L144.9,139.1L144.4,139.5L143.9,139.9L143.4,140.3L142.9,140.7L142.3,141.1L141.7,141.4L141.2,141.7L140.6,142L140,142.2L139.4,142.5L138.8,142.7L138.2,142.9L137.5,143L136.9,143.2L136.3,143.3L135.7,143.4L135.1,143.4L134.5,143.5L133.8,143.5L133.2,143.5L132.6,143.4L132,143.4"/><path class="hl flow" pathLength="100" d="M132,81.4L133.8,81.7L135.6,82L137.4,82.4L139.2,82.8L140.9,83.4L142.6,83.9L144.2,84.6L145.9,85.3L147.5,86.1L149,86.9L150.5,87.8L152,88.7L153.4,89.7L154.8,90.8L156.1,91.9L157.4,93L158.7,94.2L159.8,95.4L161,96.7L162,98L163,99.3L164,100.7L164.9,102.1L165.7,103.5L166.5,104.9L167.2,106.4L167.9,107.9L168.5,109.4L169,110.9L169.5,112.5L169.9,114L170.2,115.6L170.5,117.1L170.7,118.7L170.9,120.3L171,121.8L171,123.4L171,124.9L170.9,126.5L170.7,128L170.5,129.5L170.2,131L169.9,132.5L169.5,133.9L169.1,135.4L168.6,136.8L168.1,138.2L167.5,139.5L166.8,140.9L166.2,142.1L165.4,143.4L164.6,144.6L163.8,145.8L162.9,147L162,148.1L161.1,149.1L160.1,150.2L159.1,151.1L158,152.1L157,153L155.9,153.8L154.7,154.6L153.6,155.3L152.4,156L151.2,156.7L149.9,157.3L148.7,157.8L147.4,158.3L146.2,158.8L144.9,159.1L143.6,159.5L142.3,159.8L141,160L139.7,160.2L138.4,160.3L137.1,160.4L135.8,160.4L134.5,160.4L133.3,160.3L132,160.2L130.7,160L129.5,159.8L128.3,159.5L127.1,159.2L125.9,158.8L124.7,158.4L123.5,158L122.4,157.5L121.3,157L120.2,156.4L119.2,155.8L118.2,155.1L117.2,154.4L116.2,153.7L115.3,153L114.4,152.2L113.6,151.4L112.8,150.5L112,149.7L111.2,148.8L110.5,147.8L109.9,146.9L109.3,145.9L108.7,144.9L108.2,143.9L107.7,142.9L107.2,141.9L106.8,140.8L106.4,139.8L106.1,138.7L105.8,137.7L105.6,136.6L105.4,135.5L105.2,134.4L105.1,133.3L105.1,132.3L105.1,131.2L105.1,130.1L105.1,129.1L105.2,128L105.4,127L105.6,125.9L105.8,124.9L106.1,123.9L106.4,122.9L106.7,121.9L107.1,121L107.5,120L107.9,119.1L108.4,118.2L108.9,117.4L109.4,116.5L110,115.7L110.6,114.9L111.2,114.1L111.9,113.4L112.6,112.7L113.3,112L114,111.4L114.7,110.7L115.5,110.2L116.3,109.6L117.1,109.1L117.9,108.6L118.8,108.2L119.6,107.8L120.5,107.4L121.3,107L122.2,106.7L123.1,106.5L124,106.2L124.9,106L125.8,105.9L126.7,105.8L127.6,105.7L128.5,105.6L129.3,105.6L130.2,105.6L131.1,105.7L132,105.8L132.9,105.9L133.7,106L134.6,106.2L135.4,106.4L136.2,106.7L137.1,107L137.8,107.3L138.6,107.6L139.4,108L140.1,108.4L140.9,108.8L141.6,109.2L142.2,109.7L142.9,110.2L143.5,110.7L144.1,111.3L144.7,111.8L145.3,112.4L145.8,113L146.3,113.7L146.8,114.3L147.3,114.9L147.7,115.6L148.1,116.3L148.5,117L148.8,117.7L149.1,118.4L149.4,119.1L149.7,119.9L149.9,120.6L150.1,121.3L150.3,122.1L150.4,122.8L150.5,123.6L150.6,124.3L150.6,125.1L150.6,125.8L150.6,126.5L150.6,127.3L150.5,128L150.4,128.7L150.3,129.4L150.1,130.1L149.9,130.8L149.7,131.5L149.5,132.2L149.2,132.9L149,133.5L148.6,134.1L148.3,134.8L148,135.4L147.6,135.9L147.2,136.5L146.8,137.1L146.3,137.6L145.9,138.1L145.4,138.6L144.9,139.1L144.4,139.5L143.9,139.9L143.4,140.3L142.9,140.7L142.3,141.1L141.7,141.4L141.2,141.7L140.6,142L140,142.2L139.4,142.5L138.8,142.7L138.2,142.9L137.5,143L136.9,143.2L136.3,143.3L135.7,143.4L135.1,143.4L134.5,143.5L133.8,143.5L133.2,143.5L132.6,143.4L132,143.4"/>
-        <circle cx="132" cy="128" r="14.4" fill="none" stroke="url(#hp)" stroke-width="1.2"/>
-        <circle class="hole-d" cx="132" cy="128" r="7.5"/>
-        <circle class="cn" cx="132" cy="128" r="16"/>
-        <path class="cn" d="M129.1,112.3L297.2,80.8M129.1,143.7L297.2,175.2"/>
-        <circle class="hd" cx="306" cy="128" r="48"/>
-        <circle cx="306" cy="128" r="43.1" fill="none" stroke="url(#hr)" stroke-width="1.2"/>
-        <circle data-bg class="hole-d" cx="306" cy="128" r="22.5"/>
-        <text class="t-r clearb" font-size="12"><textPath href="#rimp" startOffset="50%" text-anchor="middle">lost = 00:07</textPath></text>
-        <text class="t-g" x="354" y="192" text-anchor="end">x 3</text>
-        <circle class="hd breathe" cx="57" cy="180.2" r="15" stroke-dasharray="2 3"/>
-        <circle class="node" cx="162" cy="150" r="9"/><text class="t-g" x="162" y="154" text-anchor="middle">1</text>
-        <circle class="node" cx="156" cy="67.4" r="9"/><text class="t-g" x="156" y="71.4" text-anchor="middle">2</text>
-        <circle class="node" cx="57" cy="180.2" r="9"/><text class="t-g" x="57" y="184.2" text-anchor="middle">3</text>
-        <circle class="node" cx="348" cy="74" r="9"/><text class="t-g" x="348" y="78" text-anchor="middle">4</text><path class="cn" d="M342,81L332,92"/>
-        <circle class="node" cx="80" cy="82" r="9"/><text class="t-g" x="80" y="86" text-anchor="middle">5</text>
-        <text class="t-g" x="123" y="76.4" text-anchor="end">tap</text>
-      </svg>
-    </figure>
+<section id="k" data-n="05">
+  <h2 class="kick"><span class="mono">05</span><span class="ring"></span><span>k</span></h2>
+  <p class="say" data-r>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.<sup class="fn">4</sup></p>
+  <aside class="note" data-r><b>4</b>k: a setting, 0 to 1. what it stands for is the hole's business.</aside>
+  <ol class="steps" data-r>
+    <li><span class="n">1</span><div><h3>the hole holds the basin</h3></div></li>
+    <li><span class="n">2</span><div><h3>time stutters</h3></div></li>
+    <li><span class="n">3</span><div><h3>it is clear only on the way out</h3></div></li>
+    <li><span class="n">4</span><div><h3>it says what you lost</h3></div><p><code>lost = 00:07</code><sup class="fn">5</sup></p></li>
+    <li><span class="n">5</span><div><h3>a face, barely</h3></div><p>two hollows above the hole, and the hole is its mouth. you are not sure you saw it.</p></li>
+    <li><span class="n">6</span><div><h3>the hole bends light</h3></div><p>the dots near it are pulled into a ring, and their clocks slow to a stop.</p></li>
+  </ol>
+  <div class="row two wide" data-r>
+    <figure class="dots" data-src="doc/hole_k0.webp"><canvas role="img" aria-label="the drain at k = 0"></canvas><figcaption class="mono">k = 0</figcaption></figure>
+    <figure class="dots" data-src="doc/hole_k1.webp"><canvas role="img" aria-label="the drain at k = 1: the basin seen again inside the hole"></canvas><figcaption class="mono">k = 1</figcaption></figure>
   </div>
-  <table class="moves">
-    <tbody>
-      <tr><td class="n">1</td><th scope="row">the hole holds the basin</th><td class="ev"><div class="row c2"><figure><img src="doc/hole_k0.webp" width="480" height="360" alt="close on the drain in plain water: a black disc in smooth pale water."><figcaption>k = 0</figcaption></figure><figure><img src="doc/hole_k1.webp" width="480" height="360" alt="the same place at k = 1: the water round the drain is folded into a small turning copy of the basin."><figcaption>k = 1</figcaption></figure></div></td></tr>
-      <tr><td class="n">2</td><th scope="row">time stutters</th><td class="ev"><svg viewBox="0 0 240 104" role="img" aria-label="the clock of the pour through one 17 second stall at k = 0.25: true time, 1, slows to 0.04 and holds, then skips at 2.5 times true time, then is true again.">
-  <defs><linearGradient id="ck" gradientUnits="userSpaceOnUse" x1="40" y1="0" x2="228" y2="0"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-  <path class="grid" d="M40,56H228M40,32H228"/>
-  <path class="tk" d="M40,80H228M40,80V84M51.1,80V82M62.1,80V82M73.2,80V82M84.2,80V82M95.3,80V84M106.4,80V82M117.4,80V82M128.5,80V82M139.5,80V82M150.6,80V84M161.6,80V82M172.7,80V82M183.8,80V82M194.8,80V82M205.9,80V84M216.9,80V82M228,80V82"/>
-  <path class="trace-p" stroke="url(#ck)" d="M40,56L40.6,56L41.1,56L41.7,56L42.2,56L42.8,56L43.3,56L43.9,56L44.4,56L45,56L45.5,56L46.1,56L46.6,56L47.2,56L47.7,56L48.3,56L48.8,56L49.4,56L50,56L50.5,56L51.1,56L51.6,56L52.2,56L52.7,56L53.3,56L53.8,56L54.4,56L54.9,56L55.5,56L56,56L56.6,56L57.1,56L57.7,56L58.2,56L58.8,56L59.4,56L59.9,56L60.5,56L61,56L61.6,56L62.1,56L62.7,56L63.2,56L63.8,56L64.3,56L64.9,56L65.4,56L66,56L66.5,56L67.1,56L67.6,56L68.2,56L68.8,56L69.3,56L69.9,56L70.4,56L71,56L71.5,56L72.1,56L72.6,56L73.2,56L73.7,56L74.3,56L74.8,56L75.4,56L75.9,56L76.5,56L77,56L77.6,56L78.2,56L78.7,56L79.3,56L79.8,56L80.4,56L80.9,56L81.5,56L82,56L82.6,56L83.1,56L83.7,56L84.2,56L84.8,56L85.3,56L85.9,56L86.4,56L87,56L87.6,56L88.1,56L88.7,56L89.2,56L89.8,56L90.3,56L90.9,56L91.4,56L92,56L92.5,56L93.1,56L93.6,56L94.2,56L94.7,56L95.3,56L95.8,56L96.4,56L97,56L97.5,56L98.1,56L98.6,56L99.2,56L99.7,56L100.3,56L100.8,56L101.4,56L101.9,56L102.5,56L103,56L103.6,56L104.1,56L104.7,56L105.2,56L105.8,56L106.4,56L106.9,56L107.5,56L108,56L108.6,56.2L109.1,56.6L109.7,57.3L110.2,58L110.8,59L111.3,60L111.9,61.2L112.4,62.5L113,63.8L113.5,65.2L114.1,66.7L114.6,68.1L115.2,69.5L115.8,70.9L116.3,72.3L116.9,73.6L117.4,74.8L118,75.9L118.5,76.8L119.1,77.6L119.6,78.3L120.2,78.7L120.7,79L121.3,79L121.8,79L122.4,79L122.9,79L123.5,79L124,79L124.6,79L125.2,79L125.7,79L126.3,79L126.8,79L127.4,79L127.9,79L128.5,79L129,79L129.6,79L130.1,79L130.7,79L131.2,79L131.8,79L132.3,79L132.9,79L133.4,79L134,77.7L134.6,69.4L135.1,56.3L135.7,41.7L136.2,28.8L136.8,21L137.3,20L137.9,20L138.4,20L139,20L139.5,20.1L140.1,20.9L140.6,22.4L141.2,24.5L141.7,27L142.3,29.9L142.8,33.1L143.4,36.4L144,39.8L144.5,43.1L145.1,46.3L145.6,49.2L146.2,51.7L146.7,53.7L147.3,55.1L147.8,55.9L148.4,56L148.9,56L149.5,56L150,56L150.6,56L151.1,56L151.7,56L152.2,56L152.8,56L153.4,56L153.9,56L154.5,56L155,56L155.6,56L156.1,56L156.7,56L157.2,56L157.8,56L158.3,56L158.9,56L159.4,56L160,56L160.5,56L161.1,56L161.6,56L162.2,56L162.8,56L163.3,56L163.9,56L164.4,56L165,56L165.5,56L166.1,56L166.6,56L167.2,56L167.7,56L168.3,56L168.8,56L169.4,56L169.9,56L170.5,56L171,56L171.6,56L172.2,56L172.7,56L173.3,56L173.8,56L174.4,56L174.9,56L175.5,56L176,56L176.6,56L177.1,56L177.7,56L178.2,56L178.8,56L179.3,56L179.9,56L180.4,56L181,56L181.6,56L182.1,56L182.7,56L183.2,56L183.8,56L184.3,56L184.9,56L185.4,56L186,56L186.5,56L187.1,56L187.6,56L188.2,56L188.7,56L189.3,56L189.8,56L190.4,56L191,56L191.5,56L192.1,56L192.6,56L193.2,56L193.7,56L194.3,56L194.8,56L195.4,56L195.9,56L196.5,56L197,56L197.6,56L198.1,56L198.7,56L199.2,56L199.8,56L200.4,56L200.9,56L201.5,56L202,56L202.6,56L203.1,56L203.7,56L204.2,56L204.8,56L205.3,56L205.9,56L206.4,56L207,56L207.5,56L208.1,56L208.6,56L209.2,56L209.8,56L210.3,56L210.9,56L211.4,56L212,56L212.5,56L213.1,56L213.6,56L214.2,56L214.7,56L215.3,56L215.8,56L216.4,56L216.9,56L217.5,56L218,56L218.6,56L219.2,56L219.7,56L220.3,56L220.8,56L221.4,56L221.9,56L222.5,56L223,56L223.6,56L224.1,56L224.7,56L225.2,56L225.8,56L226.3,56L226.9,56L227.4,56L228,56"/>
-  <text class="t-g" x="40" y="12">clock, 1 = true time</text>
-  <text class="t-g" x="34" y="84" text-anchor="end">0</text>
-  <text class="t-g" x="34" y="60" text-anchor="end">1</text>
-  <text class="t-g" x="34" y="36" text-anchor="end">2</text>
-  <text class="t-r" x="103.8" y="73" text-anchor="end">0.04</text>
-  <text class="t-r" x="129.7" y="24" text-anchor="end">2.50</text>
-  <text class="t-g" x="40" y="100">0</text>
-  <text class="t-g" x="228" y="100" text-anchor="end">17 s</text>
-</svg></td></tr>
-      <tr><td class="n">3</td><th scope="row">it is clear only on the way out</th><td class="ev"><div class="row c2"><figure><img src="doc/soft.webp" width="480" height="360" alt="the basin with a hand in it: the dream is blurred, grey and soft."><figcaption>hand in</figcaption></figure><figure><img src="doc/clear.webp" width="480" height="360" alt="the basin just after the hand leaves: a sharp face in profile with its eyes closed."><figcaption>hand out</figcaption></figure></div></td></tr>
-      <tr><td class="n">4</td><th scope="row">it says what you lost</th><td class="ev"><pre>lost = 00:07</pre></td></tr>
-      <tr><td class="n">5</td><th scope="row">a face, barely<span>for a few seconds at a time a face rises over the drain: two hollows above the hole, and the hole is its mouth. you are not sure you saw it.</span></th><td class="ev"><div class="row c2"><figure><img src="doc/face_k0.webp" width="480" height="360" alt="the basin in plain water."><figcaption>k = 0</figcaption></figure><figure><img src="doc/face_k1.webp" width="480" height="360" alt="the same frame at k = 1, with the second dream up: the water is lighter."><figcaption>k = 1, the first face</figcaption></figure></div></td></tr>
-    </tbody>
-  </table>
-  <p>i picked k = 0.5, twice, then asked for something between that and plain water. <code>k</code> sets the depth, 0 to 1, and it runs at 0.25: strange enough to notice, quiet enough to doubt.</p>
-  <figure class="fig">
-    <svg viewBox="0 0 360 82" role="img" aria-label="a scale for k from 0, plain water, to 1, with the ring round the drain each k gives, 0.0300 of a basin unit at 0, the drain's own size, to 0.1400 at 1. a first pick sat at 0.5; the mark moved down to 0.25, a ring of 0.0575.">
-      <defs><linearGradient id="kg" gradientUnits="userSpaceOnUse" x1="150" y1="35" x2="160" y2="45"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-      <path class="tk" d="M100,40H320M100,35V45M111,37.5V42.5M122,37.5V42.5M133,37.5V42.5M144,37.5V42.5M155,35V45M166,37.5V42.5M177,37.5V42.5M188,37.5V42.5M199,37.5V42.5M210,35V45M221,37.5V42.5M232,37.5V42.5M243,37.5V42.5M254,37.5V42.5M265,35V45M276,37.5V42.5M287,37.5V42.5M298,37.5V42.5M309,37.5V42.5M320,35V45"/>
-      <path class="hd" d="M206,31C190,18 175,18 160,30"/>
-      <path class="chev" style="stroke:var(--dim)" transform="translate(160 30) rotate(128)" d="M-3,-3L2,0L-3,3"/>
-      <circle class="cn" cx="210" cy="40" r="5"/>
-      <circle cx="155" cy="40" r="5" fill="url(#kg)"/>
-      <text class="t-g" x="220" y="16">first pick</text>
-      <text class="t-r" x="145" y="16" text-anchor="end">now</text>
-      <text class="t-g" x="70" y="62" text-anchor="end">k</text>
-      <text class="t-g" x="70" y="78" text-anchor="end">ring</text>
-      <text class="t-g" x="100" y="62" text-anchor="middle">0</text>
-      <text class="t-g" x="100" y="78" text-anchor="middle">0.0300</text>
-      <text class="t-r" x="155" y="62" text-anchor="middle">0.25</text>
-      <text class="t-r" x="155" y="78" text-anchor="middle">0.0575</text>
-      <text class="t-g" x="210" y="62" text-anchor="middle">0.5</text>
-      <text class="t-g" x="210" y="78" text-anchor="middle">0.0850</text>
-      <text class="t-g" x="265" y="62" text-anchor="middle">0.75</text>
-      <text class="t-g" x="265" y="78" text-anchor="middle">0.1125</text>
-      <text class="t-g" x="320" y="62" text-anchor="middle">1</text>
-      <text class="t-g" x="320" y="78" text-anchor="middle">0.1400</text>
-    </svg>
-  </figure>
+  <aside class="note" data-r><b>5</b>the counter in the corner of this page has been running since you arrived.</aside>
+  <p data-r>k sets the depth. <s>k = 0.5</s> <s>k = 0.5</s> it runs at 0.25:</p>
+  <p class="fall" data-r aria-label="strange enough to notice, quiet enough to doubt"><span style="font-size:30px">strange</span><span style="font-size:27px;margin-left:1.2em">enough</span><span style="font-size:24px;margin-left:2.6em">to notice,</span><span style="font-size:20px;margin-left:4.4em;opacity:.85">quiet</span><span style="font-size:17px;margin-left:6.2em;opacity:.7">enough</span><span style="font-size:14px;margin-left:7.8em;opacity:.55">to</span><span style="font-size:12px;margin-left:9em;opacity:.45">doubt</span><span style="font-size:12px;margin-left:10.6em"><span class="ring"></span></span></p>
 </section>
 
-<!-- 06 -->
-<section id="lineage">
-  <div class="open">
-    <div class="head">
-      <span class="no">06</span><h2>lineage</h2>
-      <p>this water learned to move from other artists' water.</p>
-    </div>
-    <figure>
-      <svg class="mv" viewBox="0 0 360 200" role="img" aria-label="six streams, one for each work in the table, named in its order, run into one drain: flow, rain room, unsupervised and wind map wet and moving, in the piece; vortices and storms dotted and still, not built.">
-        <defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="112" y1="20" x2="306" y2="180"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-        <path class="tk" d="M336,100L342,100M335.7,103.9L338.7,104.3M335,107.8L337.9,108.5M333.7,111.5L336.5,112.6M332,115L337.2,118M329.8,118.3L332.2,120.1M327.2,121.2L329.3,123.3M324.3,123.8L326.1,126.2M321,126L324,131.2M317.5,127.7L318.6,130.5M313.8,129L314.5,131.9M309.9,129.7L310.3,132.7M306,130L306,136M302.1,129.7L301.7,132.7M298.2,129L297.5,131.9M294.5,127.7L293.4,130.5M291,126L288,131.2M287.7,123.8L285.9,126.2M284.8,121.2L282.7,123.3M282.2,118.3L279.8,120.1M280,115L274.8,118M278.3,111.5L275.5,112.6M277,107.8L274.1,108.5M276.3,103.9L273.3,104.3M276,100L270,100M276.3,96.1L273.3,95.7M277,92.2L274.1,91.5M278.3,88.5L275.5,87.4M280,85L274.8,82M282.2,81.7L279.8,79.9M284.8,78.8L282.7,76.7M287.7,76.2L285.9,73.8M291,74L288,68.8M294.5,72.3L293.4,69.5M298.2,71L297.5,68.1M302.1,70.3L301.7,67.3M306,70L306,64M309.9,70.3L310.3,67.3M313.8,71L314.5,68.1M317.5,72.3L318.6,69.5M321,74L324,68.8M324.3,76.2L326.1,73.8M327.2,78.8L329.3,76.7M329.8,81.7L332.2,79.9M332,85L337.2,82M333.7,88.5L336.5,87.4M335,92.2L337.9,91.5M335.7,96.1L338.7,95.7"/>
-        <text class="t-g" x="102" y="28" text-anchor="end">flow</text>
-        <circle class="hl" cx="112" cy="24" r="2"/>
-        <path class="hl faint" d="M112,24C222,24 236,100 284,100"/>
-        <path class="trace-p flow" stroke="url(#lg)" pathLength="100" d="M112,24C222,24 236,100 284,100" style="animation-delay:-0s"/>
-        <text class="t-g" x="102" y="58" text-anchor="end">rain room</text>
-        <circle class="hl" cx="112" cy="54" r="2"/>
-        <path class="hl faint" d="M112,54C222,54 236,100 284,100"/>
-        <path class="trace-p flow" stroke="url(#lg)" pathLength="100" d="M112,54C222,54 236,100 284,100" style="animation-delay:-9s"/>
-        <text class="t-g" x="102" y="88" text-anchor="end">unsupervised</text>
-        <circle class="hl" cx="112" cy="84" r="2"/>
-        <path class="hl faint" d="M112,84C222,84 236,100 284,100"/>
-        <path class="trace-p flow" stroke="url(#lg)" pathLength="100" d="M112,84C222,84 236,100 284,100" style="animation-delay:-17s"/>
-        <text class="t-g" x="102" y="118" text-anchor="end">wind map</text>
-        <circle class="hl" cx="112" cy="114" r="2"/>
-        <path class="hl faint" d="M112,114C222,114 236,100 284,100"/>
-        <path class="trace-p flow" stroke="url(#lg)" pathLength="100" d="M112,114C222,114 236,100 284,100" style="animation-delay:-26s"/>
-        <text class="t-g" x="102" y="148" text-anchor="end">vortices</text>
-        <circle class="cn" cx="112" cy="144" r="2"/>
-        <path class="cn" d="M112,144C222,144 236,100 284,100"/>
-        <text class="t-g" x="102" y="178" text-anchor="end">storms</text>
-        <circle class="cn" cx="112" cy="174" r="2"/>
-        <path class="cn" d="M112,174C222,174 236,100 284,100"/>
-        <circle class="cn" cx="306" cy="100" r="22"/>
-        <circle class="hole-d" cx="306" cy="100" r="6"/>
-      </svg>
-    </figure>
-  </div>
-  <table class="lin">
-    <thead><tr><th class="st"></th><th scope="col"></th><th scope="col">this water takes</th></tr></thead>
-    <tbody>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row" data-u="karlsims.com/flow.html">karl sims, <a href="https://www.karlsims.com/flow.html">flow</a>&nbsp;2018</th><td>runs behind its current</td></tr>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row" data-u="collections.lacma.org/object/199076">random international, <a href="https://collections.lacma.org/object/199076">rain room</a>&nbsp;2012</th><td>answers the hand late</td></tr>
-      <tr><td class="st"><span class="mark was" role="img" aria-label="in the piece since 2026"></span></td><th scope="row" data-u="refikanadol.com/works/unsupervised">refik anadol, <a href="https://refikanadol.com/works/unsupervised/">unsupervised</a></th><td>changes while it flows</td></tr>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row" data-u="hint.fm/wind, bewitched.com/windmap.html">fernanda viégas and martin wattenberg, <a href="https://www.bewitched.com/windmap.html">wind map</a>&nbsp;2012</th><td>parts that remember longer</td></tr>
-      <tr><td class="st"><span class="mark off" role="img" aria-label="not built"></span></td><th scope="row" data-u="teamlab.art/w/vortices/ngv-triennial">teamlab, <a href="https://www.teamlab.art/w/vortices/ngv-triennial/">moving creates vortices and vortices create movement</a>&nbsp;2017</th><td>its paths drawn over it</td></tr>
-      <tr><td class="st"><span class="mark off" role="img" aria-label="not built"></span></td><th scope="row" data-u="timessquarenyc.org/tsq-arts-projects/storms-by-quayola">quayola, <a href="https://www.timessquarenyc.org/tsq-arts-projects/storms-by-quayola">storms</a></th><td>strokes never cleared</td></tr>
-    </tbody>
-  </table>
-  <p class="key"><span><span class="mark on" aria-hidden="true"></span>built</span> <span><span class="mark was" aria-hidden="true"></span>in the piece since 2026</span> <span><span class="mark off" aria-hidden="true"></span>not built</span></p>
-  <p class="cap">read 17 nov 2026.</p>
+<section id="lineage" data-n="06">
+  <h2 class="kick"><span class="mono">06</span><span class="ring"></span><span>lineage</span></h2>
+  <p class="say" data-r>this water learned to move from other artists' water.</p>
+  <ol class="lin" data-r>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">karl sims, <a href="https://www.karlsims.com/flow.html">flow</a>, 2018</span><span class="takes">runs behind its current</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">random international, <a href="https://collections.lacma.org/object/199076">rain room</a>, 2012</span><span class="takes">answers the hand late</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">refik anadol, <a href="https://refikanadol.com/works/unsupervised/">unsupervised</a></span><span class="takes">changes while it flows</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">fernanda viégas and martin wattenberg, <a href="https://www.bewitched.com/windmap.html">wind map</a>, 2012</span><span class="takes">parts that remember longer</span></li>
+    <li><span class="mk off" role="img" aria-label="not built"></span><span class="who">teamlab, <a href="https://www.teamlab.art/w/vortices/ngv-triennial/">moving creates vortices and vortices create movement</a>, 2017</span><span class="takes">its paths drawn over it</span></li>
+    <li><span class="mk off" role="img" aria-label="not built"></span><span class="who">quayola, <a href="https://www.timessquarenyc.org/tsq-arts-projects/storms-by-quayola">storms</a></span><span class="takes">strokes never cleared</span></li>
+  </ol>
+  <p class="key mono" data-r><span><span class="mk on"></span>built</span><span><span class="mk off"></span>not built</span><span>sources read 17 nov 2026</span></p>
 </section>
 
-<!-- 07 -->
-<section id="installation">
-  <div class="open">
-    <div class="head">
-      <span class="no">07</span><h2>the installation</h2>
-      <p>one artist travels: me. setup takes one afternoon. switched on, it wakes itself, is silent, has no camera or microphone, drinks no real water and keeps nothing of you.</p>
-    </div>
-    <figure>
-      <svg id="atscale" class="mv" viewBox="0 0 360 330" role="img" aria-label="the sink from the side, to scale on a 6 inch grid, with a visitor reaching in: the plinth stands 6 inches off the wall, is 25 inches deep, its rim at 34 inches, with 36 inches of clear floor in front.">
-        <defs><linearGradient id="as1" gradientUnits="userSpaceOnUse" x1="150.9" y1="191" x2="185.3" y2="191"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-        <path class="grid" d="M120,264.4H340M120,248.8H340M120,233.2H340M120,217.6H340M120,202H340M120,186.4H340M120,170.8H340M120,155.2H340M120,139.6H340M120,124H340M120,108.4H340"/>
-        <path class="hl" d="M120,30V280"/><path class="hd" d="M114,30V280M114,30H120"/>
-        <path class="hl" d="M100,280H340"/>
-        <rect class="hl mass-l" x="135.6" y="202" width="65" height="78"/>
-        <rect class="hl" x="135.6" y="191.6" width="65" height="10.4"/>
-        <path d="M150.9,191.6H185.3" fill="none" stroke="url(#as1)" stroke-width="1.6"/>
-        <rect class="hl" x="216.2" y="137" width="23.4" height="143" rx="11.7"/>
-        <circle class="hl" cx="227.9" cy="120.1" r="11.2"/>
-        <g class="reach" style="transform-origin:222.7px 150px"><path class="hl" d="M222.7,150L180,188" stroke-linecap="round"/></g>
-        <path class="cn" d="M135.6,191.6H104"/>
-        <path class="dl" d="M104,191.6V280M101,194.6L107,188.6M101,283L107,277"/>
-        <text class="t-g" x="96" y="240" text-anchor="end">34 in (86 cm)</text>
-        <path class="dl" d="M120,296H294.2M117,299L123,293M291.2,299L297.2,293M132.6,299L138.6,293M197.6,299L203.6,293"/>
-        <text class="t-g" x="127.8" y="314" text-anchor="middle">6 in</text>
-        <text class="t-g" x="168" y="314" text-anchor="middle">25 in</text>
-        <text class="t-g" x="207" y="314">36 in (91 cm) clear</text>
-        <text class="t-g" x="117" y="22" text-anchor="middle">wall</text>
-        <text class="t-g" x="248" y="124">visitor</text>
-        <path class="dl" d="M270,48H332.4M267,51L273,45M329.4,51L335.4,45M298.2,51L304.2,45"/>
-        <text class="t-g" x="270" y="66" text-anchor="middle">0</text>
-        <text class="t-g" x="301.2" y="66" text-anchor="middle">1</text>
-        <text class="t-g" x="328" y="66" text-anchor="middle">2 ft</text>
-      </svg>
-    </figure>
-  </div>
-
-  <h3>the basin</h3>
-  <figure class="fig">
-    <svg id="sinkdwg" viewBox="0 0 360 364" role="img" aria-label="the proposed sink, plan and front elevation: a plinth 30 by 25 inches and 30 inches high, the basin rim at 34 inches, a 27 inch screen behind a 4:3 opening, the drain and its ring at their true size.">
-      <defs><linearGradient id="sk1" gradientUnits="userSpaceOnUse" x1="154.8" y1="65.6" x2="225.2" y2="118.4"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient><linearGradient id="sk2" gradientUnits="userSpaceOnUse" x1="154.8" y1="176" x2="225.2" y2="176"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-      <path class="dl" d="M130,30H250M127,33L133,27M247,33L253,27"/>
-      <text class="t-g" x="190" y="22" text-anchor="middle">30 in (76 cm)</text>
-      <path class="dl" d="M116,42V142M113,45L119,39M113,145L119,139"/>
-      <text class="t-g" x="108" y="96" text-anchor="end">25 in (64 cm)</text>
-      <rect class="hl mass-l" x="130" y="42" width="120" height="100"/>
-      <rect class="hole" x="154.8" y="65.6" width="70.4" height="52.8" stroke="url(#sk1)" stroke-width="1"/>
-      <path class="cn" d="M154.8,92H225.2M190,65.6V118.4"/>
-      <circle cx="190" cy="92" r="4.4" fill="none" stroke="url(#sk1)" stroke-width="1"/>
-      <circle class="hl" cx="190" cy="92" r="2.3"/>
-      <path class="hd" d="M225.2,92H257"/>
-      <text class="t-n" x="262" y="89">27 in screen</text>
-      <text class="t-g" x="262" y="105">4:3 opening</text>
-      <path class="cn" d="M130,142V176M250,142V176"/>
-      <rect class="hl mass-l" x="130" y="192" width="120" height="120"/>
-      <rect class="hl" x="130" y="176" width="120" height="16"/>
-      <rect class="hole" x="154.8" y="176" width="70.4" height="5.2"/>
-      <path d="M154.8,176H225.2" fill="none" stroke="url(#sk2)" stroke-width="1.2"/>
-      <path class="hl" d="M104,312H276"/>
-      <path class="dl" d="M116,176V312M113,179L119,173M113,315L119,309M113,195L119,189M120,176H130M120,192H130"/>
-      <text class="t-g" x="108" y="180" text-anchor="end">34 in (86 cm)</text>
-      <text class="t-g" x="108" y="196" text-anchor="end">30 in (76 cm)</text>
-      <text class="t-n" x="262" y="188">basin</text>
-      <text class="t-n" x="190" y="256" text-anchor="middle">plinth</text>
-      <path class="dl" d="M130,338H226M127,341L133,335M223,341L229,335M175,341L181,335"/>
-      <text class="t-g" x="130" y="356" text-anchor="middle">0</text>
-      <text class="t-g" x="178" y="356" text-anchor="middle">1</text>
-      <text class="t-g" x="226" y="356" text-anchor="middle">2 ft</text>
-    </svg>
-  </figure>
-
-  <h3>what the festival supplies</h3>
-  <dl class="spec">
+<section id="install" data-n="07">
+  <h2 class="kick"><span class="mono">07</span><span class="ring"></span><span>the installation</span></h2>
+  <p class="say" data-r>one artist travels: me. setup takes one afternoon.</p>
+  <p data-r>switched on, it wakes itself. it is silent, has no camera or microphone, drinks no real water and keeps nothing of you.</p>
+  <dl class="supply" data-r>
     <div><dt>a plinth</dt><dd>30 x 25 in top, 30 in high, holds 50 lb (23 kg), room inside for the computer</dd></div>
     <div><dt>one outlet</dt><dd>120 v, grounded, within 6 ft (1.8 m)</dd></div>
     <div><dt>a dim spot</dt><dd>away from windows, 8 x 8 ft (2.4 x 2.4 m) at best, 6 x 6 ft at least</dd></div>
@@ -793,59 +285,167 @@
     <div><dt>internet</dt><dd>optional</dd></div>
     <div><dt>if you have them</dt><dd>a 27 in touch monitor or a mac mini: either one cuts what i ship to the basin alone</dd></div>
   </dl>
-
-  <h3>built, and proposed</h3>
-  <table>
-    <tbody>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the spring</th></tr>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the web basin</th></tr>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the drain to black</th></tr>
-      <tr><td class="st"><span class="mark on" role="img" aria-label="built"></span></td><th scope="row">the [syn[k]]hole</th></tr>
-      <tr><td class="st"><span class="mark off" role="img" aria-label="proposed"></span></td><th scope="row">the basin on its plinth</th></tr>
-      <tr><td class="st"><span class="mark off" role="img" aria-label="proposed"></span></td><th scope="row">the daily budget</th></tr>
-    </tbody>
-  </table>
-  <p class="key"><span><span class="mark on" aria-hidden="true"></span>built in 2026</span> <span><span class="mark off" aria-hidden="true"></span>proposed for 2027</span></p>
+  <ol class="built mono" data-r>
+    <li><span class="mk on" role="img" aria-label="built"></span>the spring</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>the web basin</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>the drain to black</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>the [syn[k]]hole</li>
+    <li><span class="mk off" role="img" aria-label="proposed"></span>the basin on its plinth</li>
+    <li><span class="mk off" role="img" aria-label="proposed"></span>the daily budget</li>
+  </ol>
+  <p class="key mono" data-r><span><span class="mk on"></span>built in 2026</span><span><span class="mk off"></span>proposed for 2027</span></p>
 </section>
 
-<!-- 08 -->
-<section id="link">
-  <div class="open">
-    <div class="head">
-      <span class="no">08</span><h2>the link</h2>
-      <p>the basin above is <a class="url" data-piece="home">the piece in a browser</a>, not a recording. my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
-    </div>
-    <figure>
-      <svg class="mv" viewBox="0 0 360 160" role="img" aria-label="a touch on the water: the lines of the current part round the fingertip as a stream parts round a stone, and rings spread out from it and fade; the water answers the hand a quarter of a second late.">
-        <defs><linearGradient id="rp" gradientUnits="userSpaceOnUse" x1="112" y1="12" x2="248" y2="148"><stop class="s-c" offset="0"/><stop class="s-v" offset=".5"/><stop class="s-r" offset="1"/></linearGradient></defs>
-        <path class="hd" d="M24,74L25.9,74L27.9,73.9L29.8,73.9L31.8,73.9L33.8,73.9L35.7,73.9L37.7,73.9L39.6,73.9L41.6,73.9L43.5,73.9L45.4,73.9L47.4,73.9L49.3,73.9L51.3,73.9L53.2,73.9L55.2,73.9L57.2,73.9L59.1,73.9L61,73.9L63,73.9L65,73.9L66.9,73.9L68.8,73.9L70.8,73.9L72.8,73.9L74.7,73.9L76.7,73.9L78.6,73.9L80.5,73.9L82.5,73.9L84.5,73.9L86.4,73.9L88.3,73.9L90.3,73.9L92.2,73.8L94.2,73.8L96.2,73.8L98.1,73.8L100,73.8L102,73.8L104,73.8L105.9,73.8L107.8,73.8L109.8,73.8L111.8,73.7L113.7,73.7L115.7,73.7L117.6,73.7L119.5,73.7L121.5,73.6L123.5,73.6L125.4,73.6L127.3,73.6L129.3,73.5L131.2,73.5L133.2,73.4L135.2,73.4L137.1,73.3L139.1,73.2L141,73.1L142.9,73L144.9,72.9L146.8,72.8L148.8,72.6L150.8,72.4L152.7,72.1L154.7,71.7L156.6,71.3L158.6,70.7L160.5,69.9L162.4,69L164.4,67.9L166.3,66L168.3,65.8L170.2,64.9L172.2,64.1L174.2,63.5L176.1,63L178.1,62.8L180,62.7L181.9,62.8L183.9,63L185.8,63.5L187.8,64.1L189.8,64.9L191.7,65.8L193.7,66L195.6,67.9L197.6,69L199.5,69.9L201.4,70.7L203.4,71.3L205.3,71.7L207.3,72.1L209.2,72.4L211.2,72.6L213.2,72.8L215.1,72.9L217.1,73L219,73.1L220.9,73.2L222.9,73.3L224.8,73.4L226.8,73.4L228.8,73.5L230.7,73.5L232.7,73.6L234.6,73.6L236.6,73.6L238.5,73.6L240.4,73.7L242.4,73.7L244.3,73.7L246.3,73.7L248.2,73.7L250.2,73.8L252.2,73.8L254.1,73.8L256.1,73.8L258,73.8L259.9,73.8L261.9,73.8L263.9,73.8L265.8,73.8L267.8,73.8L269.7,73.9L271.6,73.9L273.6,73.9L275.6,73.9L277.5,73.9L279.4,73.9L281.4,73.9L283.4,73.9L285.3,73.9L287.2,73.9L289.2,73.9L291.1,73.9L293.1,73.9L295.1,73.9L297,73.9L298.9,73.9L300.9,73.9L302.9,73.9L304.8,73.9L306.8,73.9L308.7,73.9L310.6,73.9L312.6,73.9L314.6,73.9L316.5,73.9L318.4,73.9L320.4,73.9L322.4,73.9L324.3,73.9L326.2,73.9L328.2,73.9L330.1,73.9L332.1,73.9L334.1,74L336,74M24,86L25.9,86L27.9,86.1L29.8,86.1L31.8,86.1L33.8,86.1L35.7,86.1L37.7,86.1L39.6,86.1L41.6,86.1L43.5,86.1L45.4,86.1L47.4,86.1L49.3,86.1L51.3,86.1L53.2,86.1L55.2,86.1L57.2,86.1L59.1,86.1L61,86.1L63,86.1L65,86.1L66.9,86.1L68.8,86.1L70.8,86.1L72.8,86.1L74.7,86.1L76.7,86.1L78.6,86.1L80.5,86.1L82.5,86.1L84.5,86.1L86.4,86.1L88.3,86.1L90.3,86.1L92.2,86.2L94.2,86.2L96.2,86.2L98.1,86.2L100,86.2L102,86.2L104,86.2L105.9,86.2L107.8,86.2L109.8,86.2L111.8,86.3L113.7,86.3L115.7,86.3L117.6,86.3L119.5,86.3L121.5,86.4L123.5,86.4L125.4,86.4L127.3,86.4L129.3,86.5L131.2,86.5L133.2,86.6L135.2,86.6L137.1,86.7L139.1,86.8L141,86.9L142.9,87L144.9,87.1L146.8,87.2L148.8,87.4L150.8,87.6L152.7,87.9L154.7,88.3L156.6,88.7L158.6,89.3L160.5,90.1L162.4,91L164.4,92.1L166.3,94L168.3,94.2L170.2,95.1L172.2,95.9L174.2,96.5L176.1,97L178.1,97.2L180,97.3L181.9,97.2L183.9,97L185.8,96.5L187.8,95.9L189.8,95.1L191.7,94.2L193.7,94L195.6,92.1L197.6,91L199.5,90.1L201.4,89.3L203.4,88.7L205.3,88.3L207.3,87.9L209.2,87.6L211.2,87.4L213.2,87.2L215.1,87.1L217.1,87L219,86.9L220.9,86.8L222.9,86.7L224.8,86.6L226.8,86.6L228.8,86.5L230.7,86.5L232.7,86.4L234.6,86.4L236.6,86.4L238.5,86.4L240.4,86.3L242.4,86.3L244.3,86.3L246.3,86.3L248.2,86.3L250.2,86.2L252.2,86.2L254.1,86.2L256.1,86.2L258,86.2L259.9,86.2L261.9,86.2L263.9,86.2L265.8,86.2L267.8,86.2L269.7,86.1L271.6,86.1L273.6,86.1L275.6,86.1L277.5,86.1L279.4,86.1L281.4,86.1L283.4,86.1L285.3,86.1L287.2,86.1L289.2,86.1L291.1,86.1L293.1,86.1L295.1,86.1L297,86.1L298.9,86.1L300.9,86.1L302.9,86.1L304.8,86.1L306.8,86.1L308.7,86.1L310.6,86.1L312.6,86.1L314.6,86.1L316.5,86.1L318.4,86.1L320.4,86.1L322.4,86.1L324.3,86.1L326.2,86.1L328.2,86.1L330.1,86.1L332.1,86.1L334.1,86L336,86M24,64.9L25.9,64.9L27.9,64.9L29.8,64.9L31.8,64.9L33.8,64.9L35.7,64.9L37.7,64.9L39.6,64.9L41.6,64.8L43.5,64.8L45.4,64.8L47.4,64.8L49.3,64.8L51.3,64.8L53.2,64.8L55.2,64.8L57.2,64.8L59.1,64.8L61,64.8L63,64.8L65,64.8L66.9,64.8L68.8,64.8L70.8,64.8L72.8,64.7L74.7,64.7L76.7,64.7L78.6,64.7L80.5,64.7L82.5,64.7L84.5,64.7L86.4,64.7L88.3,64.7L90.3,64.6L92.2,64.6L94.2,64.6L96.2,64.6L98.1,64.6L100,64.5L102,64.5L104,64.5L105.9,64.5L107.8,64.4L109.8,64.4L111.8,64.4L113.7,64.3L115.7,64.3L117.6,64.3L119.5,64.2L121.5,64.2L123.5,64.1L125.4,64L127.3,64L129.3,63.9L131.2,63.8L133.2,63.7L135.2,63.6L137.1,63.5L139.1,63.3L141,63.2L142.9,63L144.9,62.8L146.8,62.6L148.8,62.3L150.8,62L152.7,61.7L154.7,61.3L156.6,60.9L158.6,60.5L160.5,60L162.4,59.5L164.4,59L166.3,58.5L168.3,58L170.2,57.6L172.2,57.3L174.2,57L176.1,56.8L178.1,56.7L180,56.6L181.9,56.7L183.9,56.8L185.8,57L187.8,57.3L189.8,57.6L191.7,58L193.7,58.5L195.6,59L197.6,59.5L199.5,60L201.4,60.5L203.4,60.9L205.3,61.3L207.3,61.7L209.2,62L211.2,62.3L213.2,62.6L215.1,62.8L217.1,63L219,63.2L220.9,63.3L222.9,63.5L224.8,63.6L226.8,63.7L228.8,63.8L230.7,63.9L232.7,64L234.6,64L236.6,64.1L238.5,64.2L240.4,64.2L242.4,64.3L244.3,64.3L246.3,64.3L248.2,64.4L250.2,64.4L252.2,64.4L254.1,64.5L256.1,64.5L258,64.5L259.9,64.5L261.9,64.6L263.9,64.6L265.8,64.6L267.8,64.6L269.7,64.6L271.6,64.7L273.6,64.7L275.6,64.7L277.5,64.7L279.4,64.7L281.4,64.7L283.4,64.7L285.3,64.7L287.2,64.7L289.2,64.8L291.1,64.8L293.1,64.8L295.1,64.8L297,64.8L298.9,64.8L300.9,64.8L302.9,64.8L304.8,64.8L306.8,64.8L308.7,64.8L310.6,64.8L312.6,64.8L314.6,64.8L316.5,64.8L318.4,64.8L320.4,64.9L322.4,64.9L324.3,64.9L326.2,64.9L328.2,64.9L330.1,64.9L332.1,64.9L334.1,64.9L336,64.9M24,95.1L25.9,95.1L27.9,95.1L29.8,95.1L31.8,95.1L33.8,95.1L35.7,95.1L37.7,95.1L39.6,95.1L41.6,95.2L43.5,95.2L45.4,95.2L47.4,95.2L49.3,95.2L51.3,95.2L53.2,95.2L55.2,95.2L57.2,95.2L59.1,95.2L61,95.2L63,95.2L65,95.2L66.9,95.2L68.8,95.2L70.8,95.2L72.8,95.3L74.7,95.3L76.7,95.3L78.6,95.3L80.5,95.3L82.5,95.3L84.5,95.3L86.4,95.3L88.3,95.3L90.3,95.4L92.2,95.4L94.2,95.4L96.2,95.4L98.1,95.4L100,95.5L102,95.5L104,95.5L105.9,95.5L107.8,95.6L109.8,95.6L111.8,95.6L113.7,95.7L115.7,95.7L117.6,95.7L119.5,95.8L121.5,95.8L123.5,95.9L125.4,96L127.3,96L129.3,96.1L131.2,96.2L133.2,96.3L135.2,96.4L137.1,96.5L139.1,96.7L141,96.8L142.9,97L144.9,97.2L146.8,97.4L148.8,97.7L150.8,98L152.7,98.3L154.7,98.7L156.6,99.1L158.6,99.5L160.5,100L162.4,100.5L164.4,101L166.3,101.5L168.3,102L170.2,102.4L172.2,102.7L174.2,103L176.1,103.2L178.1,103.3L180,103.4L181.9,103.3L183.9,103.2L185.8,103L187.8,102.7L189.8,102.4L191.7,102L193.7,101.5L195.6,101L197.6,100.5L199.5,100L201.4,99.5L203.4,99.1L205.3,98.7L207.3,98.3L209.2,98L211.2,97.7L213.2,97.4L215.1,97.2L217.1,97L219,96.8L220.9,96.7L222.9,96.5L224.8,96.4L226.8,96.3L228.8,96.2L230.7,96.1L232.7,96L234.6,96L236.6,95.9L238.5,95.8L240.4,95.8L242.4,95.7L244.3,95.7L246.3,95.7L248.2,95.6L250.2,95.6L252.2,95.6L254.1,95.5L256.1,95.5L258,95.5L259.9,95.5L261.9,95.4L263.9,95.4L265.8,95.4L267.8,95.4L269.7,95.4L271.6,95.3L273.6,95.3L275.6,95.3L277.5,95.3L279.4,95.3L281.4,95.3L283.4,95.3L285.3,95.3L287.2,95.3L289.2,95.2L291.1,95.2L293.1,95.2L295.1,95.2L297,95.2L298.9,95.2L300.9,95.2L302.9,95.2L304.8,95.2L306.8,95.2L308.7,95.2L310.6,95.2L312.6,95.2L314.6,95.2L316.5,95.2L318.4,95.2L320.4,95.1L322.4,95.1L324.3,95.1L326.2,95.1L328.2,95.1L330.1,95.1L332.1,95.1L334.1,95.1L336,95.1M24,53.8L25.9,53.8L27.9,53.8L29.8,53.8L31.8,53.8L33.8,53.8L35.7,53.8L37.7,53.8L39.6,53.7L41.6,53.7L43.5,53.7L45.4,53.7L47.4,53.7L49.3,53.7L51.3,53.7L53.2,53.7L55.2,53.7L57.2,53.7L59.1,53.7L61,53.7L63,53.6L65,53.6L66.9,53.6L68.8,53.6L70.8,53.6L72.8,53.6L74.7,53.6L76.7,53.5L78.6,53.5L80.5,53.5L82.5,53.5L84.5,53.5L86.4,53.5L88.3,53.4L90.3,53.4L92.2,53.4L94.2,53.4L96.2,53.3L98.1,53.3L100,53.3L102,53.2L104,53.2L105.9,53.2L107.8,53.1L109.8,53.1L111.8,53L113.7,53L115.7,52.9L117.6,52.9L119.5,52.8L121.5,52.7L123.5,52.6L125.4,52.6L127.3,52.5L129.3,52.4L131.2,52.3L133.2,52.2L135.2,52L137.1,51.9L139.1,51.8L141,51.6L142.9,51.4L144.9,51.3L146.8,51.1L148.8,50.9L150.8,50.6L152.7,50.4L154.7,50.2L156.6,49.9L158.6,49.7L160.5,49.4L162.4,49.2L164.4,49L166.3,48.7L168.3,48.5L170.2,48.3L172.2,48.2L174.2,48.1L176.1,48L178.1,47.9L180,47.9L181.9,47.9L183.9,48L185.8,48.1L187.8,48.2L189.8,48.3L191.7,48.5L193.7,48.7L195.6,49L197.6,49.2L199.5,49.4L201.4,49.7L203.4,49.9L205.3,50.2L207.3,50.4L209.2,50.6L211.2,50.9L213.2,51.1L215.1,51.3L217.1,51.4L219,51.6L220.9,51.8L222.9,51.9L224.8,52L226.8,52.2L228.8,52.3L230.7,52.4L232.7,52.5L234.6,52.6L236.6,52.6L238.5,52.7L240.4,52.8L242.4,52.9L244.3,52.9L246.3,53L248.2,53L250.2,53.1L252.2,53.1L254.1,53.2L256.1,53.2L258,53.2L259.9,53.3L261.9,53.3L263.9,53.3L265.8,53.4L267.8,53.4L269.7,53.4L271.6,53.4L273.6,53.5L275.6,53.5L277.5,53.5L279.4,53.5L281.4,53.5L283.4,53.5L285.3,53.6L287.2,53.6L289.2,53.6L291.1,53.6L293.1,53.6L295.1,53.6L297,53.6L298.9,53.7L300.9,53.7L302.9,53.7L304.8,53.7L306.8,53.7L308.7,53.7L310.6,53.7L312.6,53.7L314.6,53.7L316.5,53.7L318.4,53.7L320.4,53.7L322.4,53.8L324.3,53.8L326.2,53.8L328.2,53.8L330.1,53.8L332.1,53.8L334.1,53.8L336,53.8M24,106.2L25.9,106.2L27.9,106.2L29.8,106.2L31.8,106.2L33.8,106.2L35.7,106.2L37.7,106.2L39.6,106.3L41.6,106.3L43.5,106.3L45.4,106.3L47.4,106.3L49.3,106.3L51.3,106.3L53.2,106.3L55.2,106.3L57.2,106.3L59.1,106.3L61,106.3L63,106.4L65,106.4L66.9,106.4L68.8,106.4L70.8,106.4L72.8,106.4L74.7,106.4L76.7,106.5L78.6,106.5L80.5,106.5L82.5,106.5L84.5,106.5L86.4,106.5L88.3,106.6L90.3,106.6L92.2,106.6L94.2,106.6L96.2,106.7L98.1,106.7L100,106.7L102,106.8L104,106.8L105.9,106.8L107.8,106.9L109.8,106.9L111.8,107L113.7,107L115.7,107.1L117.6,107.1L119.5,107.2L121.5,107.3L123.5,107.4L125.4,107.4L127.3,107.5L129.3,107.6L131.2,107.7L133.2,107.8L135.2,108L137.1,108.1L139.1,108.2L141,108.4L142.9,108.6L144.9,108.7L146.8,108.9L148.8,109.1L150.8,109.4L152.7,109.6L154.7,109.8L156.6,110.1L158.6,110.3L160.5,110.6L162.4,110.8L164.4,111L166.3,111.3L168.3,111.5L170.2,111.7L172.2,111.8L174.2,111.9L176.1,112L178.1,112.1L180,112.1L181.9,112.1L183.9,112L185.8,111.9L187.8,111.8L189.8,111.7L191.7,111.5L193.7,111.3L195.6,111L197.6,110.8L199.5,110.6L201.4,110.3L203.4,110.1L205.3,109.8L207.3,109.6L209.2,109.4L211.2,109.1L213.2,108.9L215.1,108.7L217.1,108.6L219,108.4L220.9,108.2L222.9,108.1L224.8,108L226.8,107.8L228.8,107.7L230.7,107.6L232.7,107.5L234.6,107.4L236.6,107.4L238.5,107.3L240.4,107.2L242.4,107.1L244.3,107.1L246.3,107L248.2,107L250.2,106.9L252.2,106.9L254.1,106.8L256.1,106.8L258,106.8L259.9,106.7L261.9,106.7L263.9,106.7L265.8,106.6L267.8,106.6L269.7,106.6L271.6,106.6L273.6,106.5L275.6,106.5L277.5,106.5L279.4,106.5L281.4,106.5L283.4,106.5L285.3,106.4L287.2,106.4L289.2,106.4L291.1,106.4L293.1,106.4L295.1,106.4L297,106.4L298.9,106.3L300.9,106.3L302.9,106.3L304.8,106.3L306.8,106.3L308.7,106.3L310.6,106.3L312.6,106.3L314.6,106.3L316.5,106.3L318.4,106.3L320.4,106.3L322.4,106.2L324.3,106.2L326.2,106.2L328.2,106.2L330.1,106.2L332.1,106.2L334.1,106.2L336,106.2M24,40.7L25.9,40.7L27.9,40.7L29.8,40.7L31.8,40.7L33.8,40.7L35.7,40.7L37.7,40.6L39.6,40.6L41.6,40.6L43.5,40.6L45.4,40.6L47.4,40.6L49.3,40.6L51.3,40.6L53.2,40.6L55.2,40.5L57.2,40.5L59.1,40.5L61,40.5L63,40.5L65,40.5L66.9,40.5L68.8,40.4L70.8,40.4L72.8,40.4L74.7,40.4L76.7,40.4L78.6,40.3L80.5,40.3L82.5,40.3L84.5,40.3L86.4,40.2L88.3,40.2L90.3,40.2L92.2,40.2L94.2,40.1L96.2,40.1L98.1,40.1L100,40L102,40L104,39.9L105.9,39.9L107.8,39.8L109.8,39.8L111.8,39.7L113.7,39.7L115.7,39.6L117.6,39.6L119.5,39.5L121.5,39.4L123.5,39.4L125.4,39.3L127.3,39.2L129.3,39.1L131.2,39L133.2,38.9L135.2,38.8L137.1,38.7L139.1,38.6L141,38.5L142.9,38.4L144.9,38.2L146.8,38.1L148.8,38L150.8,37.9L152.7,37.7L154.7,37.6L156.6,37.5L158.6,37.3L160.5,37.2L162.4,37.1L164.4,37L166.3,36.9L168.3,36.8L170.2,36.7L172.2,36.6L174.2,36.6L176.1,36.5L178.1,36.5L180,36.5L181.9,36.5L183.9,36.5L185.8,36.6L187.8,36.6L189.8,36.7L191.7,36.8L193.7,36.9L195.6,37L197.6,37.1L199.5,37.2L201.4,37.3L203.4,37.5L205.3,37.6L207.3,37.7L209.2,37.9L211.2,38L213.2,38.1L215.1,38.2L217.1,38.4L219,38.5L220.9,38.6L222.9,38.7L224.8,38.8L226.8,38.9L228.8,39L230.7,39.1L232.7,39.2L234.6,39.3L236.6,39.4L238.5,39.4L240.4,39.5L242.4,39.6L244.3,39.6L246.3,39.7L248.2,39.7L250.2,39.8L252.2,39.8L254.1,39.9L256.1,39.9L258,40L259.9,40L261.9,40.1L263.9,40.1L265.8,40.1L267.8,40.2L269.7,40.2L271.6,40.2L273.6,40.2L275.6,40.3L277.5,40.3L279.4,40.3L281.4,40.3L283.4,40.4L285.3,40.4L287.2,40.4L289.2,40.4L291.1,40.4L293.1,40.5L295.1,40.5L297,40.5L298.9,40.5L300.9,40.5L302.9,40.5L304.8,40.5L306.8,40.6L308.7,40.6L310.6,40.6L312.6,40.6L314.6,40.6L316.5,40.6L318.4,40.6L320.4,40.6L322.4,40.6L324.3,40.7L326.2,40.7L328.2,40.7L330.1,40.7L332.1,40.7L334.1,40.7L336,40.7M24,119.3L25.9,119.3L27.9,119.3L29.8,119.3L31.8,119.3L33.8,119.3L35.7,119.3L37.7,119.4L39.6,119.4L41.6,119.4L43.5,119.4L45.4,119.4L47.4,119.4L49.3,119.4L51.3,119.4L53.2,119.4L55.2,119.5L57.2,119.5L59.1,119.5L61,119.5L63,119.5L65,119.5L66.9,119.5L68.8,119.6L70.8,119.6L72.8,119.6L74.7,119.6L76.7,119.6L78.6,119.7L80.5,119.7L82.5,119.7L84.5,119.7L86.4,119.8L88.3,119.8L90.3,119.8L92.2,119.8L94.2,119.9L96.2,119.9L98.1,119.9L100,120L102,120L104,120.1L105.9,120.1L107.8,120.2L109.8,120.2L111.8,120.3L113.7,120.3L115.7,120.4L117.6,120.4L119.5,120.5L121.5,120.6L123.5,120.6L125.4,120.7L127.3,120.8L129.3,120.9L131.2,121L133.2,121.1L135.2,121.2L137.1,121.3L139.1,121.4L141,121.5L142.9,121.6L144.9,121.8L146.8,121.9L148.8,122L150.8,122.1L152.7,122.3L154.7,122.4L156.6,122.5L158.6,122.7L160.5,122.8L162.4,122.9L164.4,123L166.3,123.1L168.3,123.2L170.2,123.3L172.2,123.4L174.2,123.4L176.1,123.5L178.1,123.5L180,123.5L181.9,123.5L183.9,123.5L185.8,123.4L187.8,123.4L189.8,123.3L191.7,123.2L193.7,123.1L195.6,123L197.6,122.9L199.5,122.8L201.4,122.7L203.4,122.5L205.3,122.4L207.3,122.3L209.2,122.1L211.2,122L213.2,121.9L215.1,121.8L217.1,121.6L219,121.5L220.9,121.4L222.9,121.3L224.8,121.2L226.8,121.1L228.8,121L230.7,120.9L232.7,120.8L234.6,120.7L236.6,120.6L238.5,120.6L240.4,120.5L242.4,120.4L244.3,120.4L246.3,120.3L248.2,120.3L250.2,120.2L252.2,120.2L254.1,120.1L256.1,120.1L258,120L259.9,120L261.9,119.9L263.9,119.9L265.8,119.9L267.8,119.8L269.7,119.8L271.6,119.8L273.6,119.8L275.6,119.7L277.5,119.7L279.4,119.7L281.4,119.7L283.4,119.6L285.3,119.6L287.2,119.6L289.2,119.6L291.1,119.6L293.1,119.5L295.1,119.5L297,119.5L298.9,119.5L300.9,119.5L302.9,119.5L304.8,119.5L306.8,119.4L308.7,119.4L310.6,119.4L312.6,119.4L314.6,119.4L316.5,119.4L318.4,119.4L320.4,119.4L322.4,119.4L324.3,119.3L326.2,119.3L328.2,119.3L330.1,119.3L332.1,119.3L334.1,119.3L336,119.3M24,25.6L25.9,25.6L27.9,25.6L29.8,25.6L31.8,25.6L33.8,25.6L35.7,25.6L37.7,25.5L39.6,25.5L41.6,25.5L43.5,25.5L45.4,25.5L47.4,25.5L49.3,25.5L51.3,25.5L53.2,25.4L55.2,25.4L57.2,25.4L59.1,25.4L61,25.4L63,25.4L65,25.3L66.9,25.3L68.8,25.3L70.8,25.3L72.8,25.3L74.7,25.2L76.7,25.2L78.6,25.2L80.5,25.2L82.5,25.1L84.5,25.1L86.4,25.1L88.3,25.1L90.3,25L92.2,25L94.2,25L96.2,24.9L98.1,24.9L100,24.9L102,24.8L104,24.8L105.9,24.7L107.8,24.7L109.8,24.6L111.8,24.6L113.7,24.5L115.7,24.5L117.6,24.4L119.5,24.4L121.5,24.3L123.5,24.3L125.4,24.2L127.3,24.1L129.3,24.1L131.2,24L133.2,23.9L135.2,23.9L137.1,23.8L139.1,23.7L141,23.6L142.9,23.6L144.9,23.5L146.8,23.4L148.8,23.3L150.8,23.3L152.7,23.2L154.7,23.1L156.6,23.1L158.6,23L160.5,22.9L162.4,22.9L164.4,22.8L166.3,22.8L168.3,22.7L170.2,22.7L172.2,22.6L174.2,22.6L176.1,22.6L178.1,22.6L180,22.6L181.9,22.6L183.9,22.6L185.8,22.6L187.8,22.6L189.8,22.7L191.7,22.7L193.7,22.8L195.6,22.8L197.6,22.9L199.5,22.9L201.4,23L203.4,23.1L205.3,23.1L207.3,23.2L209.2,23.3L211.2,23.3L213.2,23.4L215.1,23.5L217.1,23.6L219,23.6L220.9,23.7L222.9,23.8L224.8,23.9L226.8,23.9L228.8,24L230.7,24.1L232.7,24.1L234.6,24.2L236.6,24.3L238.5,24.3L240.4,24.4L242.4,24.4L244.3,24.5L246.3,24.5L248.2,24.6L250.2,24.6L252.2,24.7L254.1,24.7L256.1,24.8L258,24.8L259.9,24.9L261.9,24.9L263.9,24.9L265.8,25L267.8,25L269.7,25L271.6,25.1L273.6,25.1L275.6,25.1L277.5,25.1L279.4,25.2L281.4,25.2L283.4,25.2L285.3,25.2L287.2,25.3L289.2,25.3L291.1,25.3L293.1,25.3L295.1,25.3L297,25.4L298.9,25.4L300.9,25.4L302.9,25.4L304.8,25.4L306.8,25.4L308.7,25.5L310.6,25.5L312.6,25.5L314.6,25.5L316.5,25.5L318.4,25.5L320.4,25.5L322.4,25.5L324.3,25.6L326.2,25.6L328.2,25.6L330.1,25.6L332.1,25.6L334.1,25.6L336,25.6M24,134.4L25.9,134.4L27.9,134.4L29.8,134.4L31.8,134.4L33.8,134.4L35.7,134.4L37.7,134.5L39.6,134.5L41.6,134.5L43.5,134.5L45.4,134.5L47.4,134.5L49.3,134.5L51.3,134.5L53.2,134.6L55.2,134.6L57.2,134.6L59.1,134.6L61,134.6L63,134.6L65,134.7L66.9,134.7L68.8,134.7L70.8,134.7L72.8,134.7L74.7,134.8L76.7,134.8L78.6,134.8L80.5,134.8L82.5,134.9L84.5,134.9L86.4,134.9L88.3,134.9L90.3,135L92.2,135L94.2,135L96.2,135.1L98.1,135.1L100,135.1L102,135.2L104,135.2L105.9,135.3L107.8,135.3L109.8,135.4L111.8,135.4L113.7,135.5L115.7,135.5L117.6,135.6L119.5,135.6L121.5,135.7L123.5,135.7L125.4,135.8L127.3,135.9L129.3,135.9L131.2,136L133.2,136.1L135.2,136.1L137.1,136.2L139.1,136.3L141,136.4L142.9,136.4L144.9,136.5L146.8,136.6L148.8,136.7L150.8,136.7L152.7,136.8L154.7,136.9L156.6,136.9L158.6,137L160.5,137.1L162.4,137.1L164.4,137.2L166.3,137.2L168.3,137.3L170.2,137.3L172.2,137.4L174.2,137.4L176.1,137.4L178.1,137.4L180,137.4L181.9,137.4L183.9,137.4L185.8,137.4L187.8,137.4L189.8,137.3L191.7,137.3L193.7,137.2L195.6,137.2L197.6,137.1L199.5,137.1L201.4,137L203.4,136.9L205.3,136.9L207.3,136.8L209.2,136.7L211.2,136.7L213.2,136.6L215.1,136.5L217.1,136.4L219,136.4L220.9,136.3L222.9,136.2L224.8,136.1L226.8,136.1L228.8,136L230.7,135.9L232.7,135.9L234.6,135.8L236.6,135.7L238.5,135.7L240.4,135.6L242.4,135.6L244.3,135.5L246.3,135.5L248.2,135.4L250.2,135.4L252.2,135.3L254.1,135.3L256.1,135.2L258,135.2L259.9,135.1L261.9,135.1L263.9,135.1L265.8,135L267.8,135L269.7,135L271.6,134.9L273.6,134.9L275.6,134.9L277.5,134.9L279.4,134.8L281.4,134.8L283.4,134.8L285.3,134.8L287.2,134.7L289.2,134.7L291.1,134.7L293.1,134.7L295.1,134.7L297,134.6L298.9,134.6L300.9,134.6L302.9,134.6L304.8,134.6L306.8,134.6L308.7,134.5L310.6,134.5L312.6,134.5L314.6,134.5L316.5,134.5L318.4,134.5L320.4,134.5L322.4,134.5L324.3,134.4L326.2,134.4L328.2,134.4L330.1,134.4L332.1,134.4L334.1,134.4L336,134.4"/>
-        <circle class="trace-p ripple" stroke="url(#rp)" cx="180" cy="80" r="62" style="transform-origin:180px 80px; opacity:.4"/>
-        <circle class="trace-p ripple d2" stroke="url(#rp)" cx="180" cy="80" r="62" style="transform-origin:180px 80px; opacity:.4"/>
-        <circle class="trace-p ripple d3" stroke="url(#rp)" cx="180" cy="80" r="62" style="transform-origin:180px 80px; opacity:.4"/>
-        <circle class="cn" cx="180" cy="80" r="14"/>
-        <path class="cn" d="M156,80H164M196,80H204M180,56V64M180,96V104"/>
-        <circle class="node" cx="180" cy="80" r="9"/>
-        <text class="t-r" x="24" y="154">late = 0.25 s</text>
-      </svg>
-    </figure>
-  </div>
+<section id="link" data-n="08">
+  <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span>the link</span></h2>
+  <p class="say" data-r>this is <a data-piece="home" href="index.html">the piece in a browser</a>, not a recording.</p>
+  <div class="live wide" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: a basin seen from above, drawn as dots of light round a drain. press and hold to reach in."></iframe></div>
+  <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
+</section>
 
-  <h3>body of work</h3>
-  <ul class="works">
-    <li>an evolution of vanitas veritas (2026), an earlier sink of mine, on the same spring.</li>
-    <li>the code, <a data-piece="code">on github</a></li>
+<section class="foot">
+  <ul data-r>
+    <li><a data-piece="home" href="index.html">the piece</a></li>
+    <li><a data-piece="code" href="https://github.com/kat-titter/currents-2027">the code, on github</a></li>
+  </ul>
+  <p class="mono" data-r>body of work</p>
+  <ul data-r>
+    <li>vanitas veritas (2026), an earlier sink of mine, on the same spring</li>
     <li>bare metal (2025): <a href="https://www.macrofluidic.me/gallery">the gallery</a>, <a href="https://www.macrofluidic.me/blog">the process essay</a></li>
     <li>treble (2026): <a href="https://soundcloud.com/ex_gf/pilot">p[i]lot</a>, <a href="https://soundcloud.com/ex_gf/p-ai-lot">p[ai]lot</a></li>
   </ul>
+  <p class="sign" data-r>kat titterton, <a href="https://www.macrofluidic.me/">macrofluidic</a></p>
 </section>
-
-<footer class="foot" id="who">
-  <p>kat titterton, <a href="https://www.macrofluidic.me/">macrofluidic</a></p>
-  <ul class="links">
-    <li><a data-piece="home">the basin</a></li>
-  </ul>
-</footer>
-
 </main>
+
+<!-- THE PIECE'S ADDRESSES, written here and nowhere else in this file. frame stays relative: the piece's own page beside this one, at its own default look.
+     home: the piece's public address (Kat: "Yes, currents-2027", 2026-11-17). code: the piece's own repository (Kat: "hyperlinks to piece and about should also reflect currents not tiat"). -->
+<script>
+(() => {
+'use strict';
+const PIECE = { frame:'index.html', home:'https://kat-titter.github.io/currents-2027/synkhole/', code:'https://github.com/kat-titter/currents-2027' };
+document.querySelectorAll('[data-piece]').forEach((el) => { el[el.tagName === 'IFRAME' ? 'src' : 'href'] = PIECE[el.getAttribute('data-piece')]; });
+
+const STILL = new URLSearchParams(location.search).has('still') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const BONE = [228, 223, 210], FILM = [[89, 230, 255], [158, 122, 255], [255, 115, 184]];   // the piece's pearl: bone under a film of cyan, violet, rose
+const mixc = (a, b, f) => [a[0] + (b[0] - a[0])*f, a[1] + (b[1] - a[1])*f, a[2] + (b[2] - a[2])*f];
+function film(x){ x = (x % 1 + 1) % 1*3; const i = Math.floor(x), f = x - i; return mixc(FILM[i], FILM[(i + 1) % 3], f*f*(3 - 2*f)); }
+const hash = (a, b) => { const s = Math.sin(a*127.1 + b*311.7)*43758.5453; return s - Math.floor(s); };
+const rgb = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+
+// the hole, in pearl, wherever the word falls (after the coloured "house" of House of Leaves)
+{ const tw = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT, { acceptNode:(n) => /hole/.test(n.nodeValue) && !n.parentElement.closest('a, code, h1, .mono, .h, [aria-hidden]') ? 1 : 2 });
+  const hits = []; while (tw.nextNode()) hits.push(tw.currentNode);
+  hits.forEach((n) => { const f = document.createDocumentFragment(); n.nodeValue.split(/(hole)/).forEach((s) => { if (s === 'hole') { const e = document.createElement('span'); e.className = 'h'; e.textContent = s; f.append(e); } else if (s) f.append(s); }); n.replaceWith(f); }); }
+
+// time lost here, as the drain counts it
+const lostEl = document.querySelector('#lost b'), t0 = performance.now();
+setInterval(() => { const s = Math.floor((performance.now() - t0)/1000); lostEl.textContent = `${String(Math.floor(s/60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }, 1000);
+
+// where you are: 01 / 08
+const countEl = document.getElementById('count'), secs = [...document.querySelectorAll('section[data-n]')];
+function where(){ const mid = innerHeight*0.5; let n = '00'; for (const s of secs) if (s.getBoundingClientRect().top < mid) n = s.dataset.n; countEl.textContent = `${n} / 08`; }
+addEventListener('scroll', where, { passive:true }); where();
+
+// reveals
+if (!STILL && 'IntersectionObserver' in window) {
+  document.documentElement.classList.add('rv');
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('up'); io.unobserve(e.target); } }), { rootMargin:'0px 0px -8% 0px' });
+  document.querySelectorAll('[data-r]').forEach((el) => io.observe(el));
+}
+
+// the ground: a field of dots at the screen's own pixels, the same grid as the piece. On the opening a black hole sits in it:
+// the grid is bent round it (a point lens, both images), dragged into a slow twist, and every dot keeps its own clock, slower near the edge.
+const cv = document.getElementById('field'), cx = cv.getContext('2d');
+let W = 0, H = 0, D = 1, P = 10, mx = -1e4, my = -1e4;
+function size(){ D = Math.min(3, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = Math.round(W*D); cv.height = Math.round(H*D); P = W < 600 ? 9 : 10; }
+addEventListener('resize', () => { size(); if (STILL) field(0); dotAll(); });
+addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; }, { passive:true });
+addEventListener('pointerleave', () => { mx = my = -1e4; });
+const NB = 12, NA = 4, paths = [];
+function field(t){
+  cx.setTransform(D, 0, 0, D, 0, 0); cx.clearRect(0, 0, W, H);
+  const small = W < 760, hx = small ? W*0.5 : W*0.70, hy = (small ? H*0.31 : H*0.40) - scrollY;
+  const RH = small ? 22 : 32, E = small ? 56 : 80, on = hy > -E*4 && hy < H + E*4;
+  const tw = 0.9 + 0.35*Math.sin(t*0.043), calm = 1 - 0.55*Math.min(1, scrollY/(H*0.8));
+  for (let i = 0; i < NB*NA; i++) paths[i] = new Path2D();
+  const put = (x, y, r, v, z, i, j) => {
+    if (x < -4 || y < -4 || x > W + 4 || y > H + 4 || r < 0.25) return;
+    const hue = Math.floor(((x*0.0011 + y*0.0006 + t*0.012 + 0.5*v) % 1 + 1) % 1*NB);
+    let a = Math.min(NA - 1, Math.floor((0.12 + 1.6*v)*NA*(1 - 0.7*z*z*z)));
+    const p = paths[(z > 0.55 ? 8 : hue)*NA + Math.max(0, a)];   // 8: the film's rose
+    p.moveTo(x + r, y); p.arc(x, y, r, 0, 6.2832);
+  };
+  const c0 = -2, c1 = Math.ceil(W/P) + 2, r0 = -2, r1 = Math.ceil(H/P) + 2, oy = ((-scrollY*0.15) % P + P) % P;
+  for (let j = r0; j <= r1; j++) for (let i = c0; i <= c1; i++) {
+    const x = i*P + P*0.5, y = j*P + oy;
+    const gj = j + Math.floor(scrollY*0.15/P);
+    const v0 = 0.5 + 0.5*(Math.sin(x*0.0062 + t*0.05)*Math.sin(gj*P*0.0081 - t*0.04) + 0.6*Math.sin((x + gj*P)*0.0037 + t*0.031))/1.6;
+    const v = Math.pow(Math.max(0, v0), 2.4)*calm;                             // mostly dark water, with slow swells of light; quieter under the text
+    const tick = Math.floor(t*1.3*(0.6 + 0.8*hash(i, gj)) + 9*hash(gj, i));
+    const hand = 1 + 0.9*Math.exp(-((x - mx)**2 + (y - my)**2)/8100);
+    const base = P*(0.085 + 0.19*v)*hand;
+    if (!on) { put(x, y, base*(0.7 + 0.3*hash(i + tick, gj)), v, 0, i, gj); continue; }
+    const bx = x - hx, by = y - hy, b = Math.hypot(bx, by); if (b < 0.5) continue;
+    const ux = bx/b, uy = by/b, s4 = Math.sqrt(b*b + 4*E*E);
+    for (const th of [(b + s4)/2, (b - s4)/2]) {                               // the two images of every dot behind the hole
+      const at = Math.abs(th); if (at < RH*1.04) continue;
+      const mag = Math.min(2.4, Math.sqrt(at/b)); if (th < 0 && mag < 0.3) continue;
+      const clock = Math.sqrt(Math.max(0, 1 - RH/at)), z = 1 - clock;          // near the edge a dot's clock runs slow, and its light goes rose
+      const tk = Math.floor(t*1.3*clock*(0.6 + 0.8*hash(i, gj)) + 9*hash(gj, i));
+      const ang = tw*RH*RH/Math.max(at*at, RH*RH), ca = Math.cos(ang), sa = Math.sin(ang);
+      const px = ux*th, py = uy*th;
+      put(hx + px*ca - py*sa, hy + px*sa + py*ca, base*mag*(0.7 + 0.3*hash(i + tk, gj)), Math.min(1, v + 0.25*(mag - 1)), z, i, gj);
+    }
+  }
+  for (let h = 0; h < NB; h++) for (let a = 0; a < NA; a++) {
+    const c = mixc(BONE, film(h/NB), 0.5);
+    cx.fillStyle = rgb(c, [0.22, 0.34, 0.5, 0.72][a]); cx.fill(paths[h*NA + a]);
+  }
+  if (on) {                                                                     // the dark, and one thin ring of light at its edge
+    cx.fillStyle = '#030304'; cx.beginPath(); cx.arc(hx, hy, RH, 0, 6.2832); cx.fill();
+    const g = cx.createConicGradient ? cx.createConicGradient(t*0.04, hx, hy) : null;
+    if (g) { g.addColorStop(0, '#59e6ff'); g.addColorStop(0.33, '#9e7aff'); g.addColorStop(0.66, '#ff73b8'); g.addColorStop(1, '#59e6ff'); }
+    cx.lineWidth = 1; cx.strokeStyle = g || '#cfc4fb'; cx.globalAlpha = 0.85; cx.beginPath(); cx.arc(hx, hy, RH*1.1, 0, 6.2832); cx.stroke();
+    cx.globalAlpha = 0.9; cx.lineWidth = 1.6; cx.strokeStyle = 'rgba(228,223,210,0.55)'; cx.beginPath(); cx.arc(hx, hy, RH*1.1, 2.0, 3.4); cx.stroke();   // brighter on the side that turns toward you
+    cx.globalAlpha = 0.35; cx.lineWidth = 0.6; cx.strokeStyle = g || '#cfc4fb'; cx.beginPath(); cx.arc(hx, hy, RH*1.2, 0, 6.2832); cx.stroke();
+    cx.globalAlpha = 1;
+  }
+}
+size();
+if (STILL) { field(0); addEventListener('scroll', () => field(0), { passive:true }); }   // still: drawn once, and again where you scroll to
+else { let last = 0; const loop = (now) => { requestAnimationFrame(loop); if (document.hidden || now - last < 40) return; last = now; field(now/1000); }; requestAnimationFrame(loop); }
+
+// the pictures, drawn as dots: one dot per cell, as large as the cell is bright; bone at its heart, the film toward its edge
+const imgs = new Map();
+function dotFig(fig){
+  const canvas = fig.querySelector('canvas'), src = fig.dataset.src, w = canvas.clientWidth; if (!w) return;
+  const go = (img) => {
+    const ratio = img ? img.naturalHeight/img.naturalWidth : 0.75, h = Math.round(w*ratio), d = Math.min(3, devicePixelRatio || 1);
+    canvas.width = Math.round(w*d); canvas.height = Math.round(h*d); canvas.style.height = h + 'px';
+    const x = canvas.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, w, h);
+    const p = w < 300 ? 5 : w < 520 ? 6 : 7, cols = Math.floor(w/p), rows = Math.floor(h/p), ox = (w - cols*p)/2 + p/2, oy = (h - rows*p)/2 + p/2;
+    let px = null;
+    if (img) { const s = document.createElement('canvas'); s.width = cols; s.height = rows; const sx = s.getContext('2d'); sx.drawImage(img, 0, 0, cols, rows);
+      try { px = sx.getImageData(0, 0, cols, rows).data; } catch (e) { px = null; } }
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const cx_ = ox + i*p, cy_ = oy + j*p;
+      if (!px) { x.fillStyle = 'rgba(228,223,210,0.22)'; x.beginPath(); x.arc(cx_, cy_, p*0.13, 0, 6.2832); x.fill(); continue; }   // water = None: the grid, its dots out
+      const k = (j*cols + i)*4, c = [px[k], px[k + 1], px[k + 2]], l = (0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2])/255;
+      const r = p*0.5*(0.08 + 0.88*Math.sqrt(l)); if (r < 0.3) continue;
+      const f = film(i/cols*0.9 + j/rows*0.5 + 0.6*l);
+      x.fillStyle = rgb(mixc(c, f, 0.42), 0.95); x.beginPath(); x.arc(cx_, cy_, r, 0, 6.2832); x.fill();
+      if (r > 1.1) { x.fillStyle = rgb(mixc(c, BONE, 0.55), 1); x.beginPath(); x.arc(cx_, cy_, r*0.56, 0, 6.2832); x.fill(); }
+    }
+  };
+  if (!src) return go(null);
+  if (imgs.has(src)) { const im = imgs.get(src); return im.complete && im.naturalWidth ? go(im) : im.addEventListener('load', () => go(im), { once:true }); }
+  const im = new Image(); imgs.set(src, im); im.onload = () => go(im); im.src = src;
+}
+let dotT = 0;
+function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => document.querySelectorAll('figure.dots').forEach(dotFig), 120); }
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(dotAll); dotAll();
+})();
+</script>
 </body>
 </html>
