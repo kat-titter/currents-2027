@@ -97,6 +97,26 @@ const KW = K > 0 ? kNum('kw', 0) : 0;   // warmth out: how much of a dream's gol
 //   drags it into a slow twist, and slows the dots' clocks to a stop at its edge, where their light goes to rose. A thin ring of light at the edge of the dark
 const QD = K > 0 ? kNum('qd', 0) : 0, QN = Math.max(24, Math.min(256, parseInt(params.get('qn')) || 128)), BH = K > 0 ? kNum('bh', 0) : 0;
 const hg = { a:0, t:0 };   // ?bh: how much gravity the hand has now (eased)
+// ?qd glyphs (Kat: "Yes, glyphs"; after v2's code in the grain): where a dot dies (near the hole, near a hand, everywhere as the basin drains) it turns into one letter of the page's own code line, read along its row
+const gx = { tex:null, codes:new Float32Array(192), n:1, line:'' };
+function gxAtlas(){                       // printable ASCII and a dot, 16 by 6 slots of 48 px, the page's mono font, pale bone on black; made once
+  const P = 48, cv = document.createElement('canvas'); cv.width = 16*P; cv.height = 6*P;
+  const x = cv.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, cv.width, cv.height);
+  x.font = `${Math.round(P*0.72)}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+  x.fillStyle = '#e4dfd2'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  for (let i = 0; i < 96; i++) x.fillText(i < 95 ? String.fromCharCode(32 + i) : '·', (i % 16 + 0.5)*P, (Math.floor(i/16) + 0.55)*P);
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+const GX_WORDS = '[s]ink  [d]rain  s[pace]  [k]now  [c]lock  [h]old  pe[a]rl  [w]hole  ';   // a bracket hides a letter; take it out and the word says something else (Kat: "Yes, bracket words")
+function gxLine(){                        // the line as the page writes it while a dream pours: the prompt, or the reservoir (without its comment); draining or dry, the bracket words
+  const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : RES && res.on && water > 0.5 ? RES_LINE.split('  #')[0] : GX_WORDS;
+  if (t === gx.line) return; gx.line = t; gx.n = Math.max(1, Math.min(192, t.length));
+  for (let i = 0; i < gx.n; i++) { const c = t.charCodeAt(i); gx.codes[i] = c >= 32 && c < 127 ? c - 32 : 95; }
+}
 
 const view = { w:1, h:1, cx:0, cy:0, S:1, dpr:1 };
 function layout(){
@@ -449,6 +469,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
     put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', ' c = mix(c, vec3(lum(c)), uKW*clamp((min(c.r, c.g) - c.b)*6., 0., 1.));');
   }
   if (QD > 0 || BH > 0) {                              // ?qd, ?bh: the quanta and the black hole. The lens bends where the picture and the grid are read; the dots are drawn last, over all the water's light
+    put('display', 'uniform vec4 uKH;', 'uniform sampler2D uGA; uniform vec4 uGC[48], uGX;   // glyphs: the atlas; the code line, one slot per character; its length, the atlas mip level, how drained, the step of the rows\n', 'before');
     put('display', 'uniform vec4 uKH;', 'uniform vec4 uQD, uBH, uHG;      // quanta: cells across, the mip level of one cell, the clock of the dots, how much; the hole: its edge, its ring of focus, its twist, how faint the empty grid; the hand: where, its pull, its reach\n', 'before');
     put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1.;
     if (uHG.z > 0.) { vec2 hd = ql - uHG.xy; float h2 = dot(hd, hd);   // the hand has a little gravity of its own: the grid bends toward it, and near it the clocks run slow
@@ -479,6 +500,13 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       vec3 dq = 1.75*dotm*core + 0.16*b*exp(-g0*g0/(2.4*rad*rad + 1e-4)) + 0.34*ring*lb*kiri(x + 0.5 + 1.6*g0);
       float r0 = 0.085*(0.85 + 0.3*tw8);                                                           // and where the water is dark the grid stays: every cell a faint dot, so the bend of space shows with no dream in it
       dq = max(dq, uBH.w*mix(BONE, film, 0.5)*smoothstep(r0 + 0.5*fw, r0 - 0.5*fw, g0));
+      float hc = 0.7*hash(gc + 0.37), gon = smoothstep(hc, hc + 0.2, max(1.4*(1. - bhClock), step(0.0001, uBH.x)*smoothstep(0.34, 0.09, bhr)) + uGX.z);   // where time runs slow, and as the water goes, a dot dies into the code it was dreamed from: cell by cell, not all at once
+      if (gon > 0.001 && uGX.x > 0.) {
+        float n = uGX.x, ix = mod(gc.x + floor(hash(vec2(gc.y, uGX.w) + 0.71)*n), n);   // each row reads the line from its own place, re-rolled now and then; bent with the grid, the code curves round the hole
+        int i = int(ix); float ch = uGC[i/4][i - 4*(i/4)];
+        float ga = textureLod(uGA, (vec2(mod(ch, 16.), 5. - floor(ch/16.)) + gf + 0.5)/vec2(16., 6.), uGX.y).g;
+        vec3 gq = mix(BONE, film, 0.5)*ga*max(0.12 + 1.35*lq, 0.30 + 0.25*(1. - bhClock));   // the code gives its own light, a little more the slower its clock
+        dq = mix(dq, gq, gon); }
       float z = 1. - bhClock; dq *= mix(vec3(1.), vec3(1.0, 0.40, 0.66), 0.75*z*z)*(1. - 0.55*z*z*z);   // light climbing out of the hole loses its blue, then itself
       b = mix(b, mix(dq, b*0.8, smoothstep(0.30, 0.75, fw)), uQD.w); }   // where the lens packs the dots finer than a pixel, they blur into the light they carry
     if (uBH.x > 0.) { float a = atan(q.y, q.x);           // the edge of the dark, and one thin ring of light at it, brighter on the side that turns toward you
@@ -903,7 +931,9 @@ function render(){
       gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + 0.35*Math.sin(simTime*0.043)), 0.11*QD);
       const nowH = performance.now(), dtH = Math.min(0.1, (nowH - (hg.t || nowH))/1000); hg.t = nowH;   // the hand's pull eases in and out: a little while it hovers, more while it is in the water
       hg.a += ((hand.on ? 0.35 + 0.65*holdAmt : 0) - hg.a)*(1 - Math.exp(-dtH/0.3));
-      gl.uniform4f(u.uHG, hand.u - 0.5, hand.v - 0.5, 0.030*BH*hg.a, 0.022); } }   // 8: up for a few seconds in every 22
+      gl.uniform4f(u.uHG, hand.u - 0.5, hand.v - 0.5, 0.030*BH*hg.a, 0.022);
+      if (QD > 0) { if (!gx.tex) gx.tex = gxAtlas(); gxLine(); bind(u.uGA, gx.tex); gl.uniform4fv(u['uGC[0]'], gx.codes);   // the glyphs: the atlas read at the size of one cell on screen; the rows re-rolled every 2.5 s on the water's clock
+        gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/QN*view.S*view.dpr))), 0.9*drainAmt, Math.floor(kq.t/2.5) % 991); } } }   // 8: up for a few seconds in every 22
   draw(null); if (mips) gl.bindSampler(0, null);
 }
 

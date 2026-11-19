@@ -123,6 +123,23 @@
   /* the live piece */
   .live { position:relative; aspect-ratio:4/3; margin:2.4em 0 1.2em; overflow:hidden; border-radius:50%/37.5%; box-shadow:0 0 0 1px rgba(228,223,210,.08); }
   .live iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--ink); }
+  /* bracket words: a bracket hides a letter; take it out and the word says something else. hover or focus shows both readings */
+  .kick .bw { font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; outline-offset:6px; }
+  .kick .bw .br { font-style:normal; color:var(--dim); }
+  .kick .alt { display:inline-grid; text-align:left; }
+  .kick .alt > span { grid-area:1/1; font:300 11px/1 var(--mono); letter-spacing:.08em; color:var(--dim); transition:opacity .6s; }
+  .kick .alt .two { opacity:0; color:#cfc4fb; }
+  .kick:hover .alt .one, .kick:focus-within .alt .one { opacity:0; } .kick:hover .alt .two, .kick:focus-within .alt .two { opacity:1; }
+  /* the glossary, almost hidden: a faint [ ] at the foot, or the k key */
+  .gloss { margin:5em 0 0; }
+  .gloss summary { list-style:none; cursor:pointer; width:max-content; padding:6px 0; font:300 12px/1 var(--mono); letter-spacing:.3em; color:rgba(138,141,147,.32); }
+  .gloss summary::-webkit-details-marker { display:none; }
+  .gloss summary:hover, .gloss summary:focus-visible, .gloss[open] summary { color:#cfc4fb; }
+  .gloss p { margin:1.4em 0 1.2em; font:300 12px/1.6 var(--mono); color:var(--dim); }
+  .gloss dl { margin:0; }
+  .gloss div { display:grid; grid-template-columns:minmax(0, 8.5em) minmax(0, 1fr); column-gap:18px; padding:9px 0; border-top:1px solid rgba(228,223,210,.08); }
+  .gloss dt { font:300 italic 22px/1.25 var(--serif); color:var(--bone); } .gloss dt .br { font-style:normal; color:var(--dim); }
+  .gloss dd { margin:0; font-size:17px; color:var(--dim); }
   .foot { margin:30vh 0 0; padding-bottom:18vh; }
   .foot ul { list-style:none; margin:0 0 2.6em; padding:0; }
   .foot li { padding:4px 0; }
@@ -182,7 +199,7 @@
 </section>
 
 <section id="wall" data-n="01">
-  <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span>wall text</span></h2>
+  <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</span><span class="alt mono"><span class="one">wall text</span><span class="two">hole / whole</span></span></h2>
   <p class="label mono" data-r><b>katherine titterton</b><br>[syn[k]]hole, dry season, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
   <p class="say" data-r>most beautiful things have something nasty in them. here, it is the drain: the [syn[k]]hole, where time goes missing.</p>
   <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; here both run out, and you climb back up.</p>
@@ -191,7 +208,7 @@
 </section>
 
 <section id="work" data-n="02">
-  <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span>work</span></h2>
+  <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">s</i><span class="br">]</span>ink</span><span class="alt mono"><span class="one">work</span><span class="two">sink / ink</span></span></h2>
   <p class="say" data-r>under the glass, a vanitas<sup class="fn">1</sup> pours: skulls, cut flowers, soap bubbles, a still life that refuses to stay still.</p>
   <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. of these, bubbles pass fastest.</aside>
   <p data-r>every 2.5 seconds, another frame: slow for a computer, about right for a tide pool. light arrives as dots, 128 by 96, each one as large as its patch of water is bright.</p>
@@ -202,7 +219,7 @@
 </section>
 
 <section id="dry" data-n="03">
-  <h2 class="kick"><span class="mono">03</span><span class="ring"></span><span>dry season</span></h2>
+  <h2 class="kick"><span class="mono">03</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">d</i><span class="br">]</span>rain</span><span class="alt mono"><span class="one">dry season</span><span class="two">drain / rain</span></span></h2>
   <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">3</sup></p>
   <aside class="note" data-r><b>3</b>dives last as long as the air you carry down. days here last as long as the morning's water.</aside>
   <p data-r>one allocation of dreaming per morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. once spent, it drains to black in under a minute and stays dry until morning.</p>
@@ -218,7 +235,7 @@
 </section>
 
 <section id="methods" data-n="04">
-  <h2 class="kick"><span class="mono">04</span><span class="ring"></span><span>methods</span></h2>
+  <h2 class="kick"><span class="mono">04</span><span class="ring"></span><span class="bw" tabindex="0">pe<span class="br">[</span><i class="h">a</i><span class="br">]</span>rl</span><span class="alt mono"><span class="one">methods</span><span class="two">pearl / perl</span></span></h2>
   <p class="say" data-r>machines dream. taste chooses. you reach.</p>
   <ol class="steps" data-r>
     <li><span class="n">01</span><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney. every dream leans toward one, like a plant toward a window.</p></li>
@@ -239,7 +256,7 @@
 </section>
 
 <section id="k" data-n="05">
-  <h2 class="kick"><span class="mono">05</span><span class="ring"></span><span>k</span></h2>
+  <h2 class="kick"><span class="mono">05</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">k</i><span class="br">]</span>now</span><span class="alt mono"><span class="one">k</span><span class="two">know / now</span></span></h2>
   <p class="say" data-r>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.<sup class="fn">4</sup></p>
   <aside class="note" data-r><b>4</b>k: one setting, 0 to 1. what it stands for is the hole's business.</aside>
   <ol class="steps" data-r>
@@ -260,7 +277,7 @@
 </section>
 
 <section id="lineage" data-n="06">
-  <h2 class="kick"><span class="mono">06</span><span class="ring"></span><span>lineage</span></h2>
+  <h2 class="kick"><span class="mono">06</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">h</i><span class="br">]</span>old</span><span class="alt mono"><span class="one">lineage</span><span class="two">hold / old</span></span></h2>
   <p class="say" data-r>this water learned to move from other artists' water.</p>
   <ol class="lin" data-r>
     <li><span class="mk on" role="img" aria-label="built"></span><span class="who">karl sims, <a href="https://www.karlsims.com/flow.html">flow</a>, 2018</span><span class="takes">runs behind its current</span></li>
@@ -274,7 +291,7 @@
 </section>
 
 <section id="install" data-n="07">
-  <h2 class="kick"><span class="mono">07</span><span class="ring"></span><span>installation</span></h2>
+  <h2 class="kick"><span class="mono">07</span><span class="ring"></span><span class="bw" tabindex="0">s<span class="br">[</span><i class="h">pace</i><span class="br">]</span></span><span class="alt mono"><span class="one">installation</span><span class="two">space / pace</span></span></h2>
   <p class="say" data-r>one artist travels: me. setup takes one afternoon.</p>
   <p data-r>switched on, it wakes itself. it is silent, has no camera or microphone, drinks no real water and keeps nothing of you.</p>
   <dl class="supply" data-r>
@@ -297,7 +314,7 @@
 </section>
 
 <section id="link" data-n="08">
-  <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span>live</span></h2>
+  <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">c</i><span class="br">]</span>lock</span><span class="alt mono"><span class="one">live</span><span class="two">clock / lock</span></span></h2>
   <p class="say" data-r>this is <a data-piece="home" href="index.html">the piece in a browser</a>, not a recording.</p>
   <div class="live wide" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: a basin seen from above, drawn as dots of light round a drain. press and hold to reach in."></iframe></div>
   <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
@@ -314,6 +331,23 @@
     <li>bare metal (2025): <a href="https://www.macrofluidic.me/gallery">the gallery</a>, <a href="https://www.macrofluidic.me/blog">the process essay</a></li>
     <li>treble (2026): <a href="https://soundcloud.com/ex_gf/pilot">p[i]lot</a>, <a href="https://soundcloud.com/ex_gf/p-ai-lot">p[ai]lot</a></li>
   </ul>
+  <details class="gloss" id="gloss">
+    <summary aria-label="glossary of the bracket words">[ ]</summary>
+    <p>a bracket hides a letter. take it out and the word says something else. when the basin runs dry, its dots spell these.</p>
+    <dl>
+      <div><dt><span class="br">[</span>syn<span class="br">[</span><i class="h">k</i><span class="br">]]</span>hole</dt><dd>sync, sink, k, hole. the bracket inside the bracket is the hole inside the hole.</dd></div>
+      <div><dt>sync == sink</dt><dd>to keep time with something, and to go under with it.</dd></div>
+      <div><dt><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</dt><dd>the hole, and the whole. one paragraph holds all of it.</dd></div>
+      <div><dt><span class="br">[</span><i class="h">s</i><span class="br">]</span>ink</dt><dd>the basin, and the ink. the water is written.</dd></div>
+      <div><dt><span class="br">[</span><i class="h">d</i><span class="br">]</span>rain</dt><dd>the drain, and the rain it never gets. a dry season.</dd></div>
+      <div><dt>pe<span class="br">[</span><i class="h">a</i><span class="br">]</span>rl</dt><dd>the sheen, and perl, an old language for bending text.</dd></div>
+      <div><dt><span class="br">[</span><i class="h">k</i><span class="br">]</span>now</dt><dd>the k you don’t hear. know, and now.</dd></div>
+      <div><dt><span class="br">[</span><i class="h">h</i><span class="br">]</span>old</dt><dd>hold your breath, and what is old: the works this one holds.</dd></div>
+      <div><dt>s<span class="br">[</span><i class="h">pace</i><span class="br">]</span></dt><dd>the room, and the pace you keep in it.</dd></div>
+      <div><dt><span class="br">[</span><i class="h">c</i><span class="br">]</span>lock</dt><dd>the clock, and the lock. at the edge of the hole, time stops.</dd></div>
+      <div><dt>p<span class="br">[</span><i class="h">i</i><span class="br">]</span>lot, p<span class="br">[</span><i class="h">ai</i><span class="br">]</span>lot</dt><dd>one set by a person, one by a machine.</dd></div>
+    </dl>
+  </details>
   <p class="sign" data-r>kat titterton, <a href="https://www.macrofluidic.me/">macrofluidic</a></p>
 </section>
 </main>
@@ -451,6 +485,11 @@ let dotT = 0;
 function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => document.querySelectorAll('figure.dots').forEach(dotFig), 120); }
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(dotAll); dotAll();
 })();
+</script>
+<script>
+// the glossary's other door: press k anywhere (not while typing) and it opens
+addEventListener('keydown', (e) => { if (e.key !== 'k' || e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(e.target.tagName)) return;
+  const g = document.getElementById('gloss'); if (!g) return; g.open = !g.open; if (g.open) g.scrollIntoView({ behavior:'smooth', block:'center' }); });
 </script>
 </body>
 </html>
