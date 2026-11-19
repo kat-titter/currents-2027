@@ -18,16 +18,16 @@
      "about page design should resonate design and style with the piece itself - colors, shapes, density".
      The ground is a field of dots drawn at the screen's own pixels; the pictures are drawn as dots too, from synkhole/doc/. Reduced motion and ?still hold everything still. -->
 <style>
-  :root { --ink:#030304; --bone:#e4dfd2; --text:#d6d1c4; --dim:#8a8d93; --cy:#59e6ff; --vi:#9e7aff; --ro:#ff73b8;
+  :root { --ink:#030304; --bone:#e4dfd2; --text:#ddd8cb; --dim:#a3a6ac; --cy:#59e6ff; --vi:#9e7aff; --ro:#ff73b8;
     --serif:"Cormorant Garamond", "Iowan Old Style", Georgia, serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
     --film:conic-gradient(from 210deg, var(--cy), var(--vi), var(--ro), var(--cy)); }
   * { box-sizing:border-box; }
   html { background:var(--ink); scroll-behavior:smooth; }
   body { margin:0; background:var(--ink); color:var(--text); font:400 20px/1.62 var(--serif); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
-  main p, main li, main h2, main dt, main dd { text-shadow:0 0 7px var(--ink), 0 0 3px var(--ink), 0 0 1px var(--ink); }   /* the dots stay behind the words */
+  main p, main li, main h2, main dt, main dd, main .note, .bar, #lost { text-shadow:0 0 1px var(--ink), 0 0 3px var(--ink), 0 0 6px var(--ink), 0 0 12px var(--ink), 0 0 22px rgba(3,3,4,.9); }   /* a black glow: the dots stay behind the words */
   a { color:var(--bone); text-decoration:underline; text-decoration-color:rgba(158,122,255,.75); text-decoration-thickness:1px; text-underline-offset:4px; }
   a:hover, a:focus-visible { color:#fff; text-decoration-color:var(--ro); }
-  .mono { font:300 12px/1.7 var(--mono); letter-spacing:.06em; color:var(--dim); }
+  .mono { font:400 12px/1.7 var(--mono); letter-spacing:.06em; color:var(--dim); }
   code { font:300 .72em/1 var(--mono); color:var(--bone); letter-spacing:.02em; }
   em { font-style:italic; font-weight:300; }
 
@@ -73,7 +73,7 @@
   /* after House of Leaves (Danielewski): the word is coloured wherever it falls, notes open in the margin and inside each other, edits stay struck, a line falls in */
   .h { background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; }
   sup.fn { font:400 10.5px/0 var(--mono); color:#cfc4fb; margin-left:2px; vertical-align:super; }
-  .note { grid-column:3; align-self:start; max-width:19rem; margin:.35em 0 0; font:300 12.5px/1.75 var(--mono); letter-spacing:.02em; color:var(--dim); }
+  .note { grid-column:3; align-self:start; max-width:19rem; margin:.35em 0 0; font:400 12.5px/1.75 var(--mono); letter-spacing:.02em; color:var(--dim); }
   .note b { font-weight:400; color:#cfc4fb; margin-right:.6em; }
   .note .note { margin:.9em 0 0 1.4em; padding-left:.9em; border-left:1px solid rgba(207,196,251,.3); }
   s { text-decoration-color:var(--ro); text-decoration-thickness:1px; color:var(--dim); }
@@ -171,63 +171,63 @@
   <p class="where mono">currents 2027, installations<br>el museo cultural de santa fe, june 2027</p>
   <h1>[syn<span class="k">[k]</span>]hole</h1>
   <p class="sub">dry season</p>
-  <p class="lede">a basin whose water is a machine dreaming.<br>every day it runs out.</p>
+  <p class="lede">inside this basin, a machine dreams the water.<br>every day, it runs dry.</p>
   <p class="mono sync">sync == sink</p>
   <p class="cue mono">katherine titterton</p>
 </section>
 
 <section class="thesis">
-  <p data-r>beautiful water, and inside it something nasty: near the drain, time and space stop holding.</p>
-  <p class="quiet" data-r>a dreaming machine runs on a budget, and so do we.</p>
+  <p data-r>beautiful water, with something nasty inside: near the drain, time and space come loose.</p>
+  <p class="quiet" data-r>every dream runs on a budget. so do we.</p>
 </section>
 
 <section id="wall" data-n="01">
   <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span>wall text</span></h2>
-  <p class="label mono" data-r><b>katherine titterton</b><br>[syn[k]]hole, dry season, 2027<br>a basin, a touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
-  <p class="say" data-r>the most beautiful things usually have something nasty about them. here it is the drain, the [syn[k]]hole, where you lose time.</p>
-  <p data-r>an endless feed has no bottom. this hole does. ai drinks real water and our hours. here both run out, and you get out.</p>
-  <p data-r>it fills once each morning of the festival. every hand in this room spends it.</p>
+  <p class="label mono" data-r><b>katherine titterton</b><br>[syn[k]]hole, dry season, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
+  <p class="say" data-r>most beautiful things have something nasty in them. here, it is the drain: the [syn[k]]hole, where time goes missing.</p>
+  <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; here both run out, and you climb back up.</p>
+  <p data-r>once each morning of the festival, it fills. every hand in this room spends it.</p>
   <p class="quiet" data-r>ai: stable diffusion 1.5 with lcm-lora dreams the water live on its own computer, toward pictures i chose by hand in midjourney.</p>
 </section>
 
 <section id="work" data-n="02">
-  <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span>the work</span></h2>
-  <p class="say" data-r>a screen in the basin pours a vanitas,<sup class="fn">1</sup> the old still life of skulls, flowers and soap bubbles, that won't hold still.</p>
-  <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. a bubble is the fastest of them.</aside>
-  <p data-r>a new frame comes about every 2.5 seconds: slow for a computer, about right for a tide pool. the water is drawn as dots of light, 128 by 96, each as large as its patch of water is bright.</p>
-  <p data-r>the drain is a black hole. it bends the grid of dots round itself, and near its edge each dot's clock runs slow, then stops.<sup class="fn">2</sup></p>
-  <aside class="note" data-r><b>2</b>near a black hole a clock, watched from far away, runs slow and stops at the edge, and light climbing out loses its blue. here the dots do both: they step slower near the drain and go rose.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
+  <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span>work</span></h2>
+  <p class="say" data-r>under the glass, a vanitas<sup class="fn">1</sup> pours: skulls, cut flowers, soap bubbles, a still life that refuses to stay still.</p>
+  <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. of these, bubbles pass fastest.</aside>
+  <p data-r>every 2.5 seconds, another frame: slow for a computer, about right for a tide pool. light arrives as dots, 128 by 96, each one as large as its patch of water is bright.</p>
+  <p data-r>at the center sits a black hole. it bends the grid round itself, and near its edge every dot's clock runs slow, then stops.<sup class="fn">2</sup></p>
+  <aside class="note" data-r><b>2</b>near a black hole, a clock watched from far away runs slow, then stops at the edge; light climbing out loses its blue. here the dots do both: slower near the drain, and rose.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
   <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = dream()</figcaption></figure>
-  <p data-r>reach in. the water follows your hand for about a second, then slips through your fingers.</p>
+  <p data-r>reach in. for about a second the water follows your hand, then slips through your fingers.</p>
 </section>
 
 <section id="dry" data-n="03">
   <h2 class="kick"><span class="mono">03</span><span class="ring"></span><span>dry season</span></h2>
-  <p class="say" data-r>i freedive on one breath. the basin gets one too.<sup class="fn">3</sup></p>
-  <aside class="note" data-r><b>3</b>a dive lasts as long as the air you took down. the basin's day lasts as long as the water it got that morning.</aside>
-  <p data-r>an allocation of dreaming each morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. spent, it drains to black in under a minute and stays dry until morning.</p>
+  <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">3</sup></p>
+  <aside class="note" data-r><b>3</b>dives last as long as the air you carry down. days here last as long as the morning's water.</aside>
+  <p data-r>one allocation of dreaming per morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. once spent, it drains to black in under a minute and stays dry until morning.</p>
   <div class="row wide" data-r>
     <figure class="dots" data-src="doc/water.webp"><canvas role="img" aria-label="full"></canvas><figcaption class="mono">water = 1.00</figcaption></figure>
     <figure class="dots" data-src="doc/drain.webp"><canvas role="img" aria-label="draining"></canvas><figcaption class="mono">water = 0.16</figcaption></figure>
     <figure class="dots" data-src=""><canvas role="img" aria-label="dry: the dots go out"></canvas><figcaption class="mono">water = None</figcaption></figure>
   </div>
-  <p data-r>come late and you know who spent it. a dry screen is black glass, and the face in it is yours.</p>
-  <p class="mirror" aria-hidden="true">come late and you know who spent it. a dry screen is black glass, and the face in it is yours.</p>
-  <p class="quiet" data-r>proposed. the drain is built.</p>
-  <p class="quiet" data-r>training gpt-3 could directly evaporate 700,000 liters of clean freshwater, and global ai demand is projected to withdraw 4.2 to 6.6 billion cubic meters of water in 2027 (li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a>). a machine that dreams and drinks is close to a living thing.</p>
+  <p data-r>come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
+  <p class="mirror" aria-hidden="true">come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
+  <p class="quiet" data-r>proposed. only the drain is built so far.</p>
+  <p class="quiet" data-r>training gpt-3 could directly evaporate 700,000 liters of clean freshwater, and global ai demand is projected to withdraw 4.2 to 6.6 billion cubic meters of water in 2027 (li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a>). anything that dreams and drinks is close to alive.</p>
 </section>
 
 <section id="methods" data-n="04">
   <h2 class="kick"><span class="mono">04</span><span class="ring"></span><span>methods</span></h2>
-  <p class="say" data-r>the machine dreams. the taste is chosen. you reach.</p>
+  <p class="say" data-r>machines dream. taste chooses. you reach.</p>
   <ol class="steps" data-r>
     <li><span class="n">01</span><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney. every dream leans toward one, like a plant toward a window.</p></li>
     <li><span class="n">02</span><div><h3>prompt</h3><span class="ai">not ai</span></div><p>44 subjects, 28 moods, 18 lights: more than a million prompts. <code>vanitas [subject, subject, subject], mood, light</code></p></li>
-    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora. 3 of 10 steps follow the prompt, so a subject half-surfaces.</p></li>
+    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora. 3 of 10 steps follow the prompt, so subjects only half surface.</p></li>
     <li><span class="n">04</span><div><h3>walk</h3><span class="ai on">ai</span></div><p>from one dream to the next, frame by frame, through the space the dreams come from.</p></li>
     <li><span class="n">05</span><div><h3>detail</h3><span class="ai on">ai</span></div><p>real-esrgan, four times larger.</p></li>
-    <li><span class="n">06</span><div><h3>water</h3><span class="ai">not ai</span></div><p>a fluid simulation: water, glass, bubbles, sheen.</p></li>
-    <li><span class="n">07</span><div><h3>light</h3><span class="ai">not ai</span></div><p>the water drawn as dots, pearl at the edges, bent round the drain.</p></li>
+    <li><span class="n">06</span><div><h3>water</h3><span class="ai">not ai</span></div><p>fluid simulation: water, glass, bubbles, sheen.</p></li>
+    <li><span class="n">07</span><div><h3>light</h3><span class="ai">not ai</span></div><p>water drawn as dots, pearl at the edges, bent round the drain.</p></li>
     <li><span class="n">08</span><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
   </ol>
   <div class="row wide" data-r>
@@ -241,20 +241,20 @@
 <section id="k" data-n="05">
   <h2 class="kick"><span class="mono">05</span><span class="ring"></span><span>k</span></h2>
   <p class="say" data-r>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.<sup class="fn">4</sup></p>
-  <aside class="note" data-r><b>4</b>k: a setting, 0 to 1. what it stands for is the hole's business.</aside>
+  <aside class="note" data-r><b>4</b>k: one setting, 0 to 1. what it stands for is the hole's business.</aside>
   <ol class="steps" data-r>
-    <li><span class="n">1</span><div><h3>the hole holds the basin</h3></div></li>
+    <li><span class="n">1</span><div><h3>inside the hole, the basin again</h3></div></li>
     <li><span class="n">2</span><div><h3>time stutters</h3></div></li>
-    <li><span class="n">3</span><div><h3>it is clear only on the way out</h3></div></li>
-    <li><span class="n">4</span><div><h3>it says what you lost</h3></div><p><code>lost = 00:07</code><sup class="fn">5</sup></p></li>
-    <li><span class="n">5</span><div><h3>a face, barely</h3></div><p>two hollows above the hole, and the hole is its mouth. you are not sure you saw it.</p></li>
-    <li><span class="n">6</span><div><h3>the hole bends light</h3></div><p>the dots near it are pulled into a ring, and their clocks slow to a stop.</p></li>
+    <li><span class="n">3</span><div><h3>clarity, only on the way out</h3></div></li>
+    <li><span class="n">4</span><div><h3>it counts what you lost</h3></div><p><code>lost = 00:07</code><sup class="fn">5</sup></p></li>
+    <li><span class="n">5</span><div><h3>almost a face</h3></div><p>two hollows above the hole, and the hole is its mouth. you won't be sure you saw it.</p></li>
+    <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring, their clocks slowing to a stop.</p></li>
   </ol>
   <div class="row two wide" data-r>
     <figure class="dots" data-src="doc/hole_k0.webp"><canvas role="img" aria-label="the drain at k = 0"></canvas><figcaption class="mono">k = 0</figcaption></figure>
     <figure class="dots" data-src="doc/hole_k1.webp"><canvas role="img" aria-label="the drain at k = 1: the basin seen again inside the hole"></canvas><figcaption class="mono">k = 1</figcaption></figure>
   </div>
-  <aside class="note" data-r><b>5</b>the counter in the corner of this page has been running since you arrived.</aside>
+  <aside class="note" data-r><b>5</b>bottom left, a counter has been running since you arrived. it is not counting down.</aside>
   <p data-r>k sets the depth. <s>k = 0.5</s> <s>k = 0.5</s> it runs at 0.25:</p>
   <p class="fall" data-r aria-label="strange enough to notice, quiet enough to doubt"><span style="font-size:30px">strange</span><span style="font-size:27px;margin-left:1.2em">enough</span><span style="font-size:24px;margin-left:2.6em">to notice,</span><span style="font-size:20px;margin-left:4.4em;opacity:.85">quiet</span><span style="font-size:17px;margin-left:6.2em;opacity:.7">enough</span><span style="font-size:14px;margin-left:7.8em;opacity:.55">to</span><span style="font-size:12px;margin-left:9em;opacity:.45">doubt</span><span style="font-size:12px;margin-left:10.6em"><span class="ring"></span></span></p>
 </section>
@@ -274,30 +274,30 @@
 </section>
 
 <section id="install" data-n="07">
-  <h2 class="kick"><span class="mono">07</span><span class="ring"></span><span>the installation</span></h2>
+  <h2 class="kick"><span class="mono">07</span><span class="ring"></span><span>installation</span></h2>
   <p class="say" data-r>one artist travels: me. setup takes one afternoon.</p>
   <p data-r>switched on, it wakes itself. it is silent, has no camera or microphone, drinks no real water and keeps nothing of you.</p>
   <dl class="supply" data-r>
-    <div><dt>a plinth</dt><dd>30 x 25 in top, 30 in high, holds 50 lb (23 kg), room inside for the computer</dd></div>
+    <div><dt>plinth</dt><dd>30 x 25 in top, 30 in high, holds 50 lb (23 kg), room inside for the computer</dd></div>
     <div><dt>one outlet</dt><dd>120 v, grounded, within 6 ft (1.8 m)</dd></div>
-    <div><dt>a dim spot</dt><dd>away from windows, 8 x 8 ft (2.4 x 2.4 m) at best, 6 x 6 ft at least</dd></div>
-    <div><dt>a hand at the switch</dt><dd>on in the morning, off at night</dd></div>
+    <div><dt>somewhere dim</dt><dd>away from windows, 8 x 8 ft (2.4 x 2.4 m) at best, 6 x 6 ft at least</dd></div>
+    <div><dt>someone at the switch</dt><dd>on in the morning, off at night</dd></div>
     <div><dt>internet</dt><dd>optional</dd></div>
-    <div><dt>if you have them</dt><dd>a 27 in touch monitor or a mac mini: either one cuts what i ship to the basin alone</dd></div>
+    <div><dt>if you have them</dt><dd>27 in touch monitor or mac mini: either one means i ship only the basin</dd></div>
   </dl>
   <ol class="built mono" data-r>
-    <li><span class="mk on" role="img" aria-label="built"></span>the spring</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>the web basin</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>the drain to black</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>the [syn[k]]hole</li>
-    <li><span class="mk off" role="img" aria-label="proposed"></span>the basin on its plinth</li>
-    <li><span class="mk off" role="img" aria-label="proposed"></span>the daily budget</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>spring</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>web basin</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>drain to black</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>[syn[k]]hole</li>
+    <li><span class="mk off" role="img" aria-label="proposed"></span>basin on its plinth</li>
+    <li><span class="mk off" role="img" aria-label="proposed"></span>daily budget</li>
   </ol>
   <p class="key mono" data-r><span><span class="mk on"></span>built in 2026</span><span><span class="mk off"></span>proposed for 2027</span></p>
 </section>
 
 <section id="link" data-n="08">
-  <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span>the link</span></h2>
+  <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span>live</span></h2>
   <p class="say" data-r>this is <a data-piece="home" href="index.html">the piece in a browser</a>, not a recording.</p>
   <div class="live wide" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: a basin seen from above, drawn as dots of light round a drain. press and hold to reach in."></iframe></div>
   <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
@@ -305,8 +305,8 @@
 
 <section class="foot">
   <ul data-r>
-    <li><a data-piece="home" href="index.html">the piece</a></li>
-    <li><a data-piece="code" href="https://github.com/kat-titter/currents-2027">the code, on github</a></li>
+    <li><a data-piece="home" href="index.html">back into the water</a></li>
+    <li><a data-piece="code" href="https://github.com/kat-titter/currents-2027">code, on github</a></li>
   </ul>
   <p class="mono" data-r>body of work</p>
   <ul data-r>
@@ -362,15 +362,20 @@ function size(){ D = Math.min(3, devicePixelRatio || 1); W = innerWidth; H = inn
 addEventListener('resize', () => { size(); if (STILL) field(0); dotAll(); });
 addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; }, { passive:true });
 addEventListener('pointerleave', () => { mx = my = -1e4; });
-const NB = 12, NA = 4, paths = [];
+const TITLE = document.querySelector('.hero h1'), NB = 12, NA = 4, paths = [], TXT = [...document.querySelectorAll('main p:not(.fall):not(.mirror), main li, main dt, main dd, main .note, main .kick, main figcaption, .bar, #lost')];
 function field(t){
   cx.setTransform(D, 0, 0, D, 0, 0); cx.clearRect(0, 0, W, H);
-  const small = W < 760, hx = small ? W*0.5 : W*0.70, hy = (small ? H*0.31 : H*0.40) - scrollY;
-  const RH = small ? 22 : 32, E = small ? 56 : 80, on = hy > -E*4 && hy < H + E*4;
+  const small = W < 760, RH = small ? 22 : 32, E = small ? 56 : 80, top = TITLE.getBoundingClientRect().top + scrollY;
+  const hx = small ? W*0.5 : W*0.72, hy = Math.max(E*1.7 + 40, Math.min(H*(small ? 0.31 : 0.40), top - E*2.1)) - scrollY;   // the hole sits above the title, never behind it
+  const on = hy > -E*4 && hy < H + E*4;
   const tw = 0.9 + 0.35*Math.sin(t*0.043), calm = 1 - 0.55*Math.min(1, scrollY/(H*0.8));
   for (let i = 0; i < NB*NA; i++) paths[i] = new Path2D();
+  const rs = [];                                                                // the words on screen: the dots part round them, as the water parts round a hand
+  for (const el of TXT) { const b = el.getBoundingClientRect(); if (b.width && b.bottom > -30 && b.top < H + 30) rs.push([b.left - 14, b.top - 10, b.right + 14, b.bottom + 10]); }
+  const clear = (x, y) => { let f = 1; for (const q of rs) { const dx = Math.max(q[0] - x, 0, x - q[2]), dy = Math.max(q[1] - y, 0, y - q[3]); if (dx < 26 && dy < 26) f = Math.min(f, Math.hypot(dx, dy)/26); } return f*f*(3 - 2*f); };
   const put = (x, y, r, v, z, i, j) => {
-    if (x < -4 || y < -4 || x > W + 4 || y > H + 4 || r < 0.25) return;
+    if (x < -4 || y < -4 || x > W + 4 || y > H + 4) return;
+    const f = clear(x, y); r *= f; v *= f; if (r < 0.25) return;
     const hue = Math.floor(((x*0.0011 + y*0.0006 + t*0.012 + 0.5*v) % 1 + 1) % 1*NB);
     let a = Math.min(NA - 1, Math.floor((0.12 + 1.6*v)*NA*(1 - 0.7*z*z*z)));
     const p = paths[(z > 0.55 ? 8 : hue)*NA + Math.max(0, a)];   // 8: the film's rose
