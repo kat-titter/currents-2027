@@ -32,7 +32,7 @@
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
   h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }   /* the name is in the tab; the page shows only the water */
   body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
-  #about { position:fixed; right:28px; bottom:22px; font-size:11.5px; color:rgba(138,141,147,.82); text-decoration:none; padding:8px 0 8px 13px; }   /* the one way out of the water: the page about the piece */
+  #about { position:fixed; right:28px; bottom:22px; font-size:11.5px; color:rgba(138,141,147,.82); text-decoration:none; padding:8px 0 8px 13px; text-shadow:0 0 6px var(--ink), 0 0 2px var(--ink); }   /* the one way out of the water: the page about the piece */
   #about:hover, #about:focus-visible { color:var(--bone); }
   body.sink #about, body.doc #about, body.framed #about { display:none; }   /* in the stone, in a document, or framed by another page: only the water */
   @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } #about { right:16px; bottom:13px; } }
@@ -55,7 +55,7 @@ const canvas = document.getElementById('c'), title = document.getElementById('ti
 const waterEl = document.getElementById('water'), gripEl = document.getElementById('grip'), codeEl = document.getElementById('code'), dry = document.getElementById('dry');
 // The look is the page: every setting in LOOK holds with a bare address. The same name in the address overrides it (?k=0: plain water; ?k=1: all the way in),
 // and <name>=off takes a default away (?kc=off: the line under the basin; ?kn=off, ?kf=off: time and the face follow k; ?km=off: no memory; ?kv=1: the fold; ?kw=off: the dream's own warm tones; ?reservoir=off; ?solo=off: the shared relays).
-const LOOK = { k:'0.25', kn:'0.5', kf:'0.5', kb:'1', kc:'rim', km:'1', kw:'1', reservoir:'', solo:'' };   // km memory: on since Kat's "turn on fold and memory, drop the rest"; the fold off again since "the fold feels a bit basic, weird, ugly" (2026-11-17)
+const LOOK = { k:'0.25', kn:'0.5', kf:'0.5', kb:'1', kc:'rim', km:'1', kw:'1', reservoir:'', solo:'', fill:'1', qd:'1', bh:'1' };   // fill, qd, bh: Kat 2026-11-19, "piece should fill page. more discrete quanta like dots of light ... helps see warping of time and space", "almost cosmic: black hole"   // km memory: on since Kat's "turn on fold and memory, drop the rest"; the fold off again since "the fold feels a bit basic, weird, ugly" (2026-11-17)
 const params = new URLSearchParams(LOOK);
 for (const [name, value] of new URLSearchParams(location.search)) { if (value === 'off') params.delete(name); else params.set(name, value); }
 if (window.top !== window.self) document.body.classList.add('framed');
@@ -92,12 +92,17 @@ const KE = K > 0 ? kNum('kb', 0) : 0, KC = K > 0 && params.has('kc') ? (params.g
 const KM = K > 0 ? kNum('km', 0) : 0;   // memory: how much longer the slow patches hold a dream
 const KV = K > 0 ? kNum('kv', 0) : 0;   // the fold: how far the basin folds over itself
 const KW = K > 0 ? kNum('kw', 0) : 0;   // warmth out: how much of a dream's gold and copper goes grey
+// ?qd=<0 to 1> quanta: the picture as dots of light on the grid it was dreamed in; each dot keeps its own clock, so you can see where time runs slow. ?qn=<cells across>, 128 unless set
+// ?bh=<0 to 1> the hole as a black hole: it bends the grid of dots round it (a ring where the light behind it is focused, and inside the ring the basin again, upside down),
+//   drags it into a slow twist, and slows the dots' clocks to a stop at its edge, where their light goes to rose. A thin ring of light at the edge of the dark
+const QD = K > 0 ? kNum('qd', 0) : 0, QN = Math.max(24, Math.min(256, parseInt(params.get('qn')) || 128)), BH = K > 0 ? kNum('bh', 0) : 0;
 
 const view = { w:1, h:1, cx:0, cy:0, S:1, dpr:1 };
 function layout(){
-  const w = innerWidth, h = innerHeight; view.w = w; view.h = h; view.dpr = Math.min(2, devicePixelRatio || 1);
+  const w = innerWidth, h = innerHeight; view.w = w; view.h = h; view.dpr = Math.min(params.has('qd') ? 3 : 2, devicePixelRatio || 1);   // the dots are drawn at the screen's own pixels, up to 3 a point: crisp (Kat: "resolution should be very high, crisp visuals")
   const fit = params.has('sink') || params.has('doc') ? [1, 1] : w < 600 ? [0.94, 0.62] : [0.80, 0.74];   // in the stone the hole masks the edge; on the web, room for the words
   view.S = Math.min(fit[0]*w/(2*BX), fit[1]*h/(2*BY)); view.cx = w/2; view.cy = h/2;
+  if (params.has('fill') && !params.has('sink') && !params.has('doc')) view.S = 1.02*Math.max(w/(2*BX), h/(2*BY));   // ?fill: the water fills the page, its edges past the screen's
   const hw = BX*view.S, hh = BY*view.S;
   Object.assign(dry.style, { left:`${view.cx - hw}px`, top:`${view.cy - hh}px`, width:`${2*hw}px`, height:`${2*hh}px` });
   Object.assign(codeEl.style, { left:`${view.cx - hw}px`, width:`${2*hw}px`, top:`${view.cy + hh + Math.min(28, (h/2 - hh)*0.35)}px`, bottom:'auto' });
@@ -441,6 +446,39 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
   if (KW > 0) {                                        // ?kw: warmth out. Warm is red and green both above blue (gold, copper, brown); rose and the cool tones are left alone
     put('display', 'uniform vec4 uKH;', 'uniform float uKW;\n', 'before');
     put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', ' c = mix(c, vec3(lum(c)), uKW*clamp((min(c.r, c.g) - c.b)*6., 0., 1.));');
+  }
+  if (QD > 0 || BH > 0) {                              // ?qd, ?bh: the quanta and the black hole. The lens bends where the picture and the grid are read; the dots are drawn last, over all the water's light
+    put('display', 'uniform vec4 uKH;', 'uniform vec4 uQD, uBH;           // quanta: cells across, the mip level of one cell, the clock of the dots, how much; the hole: its edge, its ring of focus, its twist, its ring of light\n', 'before');
+    put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1.;
+    if (uBH.x > 0.) {
+      ql *= 1. - uBH.y*uBH.y/max(bhr*bhr, 1e-6);          // a point lens: the dream behind the hole is bent round it; at the ring of focus it is smeared into a circle, inside it seen again, upside down
+      float tw = uBH.z*uBH.x*uBH.x/max(bhr*bhr, uBH.x*uBH.x);   // and dragged round with it, more the nearer it is
+      ql = mat2(cos(tw), sin(tw), -sin(tw), cos(tw))*ql;
+      bhClock = sqrt(clamp(1. - uBH.x/max(bhr, 1e-4), 0., 1.)); }   // a clock near the hole runs slow; at its edge it stops
+    `, 'before');
+    put('display', 'b *= 1. + 0.07*kin*(kb - 0.5); ', `
+    if (uQD.w > 0.) {                                     // quanta: each cell of the grid the dream was dreamed on is one dot of light, as large as the cell is bright
+      vec2 gs = vec2(uQD.x, floor(uQD.x*0.75 + 0.5));
+      vec2 gp = (ql + B)/(2.*B)*gs, gc = floor(gp), gf = fract(gp) - 0.5;
+      vec3 cqc = clamp(textureLod(uDye, C - B + (gc + 0.5)/gs*2.*B, uQD.y).rgb, 0., 1.); float lq = lum(cqc);
+      b = mix(b, cqc*(0.6 + 0.6*lum(b)/max(lq, 0.02)), 0.65);   // each dot one colour, the cell's own, so its edge is sharp; the water's light still plays on it
+      float fw = clamp(length(fwidth(gp)), 1e-3, 2.);
+      float tick = floor(uQD.z*bhClock*(0.8 + 1.4*hash(gc + 3.1)) + 9.*hash(gc));   // each dot keeps its own clock, and steps on it: near the hole they all run slow
+      float tw8 = 0.72 + 0.28*hash(gc + tick*0.137 + 0.5);
+      float rad = (0.08 + 0.38*sqrt(lq))*tw8;
+      float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
+      float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
+      float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
+      vec3 film = kiri(x + 0.55*gu);
+      vec3 core = mix(BONE*lb*1.15 + b*0.35, b*film*1.6, smoothstep(0.15, 1.0, gu));                 // pearl: bone at the heart of each dot, the film's colours toward its edge
+      float ring = exp(-pow((g0 - rad*1.45 - 0.035)/0.04, 2.));                                       // and a thin halo round it, the film's colours shifted a step
+      vec3 dq = 1.75*dotm*core + 0.16*b*exp(-g0*g0/(2.4*rad*rad + 1e-4)) + 0.34*ring*lb*kiri(x + 0.5 + 1.6*g0);
+      float z = 1. - bhClock; dq *= mix(vec3(1.), vec3(1.0, 0.40, 0.66), 0.75*z*z)*(1. - 0.55*z*z*z);   // light climbing out of the hole loses its blue, then itself
+      b = mix(b, mix(dq, b*0.8, smoothstep(0.30, 0.75, fw)), uQD.w); }   // where the lens packs the dots finer than a pixel, they blur into the light they carry
+    if (uBH.x > 0.) { float a = atan(q.y, q.x);           // the edge of the dark, and one thin ring of light at it, brighter on the side that turns toward you
+      b *= smoothstep(uBH.x*0.90, uBH.x*1.06, r);
+      b += pearl(a/6.28318 + 0.04*uTime)*(0.50*exp(-pow((r - uBH.x*1.10)/(uBH.x*0.030), 2.)) + 0.16*exp(-pow((r - uBH.x*1.19)/(uBH.x*0.018), 2.)))*(0.35 + 0.65*pow(0.5 + 0.5*cos(a - 2.4), 2.)); }
+    `, 'before');
   }
   FS.display = FS.display.split('texture(uDye,').join('kdye(');
 }
@@ -854,7 +892,9 @@ function render(){
   if (mips) { gl.generateMipmap(gl.TEXTURE_2D); gl.bindSampler(0, kMip); }
   if (K > 0) { gl.uniform4f(u.uKH, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), mips ? Math.log2(dye.read.w/(view.S*d)) : -99, 2.2*kq.e*kq.soft);
     gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
-    gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*Math.pow(0.5 + 0.5*Math.sin(simTime*0.29 + 1.3), 2) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE); }   // 8: up for a few seconds in every 22
+    gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*Math.pow(0.5 + 0.5*Math.sin(simTime*0.29 + 1.3), 2) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
+    if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), kq.t*1.6, QD);   // the dots step on the water's clock: when time stalls, they hold
+      gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + 0.35*Math.sin(simTime*0.043)), 0); } }   // 8: up for a few seconds in every 22
   draw(null); if (mips) gl.bindSampler(0, null);
 }
 
