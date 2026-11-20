@@ -411,7 +411,7 @@ if (K > 0) {                                           // ?k: the k lines join t
   put('display', 'void main(){', `uniform vec4 uKH;                  // the hole: the ring's radius, the turn of each copy, the picture's mip level at 1:1, how soft
 uniform vec4 uKB;                  // the beat: its phase, its strength, the shimmer's clock, how clear
 uniform vec3 uKP;                  // the heartbeat's shape: where the second beat falls, how strong a third
-float kheart(float f){ f = fract(f); return clamp(exp(-pow(f/0.05, 2.)) + exp(-pow((1. - f)/0.015, 2.)) + 0.62*exp(-pow((f - uKP.x)/0.035, 2.)) + uKP.y*exp(-pow((f - 1.9*uKP.x)/0.03, 2.)), 0., 1.); }   // lub, dub, and now and then a third
+float kheart(float f){ f = fract(f); return clamp(exp(-pow(f/0.16, 2.)) + exp(-pow((1. - f)/0.06, 2.)) + 0.5*exp(-pow((f - uKP.x)/0.08, 2.)) + uKP.y*exp(-pow((f - 1.9*uKP.x)/0.07, 2.)), 0., 1.); }   // lub, dub, and now and then a third; each swells in and ebbs out, never a snap
 uniform float uKI, uKF, uKFm, uKT, uKE; // 7 how iridescent; 8 how far the second face has surfaced, and which face; how far the picture leans to the hole
 float kLod = 0., kDeep = 0.;
 vec4 kdye(vec2 p){ return textureLod(uDye, p, kLod); }
@@ -424,15 +424,15 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
   put('display', 'float r = length(q), aa = 1.5/uS;', `
   float kb = kheart(uKB.x/6.28318 + r*1.1);                             // 3 the beat, an alien heart: each one runs in from the wall to the drain
   float kin = uKB.y*smoothstep(0., -0.07, sdBox(q));                    // the water beats; the steel holds still
-  vec2 kn = q/max(r, 1e-4); q -= kn*0.007*(kb - 0.15)*kin;
+  vec2 kn = q/max(r, 1e-4); q -= kn*0.0025*(kb - 0.15)*kin;
   q *= 1. + uKT*smoothstep(0., -0.10, sdBox(q));                        // ?kn: time drawn. A slow clock lets the picture ease out from the hole; a fast one pulls it in
-  vec2 kshim = kn*0.0016*kin*(1. - kb)*sin(r*800. - uKB.z*85. + 6.*vnoise(q*30.));   // between beats, a fine fast shimmer
+  vec2 kshim = kn*0.0016*kin*(1. - kb)*sin(r*800. - uKB.z*40. + 6.*vnoise(q*30.));   // between beats, a fine shimmer
   float kr = length(q); kLod = uKH.z;
   if (kr < uKH.x && kr > 1e-4) { vec2 q1 = khole(q, kr); kLod += log2(length(q1)/kr); kDeep = log(uKH.x/kr)/log(KS); q = q1; }
   kLod = max(0., kLod) + uKH.w;                                          // 4 soft: the picture read from a smaller copy of itself`);
   put('display', 'vec2 ql = q;', ' ql += kshim;');
   put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', ' c = clamp(c + (c - textureLod(uDye, p, kLod + 2.5).rgb)*0.7*uKB.w, 0., 1.);   // 4 clear: sharper than the water has been');
-  put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'b *= 1. + 0.09*kin*(kb - 0.15); ', 'before');
+  put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'b *= 1. + 0.035*kin*(kb - 0.15); ', 'before');
   put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'col = mix(col, b, smoothstep(0.002, -0.006 - uKE*(0.05 + 0.08*vnoise(q*6. + 0.02*uTime)), sd));', 'swap');   // ?kb: no clear border, the water fades unevenly into the dark
   put('display', 'col = mix(col, steel, lip*0.9);', 'col = mix(col, steel, lip*0.9*(1. - uKE));', 'swap');   // and the steel lip goes
   put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', `
@@ -472,6 +472,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
   }
   if (QD > 0 || BH > 0) {                              // ?qd, ?bh: the quanta and the black hole. The lens bends where the picture and the grid are read; the dots are drawn last, over all the water's light
     put('display', 'uniform vec4 uKH;', 'uniform sampler2D uGA; uniform vec4 uGC[48], uGX;   // glyphs: the atlas; the code line, one slot per character; its length, the atlas mip level, how drained, the step of the rows\n', 'before');
+    put('display', 'uniform vec4 uKH;', 'uniform float uKStep;                 // seconds since the heart last stepped: a dot eases to its new size, never snaps\n', 'before');
     put('display', 'uniform vec4 uKH;', 'uniform vec4 uQD, uBH, uHG;      // quanta: cells across, the mip level of one cell, the clock of the dots, how much; the hole: its edge, its ring of focus, its twist, how faint the empty grid; the hand: where, its pull, its reach\n', 'before');
     put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1.;
     if (uHG.z > 0.) { vec2 hd = ql - uHG.xy; float h2 = dot(hd, hd);   // the hand has a little gravity of its own: the grid bends toward it, and near it the clocks run slow
@@ -483,7 +484,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       ql = mat2(cos(tw), sin(tw), -sin(tw), cos(tw))*ql;
       bhClock *= sqrt(clamp(1. - uBH.x/max(bhr, 1e-4), 0., 1.)); }   // a clock near the hole runs slow; at its edge it stops
     `, 'before');
-    put('display', 'b *= 1. + 0.09*kin*(kb - 0.15); ', `
+    put('display', 'b *= 1. + 0.035*kin*(kb - 0.15); ', `
     if (uQD.w > 0.) {                                     // quanta: each cell of the grid the dream was dreamed on is one dot of light, as large as the cell is bright
       vec2 gs = vec2(uQD.x, floor(uQD.x*0.75 + 0.5));
       vec2 gp = (ql + B)/(2.*B)*gs, gc = floor(gp), gf = fract(gp) - 0.5;
@@ -491,9 +492,10 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       b = mix(b, cqc*(0.6 + 0.6*lum(b)/max(lq, 0.02)), 0.65);   // each dot one colour, the cell's own, so its edge is sharp; the water's light still plays on it
       float fw = clamp(length(fwidth(gp)), 1e-3, 2.);
       float tdiv = exp2(floor(min(3., -1.3*log2(max(bhClock, 0.05)))));   // one song: the dots step on the heart, half of them on every lub and dub, half on the lub alone; near the hole half time, then quarter, then eighth
-      float tick = floor(uQD.z/(tdiv*(hash(gc + 3.1) < 0.5 ? 1. : 2.))) + 9.*floor(hash(gc)*7.);
-      float tw8 = 0.72 + 0.28*hash(gc + tick*0.137 + 0.5);
-      float rad = min(0.47, (0.08 + 0.38*sqrt(lq))*tw8 + 0.22*krip);   // on a ripple's crest each dot swells
+      float tD = tdiv*(hash(gc + 3.1) < 0.5 ? 1. : 2.), tick = floor(uQD.z/tD) + 9.*floor(hash(gc)*7.);
+      float tE = mod(uQD.z, tD) < 0.5 ? smoothstep(0., 0.14, uKStep) : 1.;   // a dot whose step just came grows or shrinks to its new size over 0.14 s, done before the dub
+      float tw8 = 0.72 + 0.28*mix(hash(gc + (tick - 1.)*0.137 + 0.5), hash(gc + tick*0.137 + 0.5), tE);
+      float rad = min(0.47, (0.08 + 0.38*sqrt(lq))*tw8 + 0.1*krip);   // on a ripple's crest each dot swells, a little
       float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
       float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
       float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
@@ -517,17 +519,20 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       b += pearl(a/6.28318 + 0.04*uTime)*(0.50*exp(-pow((r - uBH.x*1.10)/(uBH.x*0.030), 2.)) + 0.16*exp(-pow((r - uBH.x*1.19)/(uBH.x*0.018), 2.)))*(0.35 + 0.65*pow(0.5 + 0.5*cos(a - 2.4), 2.)); }
     `, 'before');
   }
-  {                                                    // the heartbeat's ripples: each beat sends a ring out from the drain; it runs slower through hidden lumps in spacetime, so the ring bends where they are, and the dots shine on its crest
-    put('display', 'uniform vec4 uKH;', 'uniform float uRA[10], uRM[10], uRP;   // the ripples: how old, how strong; all of them\n', 'before');
+  {                                                    // the heartbeat's ripples, as water makes them: each beat drops a ring near the drain, a little off centre each time, so the rings cross. It runs slower through hidden lumps in spacetime,
+                                                       // so the ring bends where they are. A ring is a short train of wavelets that spreads as it goes, its crests rolling out through it at half again its speed, as a ripple's do; felt in the grid more than seen
+    put('display', 'uniform vec4 uKH;', 'uniform float uRA[16], uRM[16], uRP; uniform vec2 uRO[16];   // the ripples: how old, how strong, where each was dropped; all of them\n', 'before');
     put('display', 'vec2 p = C+ql;', `float krip = 0.;
     { float lump = 0.72 + 0.56*(0.5 + 0.5*(0.6*sin(q.x*7.1 + 1.3)*sin(q.y*6.3 - 0.7) + 0.4*sin((q.x + q.y)*4.7 + 2.1)));
-      float d = r/lump, push = 0.; vec2 rn = ql/max(length(ql), 1e-4);
-      for (int i = 0; i < 10; i++) { float a = uRA[i]; if (a < 0. || uRM[i] <= 0.) continue;
-        float w = (d - 0.2*a)/0.03, f = uRM[i]*exp(-0.55*a)/(1. + 3.*d);
-        push += w*exp(-w*w)*f; krip += exp(-w*w)*f; }
-      ql += rn*0.018*push*uRP; krip *= uRP; }
+      float push = 0.; vec2 rn = ql/max(length(ql), 1e-4);
+      for (int i = 0; i < 16; i++) { float a = uRA[i]; if (a < 0. || uRM[i] <= 0.) continue;
+        float d = length(q - uRO[i])/lump, s = 0.035 + 0.022*a, w = (d - 0.13*a)/s, env = exp(-w*w);
+        float f = uRM[i]*smoothstep(0., 0.3, a)*exp(-0.4*a)*inversesqrt(1. + d/0.06)*sqrt(0.035/s)*(1. - smoothstep(5., 6.5, a));
+        float ph = 6.28318*(d - 0.195*a)/(0.06 + 0.015*a);
+        push += env*f*sin(ph); krip += env*f*(0.5 + 0.5*cos(ph)); }
+      ql += rn*0.007*push*uRP; krip *= uRP; }
     `, 'before');
-    put('display', 'b *= 1. + 0.09*kin*(kb - 0.15); ', 'b = b*(1. + 0.6*krip) + pearl(0.6 + 2.*krip + 0.03*uTime)*0.07*krip; ', 'before');
+    put('display', 'b *= 1. + 0.035*kin*(kb - 0.15); ', 'b = b*(1. + 0.2*krip) + pearl(0.6 + 2.*krip + 0.03*uTime)*0.03*krip; ', 'before');
   }
   FS.display = FS.display.split('texture(uDye,').join('kdye(');
 }
@@ -744,9 +749,9 @@ watchSink();
 function reach(on){
   if (on === hand.down) return;
   hand.down = on; document.body.classList.toggle('held', on);
-  if (on) { hand.t0 = performance.now(); net.out.push([+hand.u.toFixed(3), +hand.v.toFixed(3)]); if (K > 0) gripEl.textContent = ''; }
+  if (on) { hand.t0 = performance.now(); net.out.push([+hand.u.toFixed(3), +hand.v.toFixed(3)]); if (K > 0) { gripEl.textContent = ''; kq.touch = 1; if (kq.bl - kq.bt > 0.25) kq.bl = kq.bt + 0.25; } }   // ?k: a touch startles the heart, its next beat comes early
   else {                                              // let go: what was held goes the way of the water, down the drain
-    if (K > 0) kOut(performance.now());
+    if (K > 0) { kOut(performance.now()); kq.touch = Math.max(kq.touch, 0.7); }
     const dx = 0.5-hand.u, dy = 0.5-hand.v, dl = Math.hypot(dx, dy) || 1;
     stir.x = hand.u; stir.y = hand.v; stir.vx += 0.30*dx/dl; stir.vy += 0.30*dy/dl; gulp = Math.max(gulp, 0.5);
   }
@@ -772,12 +777,15 @@ addEventListener('blur', () => { reach(false); if (lever) tap(true); if (plug) {
 const kss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }, kh = (n) => { const x = Math.sin(n*127.1 + 3.7)*43758.5453; return x - Math.floor(x); };
 // a ripple runs slower through hidden lumps in spacetime, so its ring bends where they are: the same lumps in the shader and here
 const kLump = (x, y) => 0.72 + 0.56*(0.5 + 0.5*(0.6*Math.sin(x*7.1 + 1.3)*Math.sin(y*6.3 - 0.7) + 0.4*Math.sin((x + y)*4.7 + 2.1)));
-const ripAt = (x, y) => { const d = Math.hypot(x, y)/kLump(x, y); let c = 0; for (const e of kq.rip) { const a = simTime - e[0]; if (a < 0) continue; const w = (d - 0.2*a)/0.03; c += e[1]*Math.exp(-0.55*a)/(1 + 3*d)*Math.exp(-w*w); } return c*kq.rp; };
-const RA = new Float32Array(10), RM = new Float32Array(10);
-const bubBeat = (x, y) => { let f = kq.bt/kq.bl - 0.9*Math.hypot(x, y); f -= Math.floor(f);   // a bubble's own beat: the heart's lub and dub, soft and quick, a moment after the drain
-  return Math.min(1, Math.exp(-((f/0.08)**2)) + Math.exp(-(((1 - f)/0.03)**2)) + 0.6*Math.exp(-(((f - kq.dub)/0.06)**2))); };
-const kheartJ = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.05)**2)) + Math.exp(-(((1 - f)/0.015)**2)) + 0.62*Math.exp(-(((f - dub)/0.035)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.03)**2))); };
-const kq = { nb:0, steps:0, dubDone:true, rip:[], rp:0.55, bt:0, bl:0.8, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
+const NR = 16, RLIFE = 6.5;                            // ripples: at most sixteen at once; each fades out by 6.5 s, so none is ever cut short
+const kRip = (x, y) => { let c = 0, p = 0; for (const e of kq.rip) { const a = simTime - e[0]; if (a < 0) continue;   // the shader's ripple, here: [crest, push] at a point, for the bubbles that ride it
+    const d = Math.hypot(x - e[2], y - e[3])/kLump(x, y), s = 0.035 + 0.022*a, w = (d - 0.13*a)/s, env = Math.exp(-w*w);
+    const f = e[1]*kss(0, 0.3, a)*Math.exp(-0.4*a)/Math.sqrt(1 + d/0.06)*Math.sqrt(0.035/s)*(1 - kss(5, RLIFE, a)), ph = 6.28318*(d - 0.195*a)/(0.06 + 0.015*a);
+    p += env*f*Math.sin(ph); c += env*f*(0.5 + 0.5*Math.cos(ph)); } return [c*kq.rp, p*kq.rp]; };
+const RA = new Float32Array(NR), RM = new Float32Array(NR), RO = new Float32Array(2*NR);
+const kheartJ = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.16)**2)) + Math.exp(-(((1 - f)/0.06)**2)) + 0.5*Math.exp(-(((f - dub)/0.08)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.07)**2))); };
+const kNoise = (t) => { const i = Math.floor(t), f = t - i; return kh(i) + (kh(i + 1) - kh(i))*f*f*(3 - 2*f); };   // smooth noise: no two swells alike
+const kq = { nb:0, steps:0, stepAt:0, dubDone:true, rip:[], rp:0.55, ba:1, touch:0, tq:0, under:0, bt:0, bl:1.1, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
   late:[], lh:{ u:0.5, v:0.5, vx:0, vy:0 }, ls:{ x:0.5, y:0.5, vx:0, vy:0 }, lg:0, ld:false };
 const kMip = K > 0 ? gl.createSampler() : null;          // the far copies and the soft water are read from smaller copies of the picture
 if (kMip) { gl.samplerParameteri(kMip, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.samplerParameteri(kMip, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -828,12 +836,23 @@ function kTick(dt, now){                              // once a frame: the clock
   const lag = kOn('6') ? 0.9*KN : 0;                    // 6: the picture runs up to 0.9 s behind its current
   kq.hist.push([simTime, kq.w]); while (kq.hist.length > 1 && kq.hist[1][0] <= simTime - lag) kq.hist.shift();
   kq.d = kq.hist[0][1]; kq.t += dt*kq.w; kq.bub += dt*kq.w;
-  kq.amp = kOn('3') ? kq.e*kss(0.02, 0.3, drainAmt) : 0;   // 3: draining, the basin beats: 1 Hz as the hole opens, 3 Hz at its deepest (Vesuna 2020, doi:10.1038/s41586-020-2731-9)
-  kq.hz = 1.3 + 1.3*Math.min(1, drainAmt/0.6);   // 3, an alien heartbeat (Kat: "edge of chaos, almost human but not quite"): lub-dub, each gap from a logistic map at r = 3.71, the dub drifting, now and then a third beat
-  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = 3.71*kq.lx*(1 - kq.lx); kq.bl = (0.9 + 0.2*kq.lx)/kq.hz; kq.dub = 0.13 + 0.06*kq.lx; kq.ghost = kq.lx > 0.92 ? 0.4 : 0; kq.nb++; kq.steps++; kq.dubDone = false;   // a groove: the gaps wobble about 10 per cent
-    kq.rip.push([simTime, kq.nb % 8 === 0 ? 1.3 : 1], [simTime + kq.dub*kq.bl, 0.55]);   // every eighth beat lands a little harder, a downbeat
-    if (kq.ghost) kq.rip.push([simTime + 1.9*kq.dub*kq.bl, 0.4]); while (kq.rip.length > 10) kq.rip.shift(); }
-  if (!kq.dubDone && kq.bt >= kq.dub*kq.bl) { kq.steps++; kq.dubDone = true; }
+  kq.amp = kOn('3') ? kq.e*kss(0.02, 0.3, drainAmt) : 0;   // 3: draining, the basin beats: the heart crosses 1 Hz as the hole opens and reaches 1.3 at its deepest, the low end of a 1 to 3 Hz rhythm (Vesuna 2020, doi:10.1038/s41586-020-2731-9)
+  // 3, an alien heartbeat (Kat: "edge of chaos, almost human but not quite"; then "heartbeat feels too big and fast, more like ripple in water"): lub-dub, each gap from a logistic map at r = 3.71, the dub drifting, now and then a third beat.
+  // It rests near 0.9 Hz and rises gently to 1.3 as the basin drains. Its tempo breathes over each phrase of 32 beats, quicker on the in-breath, slower on the out, as a resting heart's does.
+  // A touch startles it: the next beat comes early and a few run quick, then it settles. A hand kept in the water slows it below rest, the way a body slows under water; let go, it quickens a little and settles again
+  const held = hand.down ? (now - hand.t0)/1000 : 0;
+  kq.touch *= Math.exp(-dt/3); kq.tq += (kq.touch - kq.tq)*(1 - Math.exp(-dt/0.4));
+  kq.under += ((hand.down ? kss(1.5, 6, held) : 0) - kq.under)*(1 - Math.exp(-dt/(hand.down ? 2 : 0.8)));
+  kq.hz = (0.9 + 0.4*Math.min(1, drainAmt/0.6))*(1 + 0.045*Math.sin(6.28318*((kq.nb % 32) + kq.bt/kq.bl)/32))*(1 + 0.3*kq.tq)*(1 - 0.18*kq.under);
+  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = 3.71*kq.lx*(1 - kq.lx); kq.bl = (0.9 + 0.2*kq.lx)/kq.hz*(kq.lx < 0.05 ? 1.5 : 1); kq.dub = 0.13 + 0.06*kq.lx; kq.ghost = kq.lx > 0.92 ? 0.4 : 0;   // a groove: the gaps wobble about 10 per cent, and now and then a long pause, as after a skipped beat
+    kq.nb++; kq.steps++; kq.stepAt = simTime; kq.dubDone = false;
+    const pi = kq.nb % 32, pn = Math.floor(kq.nb/32);   // each beat's strength: the phrase swells over its first eight beats and ebbs over its last ten; each phrase peaks on its own (every fourth barely there); a downbeat on each eighth; the chaos shades every beat
+    kq.ba = (0.3 + 0.7*kss(0, 8, pi)*(1 - 0.8*kss(22, 32, pi)))*(pn % 4 === 3 ? 0.35 : 0.75 + 0.35*kh(pn + 0.17))*(0.85 + 0.3*kq.lx)*(pi % 8 === 0 ? 1.25 : 1)*(1 + 0.4*kq.tq);
+    const oa = 6.28318*kh(kq.nb*0.37 + 0.1), or = 0.022*Math.sqrt(kh(kq.nb*0.71 + 0.3)), ox = or*Math.cos(oa), oy = or*Math.sin(oa);   // dropped a little off centre: the rings cross, as rain's do
+    kq.rip.push([simTime, kq.ba, ox, oy], [simTime + kq.dub*kq.bl, 0.45*kq.ba, ox*0.8, oy*0.8]);   // the dub, a smaller ring just behind: a drop, and the drop it throws back up
+    if (kq.ghost) kq.rip.push([simTime + 1.9*kq.dub*kq.bl, 0.35*kq.ba, -ox, -oy]); }
+  while (kq.rip.length && (simTime - kq.rip[0][0] > RLIFE || kq.rip.length > NR)) kq.rip.shift();
+  if (!kq.dubDone && kq.bt >= kq.dub*kq.bl) { kq.steps++; kq.stepAt = simTime; kq.dubDone = true; }
   kq.rp = 0.55 + 0.45*Math.min(1, drainAmt/0.4);   // the ripples: always, a resting heart; stronger as it drains
   kq.ph = 2*Math.PI*kq.bt/kq.bl; kq.pulse = kheartJ(kq.bt/kq.bl, kq.dub, kq.ghost);
   return dt*Math.abs(kq.w);
@@ -903,7 +922,8 @@ function step(dt){
 // Only while the water runs; never more than sixteen.
 const NB = 16, BUB = new Float32Array(NB*4), BS = new Float32Array(NB), bubs = []; let nextBub = 0, lastBub = 0;
 const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.random()*2-1)*BY*0.6, a:Math.random()*6.283 }));   // a cauldron: bubbles keep coming up where it is hottest
-const POP = 3.2;                                      // a gooey pop: about three seconds to melt back
+const POP = 1.6;                                      // a gooey pop: a breath to melt back (Kat 2026-11-20: "bubbles too slow and awkward")
+let bubNb = -1;                                       // ?k: the last heartbeat the bubbles answered
 const bubNow = () => K > 0 ? kq.bub : performance.now()/1000;   // ?k: the bubbles keep the water's clock, so they can run backwards
 function popBub(b, t){ if (b.pop) return; b.pop = t;
   const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
@@ -913,33 +933,39 @@ function popAt(u, v){ const t = bubNow(); let hit = false;
 function blow(){
   const t = bubNow(), dt = Math.min(0.1, t - (lastBub || t)); lastBub = t;
   vents.forEach((v) => { v.a += (Math.random() - 0.5)*dt; v.x = Math.max(-BX*0.7, Math.min(BX*0.7, v.x + Math.cos(v.a)*0.004*dt)); v.y = Math.max(-BY*0.7, Math.min(BY*0.7, v.y + Math.sin(v.a)*0.004*dt)); });
-  if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a big slow one; often a glob of two or three
-    const R = 0.015 + 0.14*Math.pow(Math.random(), 2.2), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
+  if (K > 0 && kq.nb !== bubNb) { bubNb = kq.nb; if (Math.random() < 0.4*kq.ba) nextBub = Math.min(nextBub, t + 0.06 + 0.3*Math.random()); }   // ?k: on some beats, more in a strong phrase, a vent answers a moment later
+  const mk = (x, y, R, born, life) => ({ x, y, R, r:0, born, life, pop:0, seed:Math.random(), rise:(0.35 + 0.65*Math.random())*(0.6 + 6*R), vx:0, vy:0 });   // rise: how long it takes to surface, 0.2 to 1.6 s, the big ones slower
+  if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a bigger one; often a glob of two or three
+    const R = 0.012 + 0.11*Math.pow(Math.random(), 2.4), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
     const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
-    const life = 5 + 70*R + Math.random()*10, n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;
-    bubs.push({ x, y, R, r:0, born:t, life, pop:0, seed:Math.random() });
+    const life = 2.5 + 30*R + 3*Math.random(), n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;   // a small one lives about 3 s, the biggest about 9
+    bubs.push(mk(x, y, R, t, life));
     for (let k = 0; k < n && bubs.length < NB; k++) { const r2 = R*(0.3 + 0.5*Math.random()), a2 = Math.random()*6.283;
-      bubs.push({ x:x + Math.cos(a2)*(R + r2)*0.8, y:y + Math.sin(a2)*(R + r2)*0.8, R:r2, r:0, born:t + Math.random()*1.5, life:life*(0.5 + 0.5*Math.random()), pop:0, seed:Math.random() }); }
-    nextBub = t + 0.3 + Math.random()*0.9; }
+      bubs.push(mk(x + Math.cos(a2)*(R + r2)*0.8, y + Math.sin(a2)*(R + r2)*0.8, r2, t + 0.1 + 0.5*Math.random(), life*(0.5 + 0.5*Math.random()))); }
+    nextBub = t + 0.35 + 1.2*Math.random(); }
   if (dt < 0 && BUBBLES && t < kq.unpop && bubs.length < NB && water > 0.5) {   // ?k, backwards: a bubble un-pops. Goo gathers into a skin, the dome shrinks and sinks
-    const R = 0.02 + 0.10*Math.pow(Math.random(), 2), life = 5 + 70*R + Math.random()*10;
-    bubs.push({ x:(Math.random()*2-1)*(BX-R)*0.8, y:(Math.random()*2-1)*(BY-R)*0.8, R, r:0, born:t - POP - life*(0.6 + 0.35*Math.random()), life, pop:t - POP + 0.02, seed:Math.random() });
+    const R = 0.015 + 0.09*Math.pow(Math.random(), 2), life = 2.5 + 30*R + 3*Math.random();
+    bubs.push(Object.assign(mk((Math.random()*2-1)*(BX-R)*0.8, (Math.random()*2-1)*(BY-R)*0.8, R, t - POP - life*(0.6 + 0.35*Math.random()), life), { pop:t - POP + 0.02 }));
     kq.unpop = t - 0.6 - 1.2*Math.random(); }
   if (dt >= 0) kq.unpop = t;
   BUB.fill(0); BS.fill(0);
   for (let i = bubs.length - 1; i >= 0; i--) { const b = bubs[i], age = t - b.born, a = age/b.life;
     if (dt < 0) { if (b.pop && t < b.pop) b.pop = 0; if (age < 0) { bubs.splice(i, 1); continue; } }   // ?k, backwards: the pop undoes itself; a bubble younger than nothing is gone
-    if (!b.pop) {                                                       // carried: a slow turn round the drain, a slower pull into it
-      const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004 + 0.06*drainAmt, pull = 0.0015 + 0.03*drainAmt;   // draining: round and into the drain
-      const nx = b.x - (b.y*w + b.x/d*pull)*dt, ny = b.y + (b.x*w - b.y/d*pull)*dt; b.x = nx; b.y = ny;
-      if (dt >= 0 && (a >= 1 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.25))) popBub(b, t); }   // no water, no bubbles: they pop as it drains
+    if (!b.pop) {                                                       // carried on the current: round the drain, quicker near it as a whirlpool is, a slow pull in, and a meander that neighbours share
+      const d = Math.hypot(b.x, b.y) || 1, w = (0.025 + 0.004/Math.max(d, 0.08))*(0.5 + 0.5*water) + 0.08*drainAmt, pull = 0.004 + 0.035*drainAmt;   // draining: round and into the drain
+      const s1 = Math.sin(7*b.x + 0.2*t), c1 = Math.cos(7*b.x + 0.2*t), s2 = Math.sin(6*b.y - 0.15*t), c2 = Math.cos(6*b.y - 0.15*t), c3 = Math.cos(11*(b.x + b.y) - 0.1*t);
+      const mx = 0.0012*(6*s1*c2 + 5.5*c3), my = -0.0012*(7*c1*s2 + 5.5*c3);   // the meander: the curl of a slow drifting field, so the water it stands for neither gathers nor thins
+      const tx = -b.y*w - b.x/d*pull + mx, ty = b.x*w - b.y/d*pull + my, ease = 1 - Math.exp(-Math.abs(dt)/0.8);   // a bubble has a little weight: it takes a moment to catch the current
+      b.vx += (tx - b.vx)*ease; b.vy += (ty - b.vy)*ease; b.x += b.vx*dt; b.y += b.vy*dt;
+      const crest = K > 0 && a > 0.9 ? kRip(b.x, b.y)[0] : 0;           // near the end of its life, a ring passing under it tips it over: pops land with the heart, wherever the ring has reached
+      if (dt >= 0 && (a >= 1.12 || crest > 0.025 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.25))) popBub(b, t); }   // no water, no bubbles: they pop as it drains
     if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
-  bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = Math.min(1, age/b.life);
-    const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
-    const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
-    b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
+  bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = age/b.life;
+    const x = Math.min(1, age/b.rise), up = x*x*(3 - 2*x), y = x - 1, size = 1 + 2*y*y*y + y*y;   // surfacing: it comes up quickly, a little past its size, and settles back
+    b.r = b.R*(0.25 + 0.75*size)*(1 + 0.12*Math.min(1, a))*(1 + 0.06*kss(0.85, 1.05, a));         // then it grows slowly, and swells a touch as its skin thins, just before it goes
+    const rk = K > 0 ? kRip(b.x, b.y) : [0, 0], rl = Math.hypot(b.x, b.y) || 1, bob = 0.007*rk[1];   // it rides the heart's ripples: lifted and moved with the grid under it
     if (b.pop) { const k = Math.min(1, (t - b.pop)/POP), m = k*k*(3 - 2*k); BUB.set([b.x, b.y, b.r*(1 + 0.18*m), -(1 - m)], i*4); }
-    else BUB.set([b.x, b.y, b.r*(1 + (K > 0 ? 0.13*kq.rp*bubBeat(b.x, b.y) : 0)), 0.08 + 0.92*up], i*4); });   // a bubble swells as a ripple passes under it
+    else BUB.set([b.x - b.x/rl*bob, b.y - b.y/rl*bob, b.r*(1 + 0.6*rk[0]), 0.08 + 0.92*up], i*4); });
 }
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
@@ -954,15 +980,18 @@ function render(){
   if (mips) { gl.generateMipmap(gl.TEXTURE_2D); gl.bindSampler(0, kMip); }
   if (K > 0) { gl.uniform4f(u.uKH, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), mips ? Math.log2(dye.read.w/(view.S*d)) : -99, 2.2*kq.e*kq.soft);
     gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, kq.dub, kq.ghost, 0);
-    for (let i = 0; i < 10; i++) { const e = kq.rip[i]; RA[i] = e ? simTime - e[0] : -1; RM[i] = e ? e[1] : 0; } gl.uniform1fv(u['uRA[0]'], RA); gl.uniform1fv(u['uRM[0]'], RM); gl.uniform1f(u.uRP, kq.rp); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
-    gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*Math.pow(0.5 + 0.5*Math.sin(simTime*0.29 + 1.3), 2) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
+    for (let i = 0; i < NR; i++) { const e = kq.rip[i]; RA[i] = e ? simTime - e[0] : -1; RM[i] = e ? e[1] : 0; RO[2*i] = e ? e[2] : 0; RO[2*i + 1] = e ? e[3] : 0; }
+    gl.uniform1fv(u['uRA[0]'], RA); gl.uniform1fv(u['uRM[0]'], RM); gl.uniform2fv(u['uRO[0]'], RO); gl.uniform1f(u.uRP, kq.rp); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
+    // 8: the second face surfaces when it will, for a few seconds or longer, never on a timer
+    gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*kss(0.45, 0.95, kNoise(simTime/9 + 3.1)) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), kq.steps, QD);   // the dots step on the heart: lub and dub
-      gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + 0.35*Math.sin(6.28318*(kq.nb + kq.bt/kq.bl)/32)), 0.11*QD);
+      gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(kq.nb/32) + 0.5))*Math.sin(6.28318*((kq.nb % 32) + kq.bt/kq.bl)/32)), 0.11*QD);   // the twist breathes once a phrase, deeper in some than others
+      gl.uniform1f(u.uKStep, simTime - kq.stepAt);
       const nowH = performance.now(), dtH = Math.min(0.1, (nowH - (hg.t || nowH))/1000); hg.t = nowH;   // the hand's pull eases in and out: a little while it hovers, more while it is in the water
       hg.a += ((hand.on ? 0.35 + 0.65*holdAmt : 0) - hg.a)*(1 - Math.exp(-dtH/0.3));
       gl.uniform4f(u.uHG, hand.u - 0.5, hand.v - 0.5, 0.030*BH*hg.a, 0.022);
-      if (QD > 0) { if (!gx.tex) gx.tex = gxAtlas(); gxLine(); bind(u.uGA, gx.tex); gl.uniform4fv(u['uGC[0]'], gx.codes);   // the glyphs: the atlas read at the size of one cell on screen; the rows re-rolled every 2.5 s on the water's clock
-        gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/QN*view.S*view.dpr))), 0.9*drainAmt, Math.floor(kq.t/2.5) % 991); } } }   // 8: up for a few seconds in every 22
+      if (QD > 0) { if (!gx.tex) gx.tex = gxAtlas(); gxLine(); bind(u.uGA, gx.tex); gl.uniform4fv(u['uGC[0]'], gx.codes);   // the glyphs: the atlas read at the size of one cell on screen; the rows re-rolled every other beat, on the heart
+        gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/QN*view.S*view.dpr))), 0.9*drainAmt, Math.floor(kq.nb/2) % 991); } } }   // 8: up for a few seconds in every 22
   draw(null); if (mips) gl.bindSampler(0, null);
 }
 

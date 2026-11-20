@@ -497,7 +497,7 @@ let HS = 0, HT = 0; const RIP = [];                                             
 // (notched); now and then a third. Gaps from a logistic map at r = 3.71 (the edge of chaos), as in the piece. It sweeps left to right with a gap ahead of the pen.
 // Once the live piece in 08 has loaded (same origin), the trace is the drain's own heart (its kq: faster as it drains) and the label says live; until then, the page's: rest.
 { const pc = document.getElementById('pulse'), px = pc.getContext('2d'), lab = document.getElementById('ekgl'), hb = { t:0, len:0.8, x:0.37, dub:0.16, ghost:0 }, SPEED = 96, GAP = 16;
-  const step = (dt) => { hb.t += dt; HT += dt; if (hb.t >= hb.len) { hb.t -= hb.len; hb.x = 3.71*hb.x*(1 - hb.x); hb.len = (0.9 + 0.2*hb.x)/1.15; hb.dub = 0.13 + 0.06*hb.x; hb.ghost = hb.x > 0.92 ? 0.4 : 0; HS++; hb.dd = false; RIP.push([HT, HS % 16 === 1 ? 1.3 : 1]); if (RIP.length > 10) RIP.shift(); } if (!hb.dd && hb.t >= hb.dub*hb.len) { HS++; hb.dd = true; RIP.push([HT, 0.55]); if (RIP.length > 10) RIP.shift(); } };
+  const step = (dt) => { hb.t += dt; HT += dt; if (hb.t >= hb.len) { hb.t -= hb.len; hb.x = 3.71*hb.x*(1 - hb.x); hb.len = (0.9 + 0.2*hb.x)/0.9; hb.dub = 0.13 + 0.06*hb.x; hb.ghost = hb.x > 0.92 ? 0.4 : 0; HS++; hb.dd = false; RIP.push([HT, HS % 16 === 1 ? 1.3 : 1]); if (RIP.length > 10) RIP.shift(); } if (!hb.dd && hb.t >= hb.dub*hb.len) { HS++; hb.dd = true; RIP.push([HT, 0.55]); if (RIP.length > 10) RIP.shift(); } };
   const g = (x, c, w) => Math.exp(-(((x - c)/w)**2));
   const ekg = (f, dub, ghost, bl) => { f = (f % 1 + 1) % 1; const d = (f < 0.62 ? f : f - 1)*bl, du = dub*bl, gh = 1.9*du;   // seconds from the lub, so a faster heart keeps a sharp QRS
     return 0.1*g(d, -0.1, 0.024) - 0.12*g(d, -0.022, 0.008) + g(d, 0, 0.009) - 0.3*g(d, 0.022, 0.009)
@@ -594,7 +594,7 @@ function field(t){
       const tk = Math.floor(HS/(Math.pow(2, Math.floor(Math.min(3, -1.3*Math.log2(Math.max(clock, 0.05)))))*(hash(i, gj) < 0.5 ? 1 : 2))) + 9*Math.floor(hash(gj, i)*7);   // near the hole, half time, quarter, eighth
       const orb = STILL ? 0 : t*0.35*Math.pow(RH/at, 1.5)*Math.sign(th);       // the dots near the hole orbit it, faster the nearer
       const ang = tw*RH*RH/Math.max(at*at, RH*RH) + orb, ca = Math.cos(ang), sa = Math.sin(ang);
-      let cr = 0, pu = 0; if (!STILL) for (const e of RIP) { const a = HT - e[0]; if (a < 0 || a > 5) continue; const w = (at - RH*1.15 - 46*a)/16, g = e[1]*Math.exp(-0.6*a)*Math.exp(-w*w); cr += g; pu += w*g; }   // each beat, a ring out from the dark
+      let cr = 0, pu = 0; if (!STILL) for (const e of RIP) { const a = HT - e[0]; if (a < 0 || a > 7) continue; const w = (at - RH*1.15 - 30*a)/16, g = e[1]*Math.exp(-0.4*a)*Math.exp(-w*w); cr += g; pu += w*g; }   // each beat, a ring out from the dark
       const sc = 1 + 7*pu/at, px = ux*th*sc, py = uy*th*sc;
       put(hx + px*ca - py*sa, hy + px*sa + py*ca, base*mag*(0.7 + 0.3*hash(i + tk, gj))*(1 + 0.7*cr), Math.min(1, v + 0.25*(mag - 1) + 0.45*cr), z, i, gj);
     }
