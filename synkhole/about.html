@@ -532,7 +532,8 @@ function field(t){
   for (let i = 0; i < NB*NA; i++) paths[i] = new Path2D();
   const rs = [];                                                                // the words on screen: the dots part round them, as the water parts round a hand
   for (const el of TXT) { const b = el.getBoundingClientRect(); if (!b.width || b.bottom < -30 || b.top > H + 30) continue;
-    RG.selectNodeContents(el); for (const q of RG.getClientRects()) if (q.width > 1) rs.push([q.left - 7, q.top - 2, q.right + 7, q.bottom + 2]); }   // one box per line of words, as tight as the words
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); while (tw.nextNode()) { if (!tw.currentNode.nodeValue.trim()) continue; RG.selectNodeContents(tw.currentNode);
+      for (const q of RG.getClientRects()) if (q.width > 1) rs.push([q.left - 7, q.top - 2, q.right + 7, q.bottom + 2]); } }   // one box per line of words, as tight as the words (text only: a row's box would cut a straight edge in the field)
   for (const el of BOX) { const q = el.getBoundingClientRect(); if (q.width && q.bottom > -30 && q.top < H + 30) rs.push([q.left - 4, q.top - 4, q.right + 4, q.bottom + 4]); }   // and round the drawn marks
   const mc = Math.ceil(W/P) + 1, mr = Math.ceil(H/P) + 1, FADE = 16;
   if (!MASK || MASK.length !== mc*mr) MASK = new Float32Array(mc*mr); MASK.fill(1);
