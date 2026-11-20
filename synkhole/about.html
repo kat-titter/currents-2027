@@ -55,14 +55,14 @@
   .say { font-size:25px; line-height:1.42; font-weight:300; color:var(--bone); }
 
   /* the opening */
-  .hero { min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 13vh; }
+  .hero { --hb:13vh; min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px var(--hb); }
   .hero .where { position:absolute; left:48px; top:64px; margin:0; }
   .hero h1 { margin:0; font:300 clamp(64px, 12.4vw, 210px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
-  .hero .sub { margin:.5em 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
+  .hero .sub { margin:calc(clamp(64px, 12.4vw, 210px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
   .hero .lede { margin:1.6em 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
   .hero .sync { margin:1.4em 0 0 .15em; }
-  .hero .cue { position:absolute; left:50%; bottom:46px; transform:translateX(-50%); margin:0; }
+  .hero .cue { position:absolute; left:50%; bottom:calc(var(--hb) - 44px); transform:translateX(-50%); margin:0; }
   .hero .cue::after { content:""; display:block; width:1px; height:34px; margin:10px auto 0; background:linear-gradient(var(--dim), transparent); animation:fall 2.6s ease-in-out infinite; }
   @keyframes fall { 0% { transform:scaleY(0); transform-origin:top; } 50% { transform:scaleY(1); transform-origin:top; } 51% { transform-origin:bottom; } 100% { transform:scaleY(0); transform-origin:bottom; } }
   .thesis { margin-top:22vh; }
@@ -157,7 +157,7 @@
     .kick { position:static; justify-self:start; text-align:left; margin-bottom:1.6em; }
     .thesis { grid-template-columns:minmax(0, 1fr); }
     .bar { left:28px; right:28px; } #lost { left:28px; }
-    .hero { padding:0 28px 15vh; } .hero .where { left:28px; top:56px; }
+    .hero { --hb:15vh; padding:0 28px var(--hb); } .hero .where { left:28px; top:56px; }
   }
   @media (max-width:600px) {
     body { font-size:18.5px; }
@@ -166,7 +166,7 @@
     .frame i { width:16px; height:16px; }
     .frame i:nth-child(1), .frame i:nth-child(3) { left:10px; } .frame i:nth-child(2), .frame i:nth-child(4) { right:10px; }
     .frame i:nth-child(1), .frame i:nth-child(2) { top:10px; } .frame i:nth-child(3), .frame i:nth-child(4) { bottom:10px; }
-    .hero { padding:0 20px 17vh; } .hero .where { left:20px; top:50px; }
+    .hero { --hb:17vh; padding:0 20px var(--hb); } .hero .where { left:20px; top:50px; }
     .hero .lede { font-size:19px; }
     .say { font-size:22px; }
     .row { grid-template-columns:minmax(0, 1fr); gap:28px; } .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
@@ -396,6 +396,7 @@ function size(){ D = Math.min(3, devicePixelRatio || 1); W = innerWidth; H = inn
 addEventListener('resize', () => { size(); if (STILL) field(0); dotAll(); });
 addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; }, { passive:true });
 addEventListener('pointerleave', () => { mx = my = -1e4; });
+let MASK = null; const RG = document.createRange();
 const TITLE = document.querySelector('.hero h1'), NB = 12, NA = 4, paths = [], TXT = [...document.querySelectorAll('main p:not(.fall):not(.mirror), main li, main dt, main dd, main .note, main .kick, main figcaption, .bar, #lost')];
 function field(t){
   cx.setTransform(D, 0, 0, D, 0, 0); cx.clearRect(0, 0, W, H);
@@ -405,8 +406,13 @@ function field(t){
   const tw = 0.9 + 0.35*Math.sin(t*0.043), calm = 1 - 0.55*Math.min(1, scrollY/(H*0.8));
   for (let i = 0; i < NB*NA; i++) paths[i] = new Path2D();
   const rs = [];                                                                // the words on screen: the dots part round them, as the water parts round a hand
-  for (const el of TXT) { const b = el.getBoundingClientRect(); if (b.width && b.bottom > -30 && b.top < H + 30) rs.push([b.left - 14, b.top - 10, b.right + 14, b.bottom + 10]); }
-  const clear = (x, y) => { let f = 1; for (const q of rs) { const dx = Math.max(q[0] - x, 0, x - q[2]), dy = Math.max(q[1] - y, 0, y - q[3]); if (dx < 26 && dy < 26) f = Math.min(f, Math.hypot(dx, dy)/26); } return f*f*(3 - 2*f); };
+  for (const el of TXT) { const b = el.getBoundingClientRect(); if (!b.width || b.bottom < -30 || b.top > H + 30) continue;
+    RG.selectNodeContents(el); for (const q of RG.getClientRects()) if (q.width > 1) rs.push([q.left - 7, q.top - 2, q.right + 7, q.bottom + 2]); }   // one box per line of words, as tight as the words
+  const mc = Math.ceil(W/P) + 1, mr = Math.ceil(H/P) + 1, FADE = 16;
+  if (!MASK || MASK.length !== mc*mr) MASK = new Float32Array(mc*mr); MASK.fill(1);
+  for (const q of rs) { const c0 = Math.max(0, Math.floor((q[0] - FADE)/P)), c1 = Math.min(mc - 1, Math.ceil((q[2] + FADE)/P)), r0_ = Math.max(0, Math.floor((q[1] - FADE)/P)), r1_ = Math.min(mr - 1, Math.ceil((q[3] + FADE)/P));
+    for (let rr = r0_; rr <= r1_; rr++) for (let cc = c0; cc <= c1; cc++) { const x = cc*P, y = rr*P, dx = Math.max(q[0] - x, 0, x - q[2]), dy = Math.max(q[1] - y, 0, y - q[3]), f = Math.min(1, Math.hypot(dx, dy)/FADE), k = rr*mc + cc; if (f < MASK[k]) MASK[k] = f; } }
+  const clear = (x, y) => { const cc = Math.round(x/P), rr = Math.round(y/P); if (cc < 0 || rr < 0 || cc >= mc || rr >= mr) return 1; const f = MASK[rr*mc + cc]; return f*f*(3 - 2*f); };
   const put = (x, y, r, v, z, i, j) => {
     if (x < -4 || y < -4 || x > W + 4 || y > H + 4) return;
     const f = clear(x, y); r *= f; v *= f; if (r < 0.25) return;
