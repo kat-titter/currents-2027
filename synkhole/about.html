@@ -146,8 +146,6 @@
   .key .mk { margin:0; }
   .supply div { display:grid; grid-template-columns:minmax(0, 11em) minmax(0, 1fr); column-gap:18px; padding:10px 0; border-top:1px solid rgba(228,223,210,.10); }
   .supply dt { color:var(--bone); } .supply dd { margin:0; color:var(--dim); font-size:18.5px; }
-  .built li { display:flex; align-items:baseline; gap:12px; padding:5px 0; }
-  .built .mk { flex:none; margin-top:0; transform:translateY(-1px); }
 
   /* the live piece */
   .live { position:relative; aspect-ratio:4/3; margin:.6em auto 0; width:min(100%, 1180px);   /* no edge: the piece fades into the field of dots */
@@ -204,6 +202,72 @@
     .steps h3 { font-size:19.5px; } .steps p, .lin .takes, .supply dd { font-size:17.5px; }
     .supply div { grid-template-columns:minmax(0, 1fr); }
   }
+  /* drawn marks (2026-11-19, Kat: "screen should never be just blocks of text. diverse style/formatting, icon, previews, interactive and/or animated elements"):
+     small pictures in the page's own language, dots on a grid with pearl at their edges and the dark of the hole, every one stepping on the heart */
+  canvas.g { display:block; flex:none; width:52px; height:52px; }
+  canvas.g.s { width:36px; height:36px; } canvas.g.l { width:72px; height:72px; }
+  .tl { display:grid; grid-template-columns:72px minmax(0, 1fr); column-gap:28px; align-items:center; margin:0 0 1.05em -100px; }
+  .tl p { margin:0; } .tl canvas.g { width:72px; height:72px; }
+  .steps.gl li { grid-template-columns:3.2em 52px minmax(0, 1fr); column-gap:16px; align-items:center; }
+  .steps.gl canvas.g { grid-column:2; grid-row:1 / span 2; }
+  .steps.gl li > div, .steps.gl li > p { grid-column:3; }
+  .lin.gl li { grid-template-columns:1.6em 104px minmax(0, 1fr); column-gap:16px; align-items:center; }
+  .lin.gl .mk { grid-column:1; grid-row:1 / span 2; align-self:center; margin:0; }
+  .lin.gl canvas.g { grid-column:2; grid-row:1 / span 2; width:104px; height:58px; }
+  .lin.gl .who, .lin.gl .takes { grid-column:3; }
+  .supply dt { display:flex; align-items:center; gap:13px; }
+  figure.side { grid-column:3; grid-row:span 3; align-self:start; max-width:19rem; margin:.35em 0 0; }
+  figure.side canvas { display:block; width:100%; height:auto; aspect-ratio:1 / .96; }
+  figure.side figcaption { margin-top:8px; }
+  figure.gfig { margin:1.6em 0 2em; } figure.gfig canvas { display:block; width:100%; height:84px; }
+  .hand canvas { display:block; width:100%; height:190px; cursor:crosshair; touch-action:pan-y; border-radius:21px; }
+  .hand canvas:focus-visible { outline:1px solid rgba(207,196,251,.6); outline-offset:6px; }
+  .nums { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:21px; margin:1.8em 0 2.2em; }
+  .nums.two { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .nums > div { display:grid; grid-template-columns:40px minmax(0, 1fr); column-gap:13px; align-items:center; }
+  .nums canvas.g { grid-row:1 / span 2; width:40px; height:40px; }
+  .nums b { font:300 34px/1.05 var(--serif); color:var(--bone); white-space:nowrap; }
+  .nums span { font:400 12px/1.55 var(--mono); letter-spacing:.04em; color:var(--dim); }
+  .note canvas.g { width:100%; height:64px; margin:.8em 0 .2em; }
+  .acts { display:flex; gap:34px; margin:1.2em 0 0; }
+  .acts span { display:grid; justify-items:center; gap:8px; }
+  .works li { display:flex; align-items:center; gap:13px; }
+  .foot ul li:has(> canvas.g) { display:flex; align-items:center; gap:13px; }
+  /* built against proposed: one line, solid where it is built, dotted where it is proposed, now between them */
+  .time { display:grid; grid-template-columns:repeat(8, minmax(0, 1fr)); position:relative; list-style:none; margin:2.2em 0 1.4em; padding:0; font:400 12px/1.7 var(--mono); letter-spacing:.04em; color:var(--dim); }
+  .time::before { content:""; position:absolute; left:6.25%; right:6.25%; top:31px; height:1px;
+    background:linear-gradient(90deg, rgba(228,223,210,.5) 57.1%, transparent 57.1%), repeating-linear-gradient(90deg, rgba(228,223,210,.4) 0 2px, transparent 2px 6px); }
+  .time li { display:grid; grid-template-rows:22px 20px 22px; justify-items:center; align-items:center; }
+  .time .mk, .time .pt { grid-row:2; margin:0; position:relative; }
+  .time .lb { grid-row:1; white-space:nowrap; } .time li:nth-child(even) .lb { grid-row:3; }
+  .time .pt { width:5px; height:5px; border-radius:50%; background:var(--bone); }
+  .time .now .pt { background:#f7c6de; box-shadow:0 0 0 3px var(--ink), 0 0 calc(3px + 12px*var(--fl, 0)) rgba(255,115,184,.85); }
+  .time .now .lb { color:#f7c6de; }
+  /* the notes and their marks light each other */
+  sup.fn, .note > b { transition:color .4s, text-shadow .4s; }
+  sup.fn.lit, .note.lit > b { color:#fff; text-shadow:0 0 7px rgba(207,196,251,.9); }
+  .note.lit { color:var(--text); } .note.lit .note:not(.lit) { color:var(--dim); }
+  /* an axis you can take hold of */
+  .axis .drag { position:absolute; left:-8px; top:-22px; width:calc(100% + 16px); height:44px; margin:0; opacity:0; cursor:ew-resize; }
+  .axis .drag:focus-visible + .mark, .axis .track:hover .mark { box-shadow:0 0 0 4px rgba(207,196,251,.25), 0 0 10px rgba(207,196,251,.8); }
+  .axis .tick.was { text-decoration:line-through; text-decoration-color:var(--ro); }
+  @media (max-width:960px) {
+    .tl { margin-left:0; grid-template-columns:52px minmax(0, 1fr); column-gap:18px; } .tl canvas.g { width:52px; height:52px; }
+    figure.side { grid-column:1; grid-row:auto; max-width:22rem; margin:0 0 2em; }
+  }
+  @media (max-width:600px) {
+    .steps.gl li { grid-template-columns:2.1em 44px minmax(0, 1fr); column-gap:12px; } .steps.gl canvas.g { width:44px; height:44px; }
+    .lin.gl li { grid-template-columns:1.2em 76px minmax(0, 1fr); column-gap:12px; } .lin.gl canvas.g { width:76px; height:46px; }
+    .nums, .nums.two { grid-template-columns:minmax(0, 1fr); gap:16px; } .nums b { font-size:30px; white-space:normal; }
+    .hand canvas { height:160px; }
+    .time { grid-template-columns:minmax(0, 1fr); margin-left:4px; }
+    .time::before { left:10px; right:auto; top:14px; bottom:14px; width:1px; height:auto;
+      background:linear-gradient(180deg, rgba(228,223,210,.5) 57.1%, transparent 57.1%), repeating-linear-gradient(180deg, rgba(228,223,210,.4) 0 2px, transparent 2px 6px); }
+    .time li { grid-template-rows:auto; grid-template-columns:21px minmax(0, 1fr); justify-items:start; column-gap:13px; padding:3px 0; }
+    .time .mk, .time .pt { grid-row:1; grid-column:1; justify-self:center; }
+    .time .lb, .time li:nth-child(even) .lb { grid-row:1; grid-column:2; }
+    .acts { gap:21px; }
+  }
   @media print { #field, .frame, .bar, #lost, .cue, .live { display:none; } body { background:#fff; color:#111; } .rv [data-r] { opacity:1; transform:none; } }
 </style>
 </head>
@@ -224,14 +288,15 @@
 </section>
 
 <section class="thesis">
-  <p data-r>beautiful water, with something nasty inside: near the drain, time and space come loose.</p>
-  <p data-r>machines live outside our time and space. step inside one, and you lose yours.</p>
-  <p class="quiet" data-r>every dream runs on a budget. so do we.</p>
+  <div class="tl" data-r><canvas class="g" data-g="nasty" aria-hidden="true"></canvas><p>beautiful water, with something nasty inside: near the drain, time and space come loose.</p></div>
+  <div class="tl" data-r><canvas class="g" data-g="loose" aria-hidden="true"></canvas><p>machines live outside our time and space. step inside one, and you lose yours.</p></div>
+  <div class="tl" data-r><canvas class="g" data-g="budget" aria-hidden="true"></canvas><p class="quiet">every dream runs on a budget. so do we.</p></div>
 </section>
 
 <section id="wall" data-n="01">
   <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</span><span class="alt mono"><span class="one">wall text</span><span class="two">hole / whole</span></span></h2>
   <p class="label mono" data-r><b>katherine titterton</b><br>[s[i/y][k][w]hole, dry season, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
+  <figure class="side" data-r><canvas class="g" data-g="basin" role="img" aria-label="the piece from three quarters, to scale: a block 30 by 25 inches, its rim at 34 inches over a 30 inch plinth, the screen set in its top with the water and the hole"></canvas><figcaption class="mono">rim at 34 in, plinth to 30</figcaption></figure>
   <p class="say" data-r>most beautiful things have something nasty in them. here, it is the drain: the [s[i/y][k][w]hole, where time goes missing.</p>
   <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; here both run out, and you climb back up.</p>
   <p data-r>once each morning of the festival, it fills. every hand in this room spends it.</p>
@@ -242,11 +307,18 @@
   <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">s</i><span class="br">]</span>ink</span><span class="alt mono"><span class="one">work</span><span class="two">sink / ink</span></span></h2>
   <p class="say" data-r>under the glass, a vanitas<sup class="fn">1</sup> pours: skulls, cut flowers, soap bubbles, a still life that refuses to stay still.</p>
   <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. of these, bubbles pass fastest.<sup class="fn">1a</sup><aside class="note"><b>1a</b>homo bulla, the old prints say: a person is a bubble. lately the word floats over a whole industry too. here they swell slowly, shine, and pop.</aside></aside>
-  <p data-r>every 2.5 seconds, another frame: slow for a computer, about right for a tide pool. light arrives as dots, 128 by 96, each one as large as its patch of water is bright.</p>
+  <div class="nums wide" data-r>
+    <div><canvas class="g" data-g="frame" aria-hidden="true"></canvas><b>2.5 s</b><span>between frames</span></div>
+    <div><canvas class="g" data-g="grid" aria-hidden="true"></canvas><b>128 x 96</b><span>dots of light</span></div>
+    <div><canvas class="g" data-g="ramp" aria-hidden="true"></canvas><b>size = light</b><span>one dot per patch of water</span></div>
+  </div>
+  <p data-r>slow for a computer, about right for a tide pool. light arrives as dots, each one as large as its patch of water is bright.</p>
   <p data-r>at the center sits a black hole. it bends the grid round itself, and near its edge every dot's clock runs slow, then stops.<sup class="fn">2</sup></p>
+  <figure class="gfig wide" data-r><canvas class="g" data-g="clocks" role="img" aria-label="five clocks of dots in a row toward the hole: whole time, half, a quarter, an eighth, stopped"></canvas></figure>
   <aside class="note" data-r><b>2</b>near a black hole, a clock watched from far away runs slow, then stops at the edge; light climbing out loses its blue. here the dots do both: slower near the drain, and rose.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
   <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = dream()</figcaption></figure>
   <p data-r>reach in. for about a second the water follows your hand, then slips through your fingers.</p>
+  <figure class="hand wide" data-r><canvas tabindex="0" role="img" aria-label="a small basin of dots to reach into: move a pointer or a finger over it, or the arrow keys; the water follows about a second behind, then lets go"></canvas><figcaption class="mono">follow(hand, 1 s); slip();</figcaption></figure>
 </section>
 
 <section id="dry" data-n="03">
@@ -254,26 +326,31 @@
   <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">3</sup></p>
   <aside class="note" data-r><b>3</b>dives last as long as the air you carry down. days here last as long as the morning's water.</aside>
   <p data-r>one allocation of dreaming per morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. once spent, it drains to black in under a minute and stays dry until morning.</p>
+  <figure class="gfig wide" data-r><canvas class="g" data-g="days" role="img" aria-label="ten small basins of dots, one for each morning, 11 to 20 june: spent ones dry, one draining, the rest full"></canvas><figcaption class="mono">for (day = 11; day &lt;= 20; day++) fill();</figcaption></figure>
   <figure class="anim wide" data-param="water" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin drains, slow then fast, from full to dry, waits, and fills again"></canvas>
-    <div class="axis mono"><span class="nm">water</span><span class="track"><i class="tick" style="left:0%">1.00</i><i class="tick" style="left:84%">0.16</i><i class="tick end" style="left:100%">None</i><b class="mark"></b></span><span class="val">1.00</span></div></figure>
+    <div class="axis mono"><span class="nm">water</span><span class="track"><i class="tick" style="left:0%">1.00</i><i class="tick" style="left:84%">0.16</i><i class="tick end" style="left:100%">None</i><input class="drag" type="range" min="0" max="1" step="0.01" value="0" aria-label="water, from 1.00 to None"><b class="mark"></b></span><span class="val">1.00</span></div></figure>
   <p data-r>come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
   <p class="mirror" aria-hidden="true">come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
   <p class="quiet" data-r>proposed. only the drain is built so far.</p>
-  <p class="quiet" data-r>training gpt-3 could directly evaporate 700,000 liters of clean freshwater, and global ai demand is projected to withdraw 4.2 to 6.6 billion cubic meters of water in 2027 (li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a>). anything that dreams and drinks is close to alive.</p>
+  <div class="nums two wide" data-r>
+    <div><canvas class="g" data-g="evap" aria-hidden="true"></canvas><b>700,000 l</b><span>clean freshwater training gpt-3 could directly evaporate</span></div>
+    <div><canvas class="g" data-g="withdraw" aria-hidden="true"></canvas><b>4.2 to 6.6 billion m³</b><span>water global ai demand is projected to withdraw in 2027</span></div>
+  </div>
+  <p class="quiet" data-r><span class="mono">li et al., <a href="https://arxiv.org/abs/2304.03271">arxiv:2304.03271</a></span><br>anything that dreams and drinks is close to alive.</p>
 </section>
 
 <section id="methods" data-n="04">
   <h2 class="kick"><span class="mono">04</span><span class="ring"></span><span class="bw" tabindex="0">pe<span class="br">[</span><i class="h">a</i><span class="br">]</span>rl</span><span class="alt mono"><span class="one">methods</span><span class="two">pearl / perl</span></span></h2>
   <p class="say" data-r>machines dream. taste chooses. you reach.</p>
-  <ol class="steps" data-r>
-    <li><span class="n">01</span><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney. every dream leans toward one, like a plant toward a window.</p></li>
-    <li><span class="n">02</span><div><h3>prompt</h3><span class="ai">not ai</span></div><p>44 subjects, 28 moods, 18 lights: more than a million prompts. <code>vanitas [subject, subject, subject], mood, light</code></p></li>
-    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora. 3 of 10 steps follow the prompt, so subjects only half surface.<sup class="fn">4</sup></p></li>
-    <li><span class="n">04</span><div><h3>walk</h3><span class="ai on">ai</span></div><p>from one dream to the next, frame by frame, through the space the dreams come from.</p></li>
-    <li><span class="n">05</span><div><h3>detail</h3><span class="ai on">ai</span></div><p>real-esrgan, four times larger.</p></li>
-    <li><span class="n">06</span><div><h3>water</h3><span class="ai">not ai</span></div><p>fluid simulation: water, glass, bubbles, sheen.</p></li>
-    <li><span class="n">07</span><div><h3>light</h3><span class="ai">not ai</span></div><p>water drawn as dots, pearl at the edges, bent round the drain.</p></li>
-    <li><span class="n">08</span><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
+  <ol class="steps gl" data-r>
+    <li><span class="n">01</span><canvas class="g" data-g="taste" aria-hidden="true"></canvas><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney. every dream leans toward one, like a plant toward a window.</p></li>
+    <li><span class="n">02</span><canvas class="g" data-g="prompt" aria-hidden="true"></canvas><div><h3>prompt</h3><span class="ai">not ai</span></div><p>44 subjects, 28 moods, 18 lights: more than a million prompts. <code>vanitas [subject, subject, subject], mood, light</code></p></li>
+    <li><span class="n">03</span><canvas class="g" data-g="dream" aria-hidden="true"></canvas><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora. 3 of 10 steps follow the prompt, so subjects only half surface.<sup class="fn">4</sup></p></li>
+    <li><span class="n">04</span><canvas class="g" data-g="walk" aria-hidden="true"></canvas><div><h3>walk</h3><span class="ai on">ai</span></div><p>from one dream to the next, frame by frame, through the space the dreams come from.</p></li>
+    <li><span class="n">05</span><canvas class="g" data-g="detail" aria-hidden="true"></canvas><div><h3>detail</h3><span class="ai on">ai</span></div><p>real-esrgan, four times larger.</p></li>
+    <li><span class="n">06</span><canvas class="g" data-g="water" aria-hidden="true"></canvas><div><h3>water</h3><span class="ai">not ai</span></div><p>fluid simulation: water, glass, bubbles, sheen.</p></li>
+    <li><span class="n">07</span><canvas class="g" data-g="light" aria-hidden="true"></canvas><div><h3>light</h3><span class="ai">not ai</span></div><p>water drawn as dots, pearl at the edges, bent round the drain.</p></li>
+    <li><span class="n">08</span><canvas class="g" data-g="code" aria-hidden="true"></canvas><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
   </ol>
   <aside class="note" data-r><b>4</b>corpus mundi, the body of everything. this water's dreamer was made from the pictures of the web and the words people wrote under them: everything, read at once, remembered nowhere.<sup class="fn">4a</sup><aside class="note"><b>4a</b>corpus: a body, and a body of text. mundi: of the world. here it drinks the record and pours it back as water.</aside></aside>
   <div class="row wide" data-r>
@@ -288,32 +365,32 @@
   <h2 class="kick"><span class="mono">05</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">k</i><span class="br">]</span>now</span><span class="alt mono"><span class="one">k</span><span class="two">know / now</span></span></h2>
   <p class="say" data-r>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.<sup class="fn">5</sup></p>
   <aside class="note" data-r><b>5</b>k: one setting, 0 to 1. what it stands for is the hole's business.</aside>
-  <ol class="steps" data-r>
-    <li><span class="n">1</span><div><h3>inside the hole, the basin again</h3></div></li>
-    <li><span class="n">2</span><div><h3>time stutters</h3></div></li>
-    <li><span class="n">3</span><div><h3>clarity, only on the way out</h3></div></li>
-    <li><span class="n">4</span><div><h3>it counts what you lost</h3></div><p><code>lost = 00:07</code><sup class="fn">6</sup></p></li>
-    <li><span class="n">5</span><div><h3>almost a face</h3></div><p>two hollows above the hole, and the hole is its mouth. you won't be sure you saw it.</p></li>
-    <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring, their clocks slowing to a stop.<sup class="fn">7</sup></p></li>
+  <ol class="steps gl" data-r>
+    <li><span class="n">1</span><canvas class="g" data-g="inhole" aria-hidden="true"></canvas><div><h3>inside the hole, the basin again</h3></div></li>
+    <li><span class="n">2</span><canvas class="g" data-g="stutter" aria-hidden="true"></canvas><div><h3>time stutters</h3></div></li>
+    <li><span class="n">3</span><canvas class="g" data-g="clarity" aria-hidden="true"></canvas><div><h3>clarity, only on the way out</h3></div></li>
+    <li><span class="n">4</span><canvas class="g" data-g="counts" aria-hidden="true"></canvas><div><h3>it counts what you lost</h3></div><p><code>lost = 00:07</code><sup class="fn">6</sup></p></li>
+    <li><span class="n">5</span><canvas class="g" data-g="face" aria-hidden="true"></canvas><div><h3>almost a face</h3></div><p>two hollows above the hole, and the hole is its mouth. you won't be sure you saw it.</p></li>
+    <li><span class="n">6</span><canvas class="g" data-g="bend" aria-hidden="true"></canvas><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring, their clocks slowing to a stop.<sup class="fn">7</sup></p></li>
   </ol>
   <figure class="anim wide" data-param="k" data-src="doc/hole_k0.webp" data-src2="doc/hole_k1.webp" data-r><canvas role="img" aria-label="k sweeps from 0 to 1, where the basin is seen again inside the hole, and settles at 0.25"></canvas>
-    <div class="axis mono"><span class="nm">k</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick here" style="left:25%">0.25</i><i class="tick end" style="left:100%">1</i><b class="mark"></b></span><span class="val">0.25</span></div></figure>
+    <div class="axis mono"><span class="nm">k</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick here" style="left:25%">0.25</i><i class="tick was" style="left:50%">0.5</i><i class="tick end" style="left:100%">1</i><input class="drag" type="range" min="0" max="1" step="0.01" value="0.25" aria-label="k, from 0 to 1"><b class="mark"></b></span><span class="val">0.25</span></div></figure>
   <aside class="note" data-r><b>6</b>bottom left, a counter has been running since you arrived. it is not counting down.</aside>
-  <aside class="note" data-r><b>7</b>inside a program there is no clock and no room, only numbers standing in for them. bend the numbers and time and space bend too. stay long enough and so do you.<sup class="fn">7a</sup><aside class="note"><b>7a</b>losing time, losing place, losing the line between you and the picture: the old names for that are not gentle ones.</aside></aside>
+  <aside class="note" data-r><b>7</b>inside a program there is no clock and no room, only numbers standing in for them. bend the numbers and time and space bend too. stay long enough and so do you.<sup class="fn">7a</sup><canvas class="g" data-g="bentgrid" aria-hidden="true"></canvas><aside class="note"><b>7a</b>losing time, losing place, losing the line between you and the picture: the old names for that are not gentle ones.</aside></aside>
   <p data-r>k sets the depth. <s>k = 0.5</s> <s>k = 0.5</s> it runs at 0.25:</p>
-  <p class="fall" data-r aria-label="strange enough to notice, quiet enough to doubt"><span style="font-size:30px">strange</span><span style="font-size:27px;margin-left:1.2em">enough</span><span style="font-size:24px;margin-left:2.6em">to notice,</span><span style="font-size:20px;margin-left:4.4em;opacity:.85">quiet</span><span style="font-size:17px;margin-left:6.2em;opacity:.7">enough</span><span style="font-size:14px;margin-left:7.8em;opacity:.55">to</span><span style="font-size:12px;margin-left:9em;opacity:.45">doubt</span><span style="font-size:12px;margin-left:10.6em"><span class="ring"></span></span></p>
+  <p class="fall" data-r aria-label="strange enough to notice, quiet enough to doubt"><span style="font-size:30px">strange</span><span style="font-size:27px;margin-left:1.2em">enough</span><span style="font-size:24px;margin-left:2.6em">to notice,</span><span style="font-size:20px;margin-left:4.4em;opacity:.85">quiet</span><span style="font-size:17px;margin-left:6.2em;opacity:.7">enough</span><span style="font-size:14px;margin-left:7.8em;opacity:.55">to</span><span style="font-size:12px;margin-left:9em;opacity:.45">doubt</span><span style="font-size:12px;margin-left:10.6em"><canvas class="g s" data-g="sink" aria-hidden="true"></canvas></span></p>
 </section>
 
 <section id="lineage" data-n="06">
   <h2 class="kick"><span class="mono">06</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">h</i><span class="br">]</span>old</span><span class="alt mono"><span class="one">lineage</span><span class="two">hold / old</span></span></h2>
   <p class="say" data-r>this water learned to move from other artists' water.</p>
-  <ol class="lin" data-r>
-    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">karl sims, <a href="https://www.karlsims.com/flow.html">flow</a>, 2018</span><span class="takes">runs behind its current</span></li>
-    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">random international, <a href="https://collections.lacma.org/object/199076">rain room</a>, 2012</span><span class="takes">answers the hand late</span></li>
-    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">refik anadol, <a href="https://refikanadol.com/works/unsupervised/">unsupervised</a></span><span class="takes">changes while it flows</span></li>
-    <li><span class="mk on" role="img" aria-label="built"></span><span class="who">fernanda viégas and martin wattenberg, <a href="https://www.bewitched.com/windmap.html">wind map</a>, 2012</span><span class="takes">parts that remember longer</span></li>
-    <li><span class="mk off" role="img" aria-label="not built"></span><span class="who">teamlab, <a href="https://www.teamlab.art/w/vortices/ngv-triennial/">moving creates vortices and vortices create movement</a>, 2017</span><span class="takes">its paths drawn over it</span></li>
-    <li><span class="mk off" role="img" aria-label="not built"></span><span class="who">quayola, <a href="https://www.timessquarenyc.org/tsq-arts-projects/storms-by-quayola">storms</a></span><span class="takes">strokes never cleared</span></li>
+  <ol class="lin gl" data-r>
+    <li><span class="mk on" role="img" aria-label="built"></span><canvas class="g" data-g="flow" aria-hidden="true"></canvas><span class="who">karl sims, <a href="https://www.karlsims.com/flow.html">flow</a>, 2018</span><span class="takes">runs behind its current</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><canvas class="g" data-g="rain" aria-hidden="true"></canvas><span class="who">random international, <a href="https://collections.lacma.org/object/199076">rain room</a>, 2012</span><span class="takes">answers the hand late</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><canvas class="g" data-g="morph" aria-hidden="true"></canvas><span class="who">refik anadol, <a href="https://refikanadol.com/works/unsupervised/">unsupervised</a></span><span class="takes">changes while it flows</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><canvas class="g" data-g="wind" aria-hidden="true"></canvas><span class="who">fernanda viégas and martin wattenberg, <a href="https://www.bewitched.com/windmap.html">wind map</a>, 2012</span><span class="takes">parts that remember longer</span></li>
+    <li><span class="mk off" role="img" aria-label="not built"></span><canvas class="g off" data-g="paths" aria-hidden="true"></canvas><span class="who">teamlab, <a href="https://www.teamlab.art/w/vortices/ngv-triennial/">moving creates vortices and vortices create movement</a>, 2017</span><span class="takes">its paths drawn over it</span></li>
+    <li><span class="mk off" role="img" aria-label="not built"></span><canvas class="g off" data-g="strokes" aria-hidden="true"></canvas><span class="who">quayola, <a href="https://www.timessquarenyc.org/tsq-arts-projects/storms-by-quayola">storms</a></span><span class="takes">strokes never cleared</span></li>
   </ol>
   <p class="key mono" data-r><span><span class="mk on"></span>built</span><span><span class="mk off"></span>not built</span><span>sources read 17 nov 2026</span></p>
 </section>
@@ -323,20 +400,23 @@
   <p class="say" data-r>one artist travels: me. setup takes one afternoon.</p>
   <p data-r>switched on, it wakes itself. it is silent, has no camera or microphone, drinks no real water and keeps nothing of you.</p>
   <dl class="supply" data-r>
-    <div><dt>plinth</dt><dd>30 x 25 in top, 30 in high, holds 50 lb (23 kg), room inside for the computer</dd></div>
-    <div><dt>one outlet</dt><dd>120 v, grounded, within 6 ft (1.8 m)</dd></div>
-    <div><dt>somewhere dim</dt><dd>away from windows, 8 x 8 ft (2.4 x 2.4 m) at best, 6 x 6 ft at least</dd></div>
-    <div><dt>someone at the switch</dt><dd>on in the morning, off at night</dd></div>
-    <div><dt>internet</dt><dd>optional</dd></div>
-    <div><dt>if you have them</dt><dd>27 in touch monitor or mac mini: either one means i ship only the basin</dd></div>
+    <div><dt><canvas class="g s" data-g="plinth" aria-hidden="true"></canvas>plinth</dt><dd>30 x 25 in top, 30 in high, holds 50 lb (23 kg), room inside for the computer</dd></div>
+    <div><dt><canvas class="g s" data-g="outlet" aria-hidden="true"></canvas>one outlet</dt><dd>120 v, grounded, within 6 ft (1.8 m)</dd></div>
+    <div><dt><canvas class="g s" data-g="dim" aria-hidden="true"></canvas>somewhere dim</dt><dd>away from windows, 8 x 8 ft (2.4 x 2.4 m) at best, 6 x 6 ft at least</dd></div>
+    <div><dt><canvas class="g s" data-g="toggle" aria-hidden="true"></canvas>someone at the switch</dt><dd>on in the morning, off at night</dd></div>
+    <div><dt><canvas class="g s off" data-g="wifi" aria-hidden="true"></canvas>internet</dt><dd>optional</dd></div>
+    <div><dt><canvas class="g s" data-g="kit" aria-hidden="true"></canvas>if you have them</dt><dd>27 in touch monitor or mac mini: either one means i ship only the basin</dd></div>
   </dl>
-  <ol class="built mono" data-r>
-    <li><span class="mk on" role="img" aria-label="built"></span>spring</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>web basin</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>drain to black</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>[s[i/y][k][w]hole</li>
-    <li><span class="mk off" role="img" aria-label="proposed"></span>basin on its plinth</li>
-    <li><span class="mk off" role="img" aria-label="proposed"></span>daily budget</li>
+  <figure class="side" data-r><canvas class="g" data-g="plan" role="img" aria-label="plan from above, to scale: the plinth 6 inches off the back wall, centred in an 8 by 8 foot space, a 6 by 6 foot space inside it, the outlet on the wall, a visitor in front"></canvas><figcaption class="mono">from above, to scale</figcaption></figure>
+  <ol class="time wide" data-r>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">spring</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">web basin</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">drain to black</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">[s[i/y][k][w]hole</span></li>
+    <li class="now"><span class="pt"></span><span class="lb">now</span></li>
+    <li><span class="mk off" role="img" aria-label="proposed"></span><span class="lb">basin on its plinth</span></li>
+    <li><span class="mk off" role="img" aria-label="proposed"></span><span class="lb">daily budget</span></li>
+    <li><span class="pt"></span><span class="lb">festival</span></li>
   </ol>
   <p class="key mono" data-r><span><span class="mk on"></span>built in 2026</span><span><span class="mk off"></span>proposed for 2027</span></p>
 </section>
@@ -345,19 +425,20 @@
   <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">c</i><span class="br">]</span>lock</span><span class="alt mono"><span class="one">live</span><span class="two">clock / lock</span></span></h2>
   <p class="say" data-r>this is <a data-piece="home" href="index.html">the piece in a browser</a>, not a recording.</p>
   <div class="live full" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: a basin seen from above, drawn as dots of light round a drain. press and hold to reach in."></iframe></div>
-  <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
+  <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead.</p>
+  <p class="acts mono" data-r><span><canvas class="g" data-g="press" aria-hidden="true"></canvas>press.</span><span><canvas class="g" data-g="hold" aria-hidden="true"></canvas>hold.</span><span><canvas class="g" data-g="letgo" aria-hidden="true"></canvas>let go.</span></p>
 </section>
 
 <section class="foot">
   <ul data-r>
-    <li><a data-piece="home" href="index.html">back into the water</a></li>
-    <li><a data-piece="code" href="https://github.com/kat-titter/currents-2027">code, on github</a></li>
+    <li><canvas class="g s" data-g="sink" aria-hidden="true"></canvas><a data-piece="home" href="index.html">back into the water</a></li>
+    <li><canvas class="g s" data-g="braces" aria-hidden="true"></canvas><a data-piece="code" href="https://github.com/kat-titter/currents-2027">code, on github</a></li>
   </ul>
   <p class="mono" data-r>body of work</p>
-  <ul data-r>
-    <li>vanitas veritas (2026), an earlier sink of mine, on the same spring</li>
-    <li>bare metal (2025): <a href="https://www.macrofluidic.me/gallery">the gallery</a>, <a href="https://www.macrofluidic.me/blog">the process essay</a></li>
-    <li>treble (2026): <a href="https://soundcloud.com/ex_gf/pilot">p[i]lot</a>, <a href="https://soundcloud.com/ex_gf/p-ai-lot">p[ai]lot</a></li>
+  <ul class="works" data-r>
+    <li><canvas class="g s" data-g="basinicon" aria-hidden="true"></canvas><span>vanitas veritas (2026), an earlier sink of mine, on the same spring</span></li>
+    <li><canvas class="g s" data-g="metal" aria-hidden="true"></canvas><span>bare metal (2025): <a href="https://www.macrofluidic.me/gallery">the gallery</a>, <a href="https://www.macrofluidic.me/blog">the process essay</a></span></li>
+    <li><canvas class="g s" data-g="wave" aria-hidden="true"></canvas><span>treble (2026): <a href="https://soundcloud.com/ex_gf/pilot">p[i]lot</a>, <a href="https://soundcloud.com/ex_gf/p-ai-lot">p[ai]lot</a></span></li>
   </ul>
   <details class="gloss" id="gloss">
     <summary aria-label="glossary of the bracket words">[ ]</summary>
@@ -445,7 +526,7 @@ addEventListener('resize', () => { size(); if (STILL) field(0); dotAll(); });
 addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; }, { passive:true });
 addEventListener('pointerleave', () => { mx = my = -1e4; });
 let MASK = null; const RG = document.createRange();
-const TITLE = document.querySelector('.hero h1'), NB = 12, NA = 4, paths = [], TXT = [...document.querySelectorAll('main p:not(.fall):not(.mirror), main li, main dt, main dd, main .note, main .kick, main figcaption, .bar, #lost')];
+const TITLE = document.querySelector('.hero h1'), NB = 12, NA = 4, paths = [], TXT = [...document.querySelectorAll('main p:not(.fall):not(.mirror), main li, main dt, main dd, main .note, main .kick, main figcaption, .bar, #lost')], BOX = [...document.querySelectorAll('main canvas.g, main .hand canvas')];
 function field(t){
   cx.setTransform(D, 0, 0, D, 0, 0); cx.clearRect(0, 0, W, H);
   const small = W < 760, RH = small ? 22 : 32, E = small ? 56 : 80, top = TITLE.getBoundingClientRect().top + scrollY;
@@ -456,6 +537,7 @@ function field(t){
   const rs = [];                                                                // the words on screen: the dots part round them, as the water parts round a hand
   for (const el of TXT) { const b = el.getBoundingClientRect(); if (!b.width || b.bottom < -30 || b.top > H + 30) continue;
     RG.selectNodeContents(el); for (const q of RG.getClientRects()) if (q.width > 1) rs.push([q.left - 7, q.top - 2, q.right + 7, q.bottom + 2]); }   // one box per line of words, as tight as the words
+  for (const el of BOX) { const q = el.getBoundingClientRect(); if (q.width && q.bottom > -30 && q.top < H + 30) rs.push([q.left - 4, q.top - 4, q.right + 4, q.bottom + 4]); }   // and round the drawn marks
   const mc = Math.ceil(W/P) + 1, mr = Math.ceil(H/P) + 1, FADE = 16;
   if (!MASK || MASK.length !== mc*mr) MASK = new Float32Array(mc*mr); MASK.fill(1);
   for (const q of rs) { const c0 = Math.max(0, Math.floor((q[0] - FADE)/P)), c1 = Math.min(mc - 1, Math.ceil((q[2] + FADE)/P)), r0_ = Math.max(0, Math.floor((q[1] - FADE)/P)), r1_ = Math.min(mr - 1, Math.ceil((q[3] + FADE)/P));
@@ -581,11 +663,14 @@ function animFig(fig){
     for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const k = (j*cols + i)*4, x = ox + i*p, y = oy + j*p;
       cells.push([x, y, [A[k], A[k + 1], A[k + 2]], [B2[k], B2[k + 1], B2[k + 2]], Math.hypot(x - hw, y - hh)/far, i/cols*0.9 + j/rows*0.5]); }
     fig._anim = { cells, w, h, d, p }; ANIMS.add(fig); drawAnim(fig, STILL ? null : performance.now()/1000);
+    const inp = fig.querySelector('.drag'); if (inp && !inp._on) { inp._on = true; inp.addEventListener('input', () => { fig._hold = fig.dataset.param === 'water' ? 1 - +inp.value : +inp.value; fig._holdT = performance.now(); drawAnim(fig, STILL ? null : performance.now()/1000); }); }
   });
 }
 function drawAnim(fig, t){
-  const S = fig._anim; if (!S) return; const prm = fig.dataset.param, v = t === null ? (prm === 'k' ? 0.25 : 1) : PARAM[prm](t);
-  const mark = fig.querySelector('.mark'), val = fig.querySelector('.val');
+  const S = fig._anim; if (!S) return; const prm = fig.dataset.param, held = fig._hold != null && (t === null || performance.now() - fig._holdT < 6000);   // a hand on the axis holds the value; let go and the picture runs on
+  const v = held ? fig._hold : t === null ? (prm === 'k' ? 0.25 : 1) : PARAM[prm](t);
+  const mark = fig.querySelector('.mark'), val = fig.querySelector('.val'), inp = fig.querySelector('.drag');
+  if (inp && !held && document.activeElement !== inp) inp.value = (prm === 'water' ? 1 - v : v).toFixed(2);
   if (mark) mark.style.left = ((prm === 'water' ? 1 - v : v)*100).toFixed(2) + '%';
   if (val) val.textContent = prm === 'water' && v <= 0.001 ? 'None' : v.toFixed(2);
   const x = fig.querySelector('canvas').getContext('2d'); x.setTransform(S.d, 0, 0, S.d, 0, 0); x.clearRect(0, 0, S.w, S.h);
@@ -608,8 +693,197 @@ if (!STILL && 'IntersectionObserver' in window) {
       if (k < 1) requestAnimationFrame(step); else el.textContent = txt; }; requestAnimationFrame(step); }), { rootMargin:'0px 0px -12% 0px' });
   document.querySelectorAll('figcaption, .key > span:last-child').forEach((el) => { if (!el.children.length) io2.observe(el); });
 }
+// drawn marks: small pictures in the page's own language. Dots on a grid, pearl toward their edges, rose where a clock runs slow, and the dark of the hole
+// with its thin ring. One clock for all of them: every change steps on the heart (HS: one step per lub and per dub; HT: the heart's own time; the ring
+// flares on each lub). ?still and reduced motion draw one frame and hold it.
+const ROSE = [255, 115, 184], GL = new Set();
+const each = (w, h, p, fn) => { const ox = (w % p)/2 + p/2, oy = (h % p)/2 + p/2; for (let y = oy; y < h; y += p) for (let x = ox; x < w; x += p) fn(x, y); };
+const lens = (r, E) => (r + Math.sqrt(r*r + 4*E*E))/2;                              // where a point lens moves a dot at distance r (the outer image)
+const slow = (clock) => Math.pow(2, Math.floor(Math.min(3, -1.3*Math.log2(Math.max(clock, 0.05)))));   // half time, quarter, eighth, as round the drain
+function beatAge(){ for (let i = RIP.length - 1; i >= 0; i--) if (RIP[i][1] >= 1) return HT - RIP[i][0]; return 9; }
+const GLY = {
+  // the opening lines
+  nasty(D, O, T, w, h, b, t){ const cx = w/2, cy = h/2, R = w*0.47, Rh = R*0.3;               // beautiful water, a dark core, rose where time comes loose
+    each(w, h, 5, (x, y) => { const d = Math.hypot(x - cx, y - cy); if (d > R || d < Rh*1.2) return;
+      const z = Math.max(0, 1 - (d - Rh)/(R*0.42)), tk = Math.floor(b/slow(1 - z));
+      D(x, y, 2.2*(0.62 + 0.38*Math.sin(x*0.17 - y*0.11 + t*0.5))*(1 - Math.pow(d/R, 6))*(0.75 + 0.25*hash(x + tk, y)), x/w*0.7 + y/h*0.3, z); });
+    O(cx, cy, Rh); },
+  loose(D, O, T, w, h, b){ const cx = w/2, cy = h/2, R = w*0.4, hand = Math.floor(hash(Math.floor(b/2), 3.1)*12);   // a clock outside time: the hand lands where it likes
+    for (let k = 0; k < 12; k++) { const a = k/12*6.2832 - 1.5708, j = k === hand ? 0 : R*0.18*(hash(k, b) - 0.5); D(cx + Math.cos(a)*(R + j), cy + Math.sin(a)*(R + j), k % 3 ? 1.2 : 2.1, k/12, 0); }
+    const a = hand/12*6.2832 - 1.5708; for (let s = 0.2; s < 0.85; s += 0.16) D(cx + Math.cos(a)*R*s, cy + Math.sin(a)*R*s, 1.5, 0.55, 0.15);
+    D(cx, cy, 2.4, 0.4, 0); },
+  budget(D, O, T, w, h, b){ const n = 10, p = h/n, lvl = Math.max(0, n - Math.floor((b % 28)/2));   // ten measures, spent from the top, then full again
+    for (let r = 0; r < n; r++) for (let c = -1; c <= 1; c++) { const wet = r >= n - lvl; D(w/2 + c*p, (r + 0.5)*p, wet ? p*0.34*(r === n - lvl ? 0.65 : 1) : p*0.09, r/n*0.6 + 0.2 + c*0.05, wet ? 0 : 0.4); } },
+  // 01: the piece, to scale (30 x 25 in, rim at 34 in, plinth to 30; the screen a 4:3 opening in its top, from floor_plan.html)
+  basin(D, O, T, w, h, b, t, fl, x){
+    const s = Math.min((w - 24)/(55*0.866), (h - 20)/(55*0.5 + 34)), ox = w/2 + 2.5*0.866*s, oy = 12 + 34*s;
+    const P = (X, Y, Z) => [ox + (X - Y)*0.866*s, oy + (X + Y)*0.5*s - Z*s];
+    const edge = (a, c, r, k) => { const n = Math.ceil(Math.hypot(c[0] - a[0], c[1] - a[1], c[2] - a[2])/1.5); for (let i = 0; i <= n; i++) { const f = i/n, q = P(a[0] + (c[0] - a[0])*f, a[1] + (c[1] - a[1])*f, a[2] + (c[2] - a[2])*f); D(q[0], q[1], r, k + f*0.25, 0); } };
+    for (const [a, c] of [[[0, 0, 34], [30, 0, 34]], [[30, 0, 34], [30, 25, 34]], [[30, 25, 34], [0, 25, 34]], [[0, 25, 34], [0, 0, 34]], [[0, 25, 0], [0, 25, 34]], [[30, 25, 0], [30, 25, 34]], [[30, 0, 0], [30, 0, 34]], [[0, 25, 0], [30, 25, 0]], [[30, 25, 0], [30, 0, 0]]]) edge(a, c, 0.95, 0.2);
+    for (const [a, c] of [[[0, 25, 30], [30, 25, 30]], [[30, 25, 30], [30, 0, 30]]]) edge(a, c, 0.55, 0.5);   // where the basin meets its plinth
+    const hx = 15, hy = 12.5, RH = 1.6;                                                // the drain, at the centre of the screen
+    for (let Y = 6.4; Y < 19.1; Y += 0.95) for (let X = 6.6; X < 23.8; X += 0.95) {
+      const bx = X - hx, by = Y - hy, r = Math.hypot(bx, by); if (r < 0.1) continue;
+      const th = lens(r, 1.4); if (th < RH*1.1) continue;
+      const a = Math.atan2(by, bx) + (STILL ? 0 : t*0.35*Math.pow(RH/th, 1.5)), X2 = hx + Math.cos(a)*th, Y2 = hy + Math.sin(a)*th;
+      if (X2 < 6.4 || X2 > 23.8 || Y2 < 5.9 || Y2 > 19.1) continue;
+      const clock = Math.sqrt(Math.max(0, 1 - RH/th)), tk = Math.floor(b/slow(clock)), v = 0.5 + 0.5*Math.sin(X*0.5 + t*0.2)*Math.cos(Y*0.6 - t*0.15);
+      const q = P(X2, Y2, 34); D(q[0], q[1], (0.5 + 1.1*v)*(0.75 + 0.25*hash(X*7 + tk, Y*5)), X/30 + Y/50, 1 - clock); }
+    const c = P(hx, hy, 34); x.fillStyle = '#030304'; x.beginPath(); x.ellipse(c[0], c[1], RH*1.2247*s, RH*0.7071*s, 0, 0, 6.2832); x.fill();
+    x.strokeStyle = 'rgba(207,196,251,' + (0.7 + 0.3*fl) + ')'; x.lineWidth = 0.8 + 0.8*fl; x.beginPath(); x.ellipse(c[0], c[1], RH*1.37*s, RH*0.79*s, 0, 0, 6.2832); x.stroke(); },
+  // 02
+  frame(D, O, T, w, h, b){ const f = Math.floor(b/6);                                  // a new frame about every 2.5 s: three beats
+    each(w, h*0.8, 6, (x, y) => D(x, y + h*0.1, 2.3*Math.pow(hash(x + f*13, y + f*7), 1.6), x/w, 0)); },
+  grid(D, O, T, w, h){ const p = w/16; for (let j = 0; j < 12; j++) for (let i = 0; i < 16; i++) { const x = (i + 0.5)*p, y = (j + 0.5)*p + (h - 12*p)/2, d = Math.hypot(x - w/2, y - h/2); D(x, y, d < 3.5 ? 0 : 0.85, i/16, Math.max(0, 1 - d/9)); } },   // 128 x 96 at one eighth
+  ramp(D, O, T, w, h, b){ for (let k = 0; k < 6; k++) D(w*0.08 + k*w*0.17, h/2, 0.5 + k*0.6*(0.9 + 0.1*hash(k, Math.floor(b/2))), 0.15 + k*0.12, 0); },
+  clocks(D, O, T, w, h, b){ const y = h/2 - 8, gap = Math.min(104, (w - 70)/5.2), x0 = 24;   // toward the hole every clock runs slower: whole, half, quarter, eighth, stopped
+    for (let k = 0; k < 5; k++) { const cx = x0 + k*gap, tk = k < 4 ? Math.floor(b/Math.pow(2, k)) : 0;
+      for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) D(cx + i*7, y + j*7, 2.2*(0.45 + 0.55*hash(tk + i*3 + j*11, k)), 0.25 + k*0.12, k/4);
+      T(['1', '1/2', '1/4', '1/8', '0'][k], cx, h - 6); }
+    O(x0 + 5*gap - gap*0.15, y, 11); },
+  days(D, O, T, w, h, b){ const n = 10, gap = w/n, R = Math.min(gap*0.38, 22), y = R + 6;   // ten mornings: spent, spending, waiting
+    const cur = STILL ? 3 : Math.floor(b/8) % 12, ph = STILL ? 0.55 : (b % 8)/8;
+    for (let k = 0; k < n; k++) { const cx = (k + 0.5)*gap, v = k < cur ? 0 : k > cur ? 1 : 1 - ph, front = Math.pow(1 - v, 0.6)*1.15;
+      each(2*R, 2*R, 4.4, (x, yy) => { const dx = x - R, dy = yy - R, d = Math.hypot(dx, dy)/R; if (d > 1) return;
+        const e = Math.min(1, Math.max(0, (d - front + 0.08)/0.14)), r = 1.7*(0.55 + 0.45*hash(x + k*31, yy + Math.floor(b/2)))*e*e*(3 - 2*e)*(0.35 + 0.65*Math.pow(v, 0.4));
+        D(cx + dx, y + dy, r < 0.5 ? 0.45 : r, k/n*0.7 + d*0.2, r < 0.5 ? 0.3 : 0); });
+      T(String(11 + k), cx, h - 4); } },
+  // 03
+  evap(D, O, T, w, h, b){ for (let k = 0; k < 14; k++) { const ph = ((b*0.045 + hash(k, 1)) % 1), x = w*0.18 + hash(k, 2)*w*0.64, y = h*(0.9 - 0.8*ph); D(x, y, 2.1*(1 - ph), 0.1 + 0.5*ph, 0); } D(w/2, h*0.94, 0.8, 0.3, 0); },
+  withdraw(D, O, T, w, h, b){ const cx = w/2, dy = h*0.86;                              // a whole reservoir, pulled toward one drain
+    each(w, h*0.8, 4.6, (x, y) => { const d = Math.hypot(x - cx, y - dy), f = ((b*0.06 - d/w) % 1 + 1) % 1, p = 0.12*(1 - f); D(cx + (x - cx)*(1 - p), y + (dy - y)*p, 1.5*(0.4 + 0.6*f), x/w*0.6 + 0.2, Math.max(0, 1 - d/9)); });
+    O(cx, dy, 3); },
+  // 04: the eight steps
+  taste(D, O, T, w, h, b){ const sway = 0.1*Math.sin(b*0.5); D(w*0.84, h*0.16, 3, 0.1, 0);
+    for (let k = 0; k < 8; k++) { const f = k/7; D(w*0.28 + f*f*w*(0.4 + sway), h*0.88 - f*h*0.62, 1.7 - 0.6*f, 0.5 + f*0.3, 0); }
+    for (let k = 0; k < 7; k++) D(w*0.12 + k*w*0.11, h*0.93, 0.7, 0.6, 0); },
+  prompt(D, O, T, w, h, b){ [11, 7, 5].forEach((n, c) => { const lit = Math.floor(hash(b, c + 1)*n), x = w*(0.25 + c*0.25); for (let k = 0; k < n; k++) D(x, h*0.9 - k*h*0.078, k === lit ? 2.5 : 0.9, c*0.3 + 0.1, 0); }); },   // subjects, moods, lights: one of each
+  dream(D, O, T, w, h, b){ const cur = b % 10, r = w*0.38; for (let k = 0; k < 10; k++) { const a = k/10*6.2832 - 1.5708; D(w/2 + Math.cos(a)*r, h/2 + Math.sin(a)*r, k === cur ? 2.8 : k < 3 ? 2 : 1, k/10, 0); }
+    const half = cur < 3 ? 1 : 0.35; for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) D(w/2 + i*5, h/2 + j*5, 1.4*half*(0.6 + 0.4*hash(i, j)), 0.5, 0); },   // 3 of 10 steps follow the prompt
+  walk(D, O, T, w, h, b){ const A = [w*0.2, h*0.72], B = [w*0.8, h*0.28]; for (const c of [A, B]) for (let k = 0; k < 6; k++) D(c[0] + Math.cos(k*1.047)*5, c[1] + Math.sin(k*1.047)*5, 1.1, 0.3, 0);
+    const f = (b % 14)/13; for (let k = 0; k < 5; k++) { const g = Math.max(0, f - k*0.07); D(A[0] + (B[0] - A[0])*g, A[1] + (B[1] - A[1])*g - Math.sin(g*3.1416)*h*0.2, 2.5 - k*0.42, 0.45 + g*0.4, 0); } },
+  detail(D, O, T, w, h, b){ const p = Math.floor(b/4) % 2 ? 13/4 : 13; each(w, h, p, (x, y) => { const d = Math.hypot(x - w/2, y - h/2)/(w*0.46); if (d > 1) return; D(x, y, p*0.4*(1 - 0.55*d), x/w*0.8, 0); }); },   // four times the dots
+  water(D, O, T, w, h, b){ const rr = ((b % 6)/6)*w*0.5; each(w, h, 5, (x, y) => { const d = Math.hypot(x - w/2, y - h/2); if (d > w*0.48) return; D(x, y, 0.55 + 1.6*Math.exp(-(((d - rr)/3)**2)), d/w + 0.2, 0); }); },
+  light(D, O, T, w, h, b, t){ const cx = w/2, cy = h/2, RH = 5; each(w, h, 5, (x, y) => { const bx = x - cx, by = y - cy, r = Math.hypot(bx, by); if (r < 0.5) return; const th = lens(r, 6); if (th > w*0.48 || th < RH*1.1) return;
+      const v = 0.5 + 0.5*Math.sin(x*0.2 + t*0.3)*Math.cos(y*0.17), clock = Math.sqrt(1 - RH/th); D(cx + bx/r*th, cy + by/r*th, 2*v*(0.75 + 0.25*hash(x + Math.floor(b/slow(clock)), y)), r/w + 0.25, 1 - clock); }); O(cx, cy, RH); },
+  code(D, O, T, w, h, b){ const y = h/2; for (let k = -3; k <= 3; k++) { const dx = Math.abs(k)*3.4; D(w*0.18 + dx, y + k*4.6, 1.5, 0.2, 0); D(w*0.82 - dx, y + k*4.6, 1.5, 0.8, 0); }
+    if (Math.floor(b/2) % 2) for (let k = -2; k <= 2; k++) D(w/2, y + k*4.6, 1.4, 0.5, 0); },
+  // 05: the six moves
+  inhole(D, O, T, w, h, b){ const cx = w/2, cy = h/2, R = w*0.47, Rh = R*0.52, ring = (x, y) => { const d = Math.hypot(x - cx, y - cy); return d <= R && d >= Rh*1.18 ? d : 0; };
+    each(w, h, 5, (x, y) => { const d = ring(x, y); if (d) D(x, y, 1.8*(0.7 + 0.3*hash(x + b, y)), d/R, Math.max(0, 1 - (d - Rh)/10)); });
+    O(cx, cy, Rh); const s = 0.4 + 0.03*Math.sin(b*0.8);
+    each(w, h, 5, (x, y) => { const d = ring(x, y); if (d) D(cx + (x - cx)*s, cy + (y - cy)*s, 0.75, d/R, 0.2); }); },   // inside the dark, the basin again, smaller
+  stutter(D, O, T, w, h, b){ let p = b % 16; if (hash(Math.floor(b/3), 7) > 0.55) p = Math.max(0, p - 2 - (b % 2));   // now and then a step comes again
+    const X = (q) => w*0.1 + q*w*0.8/15; for (let k = 0; k < 16; k++) D(X(k), h/2, 0.65, k/16, 0);
+    for (let g = 0; g < 3; g++) { const q = Math.max(0, p - g); D(X(q), h/2 + (g ? (g % 2 ? -1 : 1)*8 : 0), 2.6 - g*0.6, 0.5, g*0.3); } },
+  clarity(D, O, T, w, h, b){ const cx = w/2, cy = h/2; for (let k = 0; k < 10; k++) { const a = k/10*6.2832, out = k % 2 === 0;   // sharp going out, smeared coming in
+      for (let s = 0; s < 4; s++) { const f = ((s/4 + (out ? 1 : -1)*b*0.0625) % 1 + 1) % 1, r = 8 + f*(w*0.46 - 8), j = out ? 0 : 2.6*(hash(k*7 + s, b) - 0.5); D(cx + Math.cos(a)*r + j, cy + Math.sin(a)*r - j, out ? 1.9 : 1, k/10, 0); } }
+    O(cx, cy, 5.5); },
+  counts(D, O, T, w, h, b){ const n = Math.floor(b/2) % 61; for (let k = 0; k < 60; k++) { const c = k % 10, r = Math.floor(k/10); D(w*0.1 + c*w*0.089, h*0.16 + r*h*0.135, k < n ? 1.9 : 0.55, k/60, k === n - 1 ? 0.8 : 0); } },   // up, never down
+  face(D, O, T, w, h, b){ const sure = 0.5 + 0.5*Math.sin(b*0.37), hol = [[w*0.34, h*0.38, 6], [w*0.66, h*0.38, 6], [w*0.5, h*0.7, 8]];   // you won't be sure you saw it
+    each(w, h, 5, (x, y) => { const d = Math.hypot(x - w/2, y - h/2)/(w*0.48); if (d > 1) return; let r = 1.9*(1 - d*d*0.5); for (const q of hol) { const e = Math.hypot(x - q[0], y - q[1])/q[2]; if (e < 1.3) r *= 1 - sure*0.9*(1 - e/1.3); } D(x, y, r, x/w*0.5 + y/h*0.3, 0); }); },
+  bend(D, O, T, w, h, b, t){ const cx = w/2, cy = h/2, RH = 6; each(w, h, 4.5, (x, y) => { const bx = x - cx, by = y - cy, r = Math.hypot(bx, by); if (r < 0.5) return; const th = lens(r, 9); if (th < RH*1.05 || th > w*0.49) return;
+      const a = Math.atan2(by, bx) + (STILL ? 0 : t*0.6*Math.pow(RH/th, 1.5)) + 0.7*RH*RH/(th*th), clock = Math.sqrt(1 - RH/th);
+      D(cx + Math.cos(a)*th, cy + Math.sin(a)*th, 1.35*Math.min(1.8, Math.sqrt(th/r))*(0.75 + 0.25*hash(x + Math.floor(b/slow(clock)), y)), th/w, 1 - clock); }); O(cx, cy, RH); },
+  bentgrid(D, O, T, w, h, b){ const cx = w*0.5, cy = h/2, RH = 7; each(w, h, 7, (x, y) => { const bx = x - cx, by = y - cy, r = Math.hypot(bx, by); if (r < 0.5) return; const th = lens(r, 12); if (th < RH*1.05) return;
+      const px = cx + bx/r*th, py = cy + by/r*th, q = Math.pow(Math.pow(Math.abs(px - cx)/(w/2), 4) + Math.pow(Math.abs(py - cy)/(h/2), 4), 0.25), e = Math.min(1, Math.max(0, (1 - q)/0.45)); if (e <= 0) return;
+      const clock = Math.sqrt(1 - RH/th); D(px, py, 1.3*e*e*(3 - 2*e)*(0.65 + 0.35*hash(x + Math.floor(b/slow(clock)), y)), px/w, 1 - clock); }); O(cx, cy, RH); },   // no edge: it thins out into the dark   // bend the numbers and time and space bend too
+  sink(D, O, T, w, h, b){ const cx = w/2, cy = h/2; for (let k = 0; k < 16; k++) { const f = ((k/16 + b*0.02) % 1), r = w*0.46*(1 - f) + 5*f, a = k*2.4 + f*5; D(cx + Math.cos(a)*r, cy + Math.sin(a)*r, 1.7*(1 - f*0.6), k/16, f); } O(cx, cy, 4.5); },
+  // 06: what each work gives this water, as motion only
+  flow(D, O, T, w, h, b){ for (let l = 0; l < 4; l++) { const y0 = h*(0.17 + l*0.22), Y = (s) => y0 + Math.sin(s*6.28 + l)*4;   // runs behind its current
+      for (let k = 0; k < 6; k++) { const s = (k/6 + b*0.012 + l*0.13) % 1; for (let g = 0; g < 4; g++) { const s2 = s - g*0.028; if (s2 >= 0) D(s2*w, Y(s2), 1.9 - g*0.42, s2, 0); } } } },
+  rain(D, O, T, w, h, b){ const hx = (q) => w*(0.5 + 0.32*Math.sin(q*0.18)), late = hx(b - 4);   // answers the hand late
+    for (let c = 0; c < 15; c++) { const x = (c + 0.5)*w/15; for (let k = 0; k < 5; k++) { const y = ((k/5 + b*0.035 + hash(c, 1)) % 1)*h; if (Math.abs(x - late) < 11 && y > h*0.3) continue; D(x, y, 1.2, c/15, 0); } }
+    D(hx(b), h*0.72, 2.6, 0.5, 0.25); },
+  morph(D, O, T, w, h, b){ const sx = 3*Math.sin(b*0.15); each(w, h, 5, (x, y) => { const u = (x - w/2 - sx)/(w*0.46), v = (y - h/2)/(h*0.46), a = Math.atan2(v, u), r = Math.hypot(u, v), e = 0.72 + 0.18*Math.sin(a*3 + b*0.21) + 0.1*Math.sin(a*5 - b*0.13); if (r > e) return; D(x, y, 1.8*(1 - 0.5*r/e), (x/w*0.5 + b*0.012) % 1, 0); }); },   // changes while it flows
+  wind(D, O, T, w, h, b){ for (let k = 0; k < 9; k++) { const y0 = h*(0.12 + 0.76*hash(k, 3)), sp = 0.012 + 0.01*hash(k, 4), tail = k % 3 ? 5 : 10;   // parts that remember longer
+      for (let g = 0; g < tail; g++) { const s = (((b - g)*sp + hash(k, 5)) % 1 + 1) % 1; D(s*w, y0 + Math.sin(s*5 + k)*5, 1.9*(1 - g/tail), s*0.6 + 0.2, 0); } } },
+  paths(D, O, T, w, h, b){ for (let k = 0; k < 4; k++) { const Y = (s) => h*(0.18 + k*0.21) + Math.sin(s*7 + k*1.3)*6; for (let s = 0; s < 1; s += 0.03) D(s*w, Y(s), 0.55, s, 0); const s = (b*0.02 + k*0.27) % 1; D(s*w, Y(s), 2.4, s, 0); } },   // its paths drawn over it
+  strokes(D, O, T, w, h, b){ const n = b % 48; for (let k = 0; k < n; k++) { const x = hash(k, 1)*w, y = hash(k, 2)*h, a = -0.6 + hash(k, 3)*0.5; for (let s = -3; s <= 3; s++) D(x + Math.cos(a)*s*3, y + Math.sin(a)*s*3, 1 - Math.abs(s)*0.12, hash(k, 4), 0); } },   // strokes never cleared
+  // 07: what the room needs, then the room from above
+  plinth(D, O, T, w, h){ for (let y = 9; y <= h - 3; y += 3.4) { D(w*0.26, y, 0.9, 0.3, 0); D(w*0.74, y, 0.9, 0.5, 0); } for (let x = w*0.26; x <= w*0.741; x += 3.1) { D(x, 9, 1.2, 0.4, 0); D(x, h - 3, 0.9, 0.4, 0); } D(w/2, 4.5, 1.6, 0.2, 0); },
+  outlet(D, O, T, w, h){ for (let k = 0; k < 3; k++) { D(w*0.37, h*0.26 + k*3, 1.25, 0.2, 0); D(w*0.63, h*0.26 + k*3, 1.25, 0.6, 0); } D(w/2, h*0.66, 2.2, 0.4, 0); for (let k = 0; k < 20; k++) { const a = k/20*6.2832; D(w/2 + Math.cos(a)*w*0.44, h/2 + Math.sin(a)*h*0.44, 0.6, k/20, 0); } },
+  dim(D, O, T, w, h, b){ each(w, h, 4.5, (x, y) => { const d = Math.hypot(x - w/2, y - h/2)/(w*0.5); if (d > 1) return; D(x, y, 1.5*(1 - x/w)*(0.75 + 0.25*hash(x + Math.floor(b/4), y)), 0.6, 0); }); },
+  toggle(D, O, T, w, h, b){ const on = Math.floor(b/16) % 2 === 0; for (let k = 0; k < 7; k++) { D(w*0.2 + k*w*0.1, h*0.34, 0.65, 0.4, 0); D(w*0.2 + k*w*0.1, h*0.66, 0.65, 0.4, 0); } D(w*0.12, h/2, 0.65, 0.4, 0); D(w*0.88, h/2, 0.65, 0.4, 0); D(on ? w*0.68 : w*0.32, h/2, on ? 3.3 : 1.8, on ? 0.15 : 0.6, 0); },   // on in the morning, off at night
+  wifi(D, O, T, w, h){ D(w/2, h*0.8, 1.6, 0.4, 0); for (let r = 1; r <= 3; r++) for (let a = -0.75; a <= 0.76; a += 0.75/(r + 1)) D(w/2 + Math.sin(a)*r*8, h*0.8 - Math.cos(a)*r*8, 1, 0.3 + r*0.1, 0); },
+  kit(D, O, T, w, h){ for (let x = w*0.08; x <= w*0.7; x += 3.2) { D(x, h*0.18, 0.9, 0.3, 0); D(x, h*0.64, 0.9, 0.3, 0); } for (let y = h*0.18; y <= h*0.64; y += 3.2) { D(w*0.08, y, 0.9, 0.3, 0); D(w*0.7, y, 0.9, 0.3, 0); }
+    D(w*0.39, h*0.76, 0.9, 0.4, 0); for (let x = w*0.27; x <= w*0.52; x += 3.1) D(x, h*0.86, 0.9, 0.4, 0); for (let x = w*0.78; x <= w*0.95; x += 2.9) { D(x, h*0.7, 0.9, 0.6, 0); D(x, h*0.86, 0.9, 0.6, 0); } },
+  plan(D, O, T, w, h, b, t, fl, x){   // to scale, from above (inches, as floor_plan.html): an 8 x 8 ft space at best, 6 x 6 ft at least, the plinth 6 in off the back wall, the outlet on the wall
+    const top = 26, s = Math.min(w - 8, h - top - 26)/96, ox = (w - 96*s)/2, P = (X, Y) => [ox + X*s, top + Y*s];
+    const run = (X0, Y0, X1, Y1, step, r, k, gap) => { const n = Math.max(1, Math.round(Math.hypot(X1 - X0, Y1 - Y0)/step)); for (let i = 0; i <= n; i++) { if (gap && i % 3 === 2) continue; const q = P(X0 + (X1 - X0)*i/n, Y0 + (Y1 - Y0)*i/n); D(q[0], q[1], r, k + 0.3*i/n, 0); } };
+    run(0, 0, 96, 0, 2, 1.2, 0.2); run(96, 0, 96, 96, 3, 0.8, 0.4); run(96, 96, 0, 96, 3, 0.8, 0.5); run(0, 96, 0, 0, 3, 0.8, 0.6);   // at best; the back wall drawn denser
+    run(12, 0, 12, 72, 3, 0.6, 0.6, 1); run(12, 72, 84, 72, 3, 0.6, 0.7, 1); run(84, 72, 84, 0, 3, 0.6, 0.8, 1);                     // at least
+    for (let Y = 7.5; Y < 31; Y += 2.5) for (let X = 34.5; X < 63; X += 2.5) { const inScreen = X > 39.2 && X < 56.8 && Y > 11.9 && Y < 25.1, q = P(X, Y); if (!inScreen) D(q[0], q[1], 0.75, 0.35, 0); }   // the plinth
+    for (let Y = 12.8; Y < 25; Y += 1.6) for (let X = 40; X < 56.5; X += 1.6) { const r = Math.hypot(X - 48, Y - 18.5); if (r < 1.8) continue; const q = P(X, Y), clock = Math.sqrt(Math.max(0, 1 - 1.4/r)); D(q[0], q[1], 0.9*(0.6 + 0.4*hash(X*3 + Math.floor(b/slow(clock)), Y)), X/96 + 0.2, 1 - clock); }   // the screen in its top
+    const c = P(48, 18.5); O(c[0], c[1], 1.4*s);
+    run(63, 5, 72, 5, 1.6, 0.55, 0.9); run(72, 5, 72, 0.6, 1.6, 0.55, 0.9); const o = P(72, 0); D(o[0], o[1], 2.4, 0.05, 0);       // the cable and the outlet
+    for (let k = 0; k < 22; k++) { const a = k/22*6.2832, q = P(48 + Math.cos(a)*9.5, 47.6 + Math.sin(a)*4.6); D(q[0], q[1], 0.8, 0.6, 0); } const v = P(48, 45.6); D(v[0], v[1], 2.6, 0.7, 0);   // a visitor
+    T('outlet', o[0], top - 9); T('8 x 8 ft', ox, top + 96*s + 17, 'left'); const l6 = P(14.5, 68); T('6 x 6 ft', l6[0], l6[1], 'left'); const lv = P(60, 49.5); T('you', lv[0], lv[1], 'left'); },
+  // 08 and the foot
+  press(D, O, T, w, h, b){ const k = (b % 4)/3; each(w, h, 6, (x, y) => { const d = Math.hypot(x - w/2, y - h/2); if (d > w*0.47) return; D(x, y, 1.5*Math.min(1, d/(4 + 10*k)), d/w + 0.2, 0); }); D(w/2, h/2, 1.8 + 1.8*k, 0.5, 0); },
+  hold(D, O, T, w, h, b){ const cx = w/2, cy = h/2, pull = 0.22 + 0.04*Math.sin(b*0.5); each(w, h, 5, (x, y) => { const d = Math.hypot(x - cx, y - cy); if (d > w*0.47) return; const f = 1 - pull*Math.exp(-d*d/180); D(cx + (x - cx)*f, cy + (y - cy)*f, 1.5, d/w + 0.2, Math.max(0, 1 - d/16)); }); },
+  letgo(D, O, T, w, h, b){ const rr = ((b % 6)/6)*w*0.5; each(w, h, 5, (x, y) => { const d = Math.hypot(x - w/2, y - h/2); if (d > w*0.48) return; D(x, y, 0.5 + 1.6*Math.exp(-(((d - rr)/3)**2)), d/w + 0.2, 0); }); },
+  braces(D, O, T, w, h, b){ GLY.code(D, O, T, w, h, b); },
+  basinicon(D, O, T, w, h, b){ for (let k = 0; k <= 12; k++) { const a = k/12*3.1416; D(w/2 + Math.cos(a)*w*0.4, h*0.36 + Math.sin(a)*h*0.4, 1, k/12, 0); } D(w/2, h*0.62, 1.8, 0.5, 0.3); const f = (b % 6)/5; D(w/2, h*0.1 + f*h*0.42, 1.2*(1 - f*0.5), 0.2, 0); },   // a sink, and its drip
+  metal(D, O, T, w, h, b){ const band = ((b % 12)/11)*1.6 - 0.3; each(w*0.86, h*0.7, 3.6, (x, y) => { const g = Math.exp(-(((x/w + y/h*0.6 - band)/0.12)**2)); D(x + w*0.07, y + h*0.15, 0.5 + 1.1*g, 0.4 + g*0.3, 0); }); },   // a plate, its gloss passing
+  wave(D, O, T, w, h, b){ for (let k = 0; k < 11; k++) { const x = w*0.08 + k*w*0.084, a = 0.3 + 0.7*hash(k, Math.floor(b/2)), a2 = 0.3 + 0.7*hash(k + 40, Math.floor(b/2)); for (let j = 1; j <= Math.round(a*4); j++) D(x, h*0.46 - j*2.6, 0.85, 0.15, 0); for (let j = 1; j <= Math.round(a2*4); j++) D(x, h*0.54 + j*2.6, 0.85, 0.75, 0); } },   // p[i]lot over p[ai]lot
+};
+function glyph(el){ const w = el.clientWidth, h = el.clientHeight; if (!w || !h || !GLY[el.dataset.g]) return; const d = Math.min(3, devicePixelRatio || 1);
+  el.width = Math.round(w*d); el.height = Math.round(h*d); el._g = { w, h, d }; GL.add(el); drawGlyph(el, STILL ? null : 0); }
+function drawGlyph(el, now){ const S = el._g; if (!S) return; const x = el.getContext('2d'); x.setTransform(S.d, 0, 0, S.d, 0, 0); x.clearRect(0, 0, S.w, S.h);
+  const b = now === null ? 12 : HS, t = now === null ? 6 : HT, fl = now === null ? 0 : Math.exp(-7*beatAge()), dim = el.classList.contains('off') ? 0.5 : 1;
+  const D = (px, py, r, tone, rose) => { if (r < 0.3) return; let c = mixc(BONE, film(tone), 0.5); if (rose > 0) c = mixc(c, ROSE, Math.min(1, rose));
+    x.fillStyle = rgb(c, (0.55 + 0.45*Math.min(1, r/2))*dim); x.beginPath(); x.arc(px, py, r, 0, 6.2832); x.fill();
+    if (r > 1.9) { x.fillStyle = rgb(mixc(c, BONE, 0.6), dim); x.beginPath(); x.arc(px, py, r*0.5, 0, 6.2832); x.fill(); } };
+  const O = (px, py, R) => { x.fillStyle = '#030304'; x.beginPath(); x.arc(px, py, R, 0, 6.2832); x.fill();
+    const g = x.createLinearGradient(px - R, py - R, px + R, py + R); g.addColorStop(0, '#59e6ff'); g.addColorStop(0.5, '#9e7aff'); g.addColorStop(1, '#ff73b8');
+    x.strokeStyle = g; x.globalAlpha = (0.75 + 0.25*fl)*dim; x.lineWidth = 0.8 + 0.9*fl; x.beginPath(); x.arc(px, py, R*1.14, 0, 6.2832); x.stroke(); x.globalAlpha = 1; };
+  const T = (s, px, py, al) => { x.font = '400 12px "IBM Plex Mono", ui-monospace, Menlo, monospace'; x.fillStyle = 'rgba(163,166,172,' + dim + ')'; x.textAlign = al || 'center'; x.fillText(s, px, py); };
+  GLY[el.dataset.g](D, O, T, S.w, S.h, b, t, fl, x, el); }
+
+// the hand: a small basin to reach into. For about a second the water follows, then slips through your fingers.
+// No hand, and a ghost hand drifts on the heart's time; arrow keys move it too. The water slows its clocks round the hand, as in the piece.
+const HAND = document.querySelector('.hand canvas'), HD = { tx:null, ty:null, lx:0, ly:0, s:0, last:-1e9, kx:0.62, ky:0.5, keyT:-1e9, prev:0, init:false };
+function handSize(){ if (!HAND) return; const w = HAND.clientWidth, h = HAND.clientHeight, d = Math.min(3, devicePixelRatio || 1); if (!w) return; HAND.width = Math.round(w*d); HAND.height = Math.round(h*d); HD.w = w; HD.h = h; HD.d = d; drawHand(STILL ? null : performance.now()); }
+function drawHand(now){ if (!HD.w) return; const w = HD.w, h = HD.h, x = HAND.getContext('2d'); x.setTransform(HD.d, 0, 0, HD.d, 0, 0); x.clearRect(0, 0, w, h);
+  const live = now !== null && now - HD.last < 1600, key = now !== null && now - HD.keyT < 4000, t = now === null ? 6 : HT;
+  let tx, ty; if (live) { tx = HD.tx; ty = HD.ty; } else if (key || now === null) { tx = HD.kx*w; ty = HD.ky*h; } else { tx = w*(0.5 + 0.34*Math.sin(t*0.23)); ty = h*(0.5 + 0.3*Math.sin(t*0.46)); }
+  const dt = now === null ? 0 : Math.min(0.1, (now - (HD.prev || now))/1000); HD.prev = now;
+  if (!HD.init || now === null) { HD.lx = tx - (now === null ? 34 : 0); HD.ly = ty - (now === null ? 10 : 0); HD.init = true; }
+  const k = 1 - Math.exp(-dt/0.32); HD.lx += (tx - HD.lx)*k; HD.ly += (ty - HD.ly)*k;                      // the water, a little behind the hand
+  HD.s = now === null ? 0.9 : (live || key) ? Math.min(1, HD.s + dt*2.2) : Math.max(0.45, HD.s - dt/1.1); // in about a second it lets go
+  const p = w < 500 ? 9 : 10, R = Math.min(70, h*0.42), b = now === null ? 12 : HS;
+  each(w, h, p, (X, Y) => { const dx = HD.lx - X, dy = HD.ly - Y, d2 = dx*dx + dy*dy, f = HD.s*Math.exp(-d2/(2*R*R)), q = Math.pow(Math.pow(Math.abs(X - w/2)/(w/2), 4) + Math.pow(Math.abs(Y - h/2)/(h/2), 4), 0.25), e0 = Math.min(1, Math.max(0, (1 - q)/0.5)), edge = e0*e0*(3 - 2*e0);   // no edge: the little basin thins out into the dark
+    if (edge <= 0.02) return; const px = X + dx*0.38*f, py = Y + dy*0.38*f, clock = Math.sqrt(Math.max(0.05, 1 - f)), v = 0.5 + 0.5*Math.sin(X*0.021 + t*0.21)*Math.sin(Y*0.034 - t*0.17);
+    const r = p*(0.09 + 0.2*v + 0.16*f)*(0.78 + 0.22*hash(X + Math.floor(b/slow(clock)), Y))*edge; if (r < 0.3) return;
+    let c = mixc(BONE, film(X/w*0.7 + Y/h*0.3 + 0.4*v), 0.5); c = mixc(c, ROSE, Math.min(1, 0.75*(1 - clock)));
+    x.fillStyle = rgb(c, 0.5 + 0.45*Math.min(1, r/2)); x.beginPath(); x.arc(px, py, r, 0, 6.2832); x.fill(); });
+  x.strokeStyle = 'rgba(228,223,210,.55)'; x.lineWidth = 1; x.beginPath(); x.arc(tx, ty, 11, 0, 6.2832); x.stroke(); }   // the hand itself, a thin ring
+if (HAND) {
+  const at = (e) => { const r = HAND.getBoundingClientRect(); HD.tx = e.clientX - r.left; HD.ty = e.clientY - r.top; HD.last = performance.now(); if (STILL) { HD.kx = HD.tx/HD.w; HD.ky = HD.ty/HD.h; drawHand(null); } };
+  HAND.addEventListener('pointermove', at); HAND.addEventListener('pointerdown', at);
+  HAND.addEventListener('keydown', (e) => { const m = { ArrowLeft:[-0.05, 0], ArrowRight:[0.05, 0], ArrowUp:[0, -0.08], ArrowDown:[0, 0.08] }[e.key]; if (!m) return; e.preventDefault();
+    HD.kx = Math.min(0.95, Math.max(0.05, HD.kx + m[0])); HD.ky = Math.min(0.92, Math.max(0.08, HD.ky + m[1])); HD.keyT = performance.now(); if (STILL) drawHand(null); });
+}
+
+// the notes and their marks light each other
+{ const notes = new Map(); document.querySelectorAll('.note > b').forEach((n) => notes.set(n.textContent.trim(), n.parentElement));
+  document.querySelectorAll('sup.fn').forEach((s) => { const n = notes.get(s.textContent.trim()); if (!n) return; const on = (v) => { n.classList.toggle('lit', v); s.classList.toggle('lit', v); };
+    s.addEventListener('mouseenter', () => on(true)); s.addEventListener('mouseleave', () => on(false)); n.addEventListener('mouseenter', (e) => { e.stopPropagation(); on(true); }); n.addEventListener('mouseleave', () => on(false)); }); }
+
+// only what is on screen is drawn; the hand gets its own frames while it is in view
+const NOW = document.querySelector('.time .now');
+if (!STILL) {
+  const seenG = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { e.target._seen = e.isIntersecting; }), { rootMargin:'40px 0px' }) : null;
+  document.querySelectorAll('canvas.g, .hand canvas').forEach((c) => { if (seenG) seenG.observe(c); else c._seen = true; });
+  let last = 0; const loop = (now) => { requestAnimationFrame(loop); if (document.hidden) return;
+    if (HAND && HAND._seen && now - (HD.drawn || 0) > 30) { HD.drawn = now; drawHand(now); }
+    if (now - last < 80) return; last = now; for (const g of GL) if (g._seen) drawGlyph(g, now);
+    if (NOW) NOW.style.setProperty('--fl', Math.exp(-5*beatAge()).toFixed(2)); }; requestAnimationFrame(loop);
+}
+
 let dotT = 0;
-function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => { document.querySelectorAll('figure.dots').forEach(dotFig); document.querySelectorAll('figure.anim').forEach(animFig); }, 120); }
+function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => { document.querySelectorAll('figure.dots').forEach(dotFig); document.querySelectorAll('figure.anim').forEach(animFig); document.querySelectorAll('canvas.g').forEach(glyph); handSize(); }, 120); }
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(dotAll); dotAll();
 })();
 </script>
