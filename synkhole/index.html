@@ -492,7 +492,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float fw = clamp(length(fwidth(gp)), 1e-3, 2.);
       float tick = floor(uQD.z*bhClock*(0.8 + 1.4*hash(gc + 3.1)) + 9.*hash(gc));   // each dot keeps its own clock, and steps on it: near the hole they all run slow
       float tw8 = 0.72 + 0.28*hash(gc + tick*0.137 + 0.5);
-      float rad = (0.08 + 0.38*sqrt(lq))*tw8;
+      float rad = min(0.47, (0.08 + 0.38*sqrt(lq))*tw8 + 0.22*krip);   // on a ripple's crest each dot swells
       float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
       float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
       float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
@@ -515,6 +515,18 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       b *= smoothstep(uBH.x*0.90, uBH.x*1.06, r);
       b += pearl(a/6.28318 + 0.04*uTime)*(0.50*exp(-pow((r - uBH.x*1.10)/(uBH.x*0.030), 2.)) + 0.16*exp(-pow((r - uBH.x*1.19)/(uBH.x*0.018), 2.)))*(0.35 + 0.65*pow(0.5 + 0.5*cos(a - 2.4), 2.)); }
     `, 'before');
+  }
+  {                                                    // the heartbeat's ripples: each beat sends a ring out from the drain; it runs slower through hidden lumps in spacetime, so the ring bends where they are, and the dots shine on its crest
+    put('display', 'uniform vec4 uKH;', 'uniform float uRA[6], uRM[6], uRP;   // the ripples: how old, how strong; all of them\n', 'before');
+    put('display', 'vec2 p = C+ql;', `float krip = 0.;
+    { float lump = 0.72 + 0.56*(0.5 + 0.5*(0.6*sin(q.x*7.1 + 1.3)*sin(q.y*6.3 - 0.7) + 0.4*sin((q.x + q.y)*4.7 + 2.1)));
+      float d = r/lump, push = 0.; vec2 rn = ql/max(length(ql), 1e-4);
+      for (int i = 0; i < 6; i++) { float a = uRA[i]; if (a < 0. || uRM[i] <= 0.) continue;
+        float w = (d - 0.32*a)/0.024, f = uRM[i]*exp(-0.7*a)/(1. + 3.*d);
+        push += w*exp(-w*w)*f; krip += exp(-w*w)*f; }
+      ql += rn*0.018*push*uRP; krip *= uRP; }
+    `, 'before');
+    put('display', 'b *= 1. + 0.09*kin*(kb - 0.15); ', 'b = b*(1. + 0.6*krip) + pearl(0.6 + 2.*krip + 0.03*uTime)*0.07*krip; ', 'before');
   }
   FS.display = FS.display.split('texture(uDye,').join('kdye(');
 }
@@ -757,8 +769,12 @@ addEventListener('blur', () => { reach(false); if (lever) tap(true); if (plug) {
 
 // ---- ?k: the weirder water. kq.w is the current's clock (1 true, 0 stalled, below 0 backwards); kq.d is the picture's, a little late
 const kss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }, kh = (n) => { const x = Math.sin(n*127.1 + 3.7)*43758.5453; return x - Math.floor(x); };
+// a ripple runs slower through hidden lumps in spacetime, so its ring bends where they are: the same lumps in the shader and here
+const kLump = (x, y) => 0.72 + 0.56*(0.5 + 0.5*(0.6*Math.sin(x*7.1 + 1.3)*Math.sin(y*6.3 - 0.7) + 0.4*Math.sin((x + y)*4.7 + 2.1)));
+const ripAt = (x, y) => { const d = Math.hypot(x, y)/kLump(x, y); let c = 0; for (const e of kq.rip) { const a = simTime - e[0]; if (a < 0) continue; const w = (d - 0.32*a)/0.024; c += e[1]*Math.exp(-0.7*a)/(1 + 3*d)*Math.exp(-w*w); } return c*kq.rp; };
+const RA = new Float32Array(6), RM = new Float32Array(6);
 const kheartJ = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.05)**2)) + Math.exp(-(((1 - f)/0.015)**2)) + 0.62*Math.exp(-(((f - dub)/0.035)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.03)**2))); };
-const kq = { bt:0, bl:0.8, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
+const kq = { rip:[], rp:0.55, bt:0, bl:0.8, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
   late:[], lh:{ u:0.5, v:0.5, vx:0, vy:0 }, ls:{ x:0.5, y:0.5, vx:0, vy:0 }, lg:0, ld:false };
 const kMip = K > 0 ? gl.createSampler() : null;          // the far copies and the soft water are read from smaller copies of the picture
 if (kMip) { gl.samplerParameteri(kMip, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.samplerParameteri(kMip, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -811,7 +827,9 @@ function kTick(dt, now){                              // once a frame: the clock
   kq.d = kq.hist[0][1]; kq.t += dt*kq.w; kq.bub += dt*kq.w;
   kq.amp = kOn('3') ? kq.e*kss(0.02, 0.3, drainAmt) : 0;   // 3: draining, the basin beats: 1 Hz as the hole opens, 3 Hz at its deepest (Vesuna 2020, doi:10.1038/s41586-020-2731-9)
   kq.hz = 1.3 + 1.3*Math.min(1, drainAmt/0.6);   // 3, an alien heartbeat (Kat: "edge of chaos, almost human but not quite"): lub-dub, each gap from a logistic map at r = 3.71, the dub drifting, now and then a third beat
-  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = 3.71*kq.lx*(1 - kq.lx); kq.bl = (0.78 + 0.44*kq.lx)/kq.hz; kq.dub = 0.12 + 0.09*kq.lx; kq.ghost = kq.lx > 0.9 ? 0.5 : 0; }
+  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = 3.71*kq.lx*(1 - kq.lx); kq.bl = (0.78 + 0.44*kq.lx)/kq.hz; kq.dub = 0.12 + 0.09*kq.lx; kq.ghost = kq.lx > 0.9 ? 0.5 : 0;
+    kq.rip.push([simTime, 1], [simTime + kq.dub*kq.bl, 0.55]); if (kq.ghost) kq.rip.push([simTime + 1.9*kq.dub*kq.bl, 0.4]); while (kq.rip.length > 6) kq.rip.shift(); }
+  kq.rp = 0.55 + 0.45*Math.min(1, drainAmt/0.4);   // the ripples: always, a resting heart; stronger as it drains
   kq.ph = 2*Math.PI*kq.bt/kq.bl; kq.pulse = kheartJ(kq.bt/kq.bl, kq.dub, kq.ghost);
   return dt*Math.abs(kq.w);
 }
@@ -916,7 +934,7 @@ function blow(){
     const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
     b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
     if (b.pop) { const k = Math.min(1, (t - b.pop)/POP), m = k*k*(3 - 2*k); BUB.set([b.x, b.y, b.r*(1 + 0.18*m), -(1 - m)], i*4); }
-    else BUB.set([b.x, b.y, b.r, 0.08 + 0.92*up], i*4); });
+    else BUB.set([b.x, b.y, b.r*(1 + (K > 0 ? 0.26*ripAt(b.x, b.y) : 0)), 0.08 + 0.92*up], i*4); });   // a bubble swells as a ripple passes under it
 }
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
@@ -930,7 +948,8 @@ function render(){
   const mips = kOn('2') || kOn('4') || kOn('8');                   // ?k: the hole's far copies and the soft water are read from smaller copies of the picture
   if (mips) { gl.generateMipmap(gl.TEXTURE_2D); gl.bindSampler(0, kMip); }
   if (K > 0) { gl.uniform4f(u.uKH, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), mips ? Math.log2(dye.read.w/(view.S*d)) : -99, 2.2*kq.e*kq.soft);
-    gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, kq.dub, kq.ghost, 0); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
+    gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, kq.dub, kq.ghost, 0);
+    for (let i = 0; i < 6; i++) { const e = kq.rip[i]; RA[i] = e ? simTime - e[0] : -1; RM[i] = e ? e[1] : 0; } gl.uniform1fv(u['uRA[0]'], RA); gl.uniform1fv(u['uRM[0]'], RM); gl.uniform1f(u.uRP, kq.rp); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
     gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*Math.pow(0.5 + 0.5*Math.sin(simTime*0.29 + 1.3), 2) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), kq.t*1.6, QD);   // the dots step on the water's clock: when time stalls, they hold
       gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + 0.35*Math.sin(simTime*0.043)), 0.11*QD);
