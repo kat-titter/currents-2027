@@ -338,8 +338,8 @@ void main(){
           float dd = length(pa - ba*hh), sz = bb.z*(0.05 + 0.06*fract(h*7.3))*mix(1., 0.55, hh)*(0.8 + 0.7*ease);
           rimL += 0.8*k*smoothstep(sz*1.3, 0., dd); }
         continue; }
-      if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.38, bb.w), 1., t*t*t); film = max(film, bb.w*(1.-t*t)); }   // a dome of the dream itself, swollen
-      else if (t < 1.3) ql -= dq/max(length(dq), 1e-4)*bb.z*0.05*bb.w*(1.3-t);                                   // the surface pulled up round it
+      if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.38, bb.w), 1., 1. - (1. - t*t)*(1. - t*t)); film = max(film, bb.w*(1.-t*t)); }   // the dome meets the water with no crease: the grid of dots flows into it, never cut   // a dome of the dream itself, swollen
+      else if (t < 1.3) ql -= dq/max(length(dq), 1e-4)*bb.z*0.015*bb.w*sin(3.14159*(t - 1.)/0.3);                                   // the surface pulled up round it
       men += bb.w*smoothstep(0.32, 0., abs(t-1.1));                                                        // the meniscus: a soft dark ring where the water curves down
       rimL += bb.w*(0.55*smoothstep(0.16, 0., abs(t-0.93)) + 0.4*smoothstep(0.35, 0., abs(t-0.7))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a soft rim and a catch-light, lit by the dream's own colour
     vec2 p = C+ql;

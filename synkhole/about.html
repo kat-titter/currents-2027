@@ -81,6 +81,18 @@
   .fall { margin:1.6em 0 2.4em; font-style:italic; font-weight:300; color:var(--bone); }
   .fall span { display:block; line-height:1.15; }
   .fall .ring { display:inline-block; margin:.6em 0 0; }
+  /* motion: the rings and marks turn, the pearl drifts, the falling line breathes; reduced motion and ?still hold them */
+  @keyframes turn { to { transform:rotate(360deg); } }
+  @keyframes drift { 0% { background-position:0% 50%; } 100% { background-position:100% 50%; } }
+  @keyframes breathe { 0%, 100% { transform:translateY(0); } 50% { transform:translateY(5px); } }
+  .ring { animation:turn 16s linear infinite; }
+  .mk.on, .mk.off { animation:turn 11s linear infinite; }
+  .hero h1 .k, .h { background-image:linear-gradient(100deg, #bfeef7, #cfc4fb, #f7c6de, #bfeef7, #cfc4fb); background-size:300% 100%; animation:drift 14s ease-in-out infinite alternate; }
+  .fall span { animation:breathe 6s ease-in-out infinite; }
+  .fall span:nth-child(2) { animation-delay:-.7s; } .fall span:nth-child(3) { animation-delay:-1.4s; } .fall span:nth-child(4) { animation-delay:-2.1s; }
+  .fall span:nth-child(5) { animation-delay:-2.8s; } .fall span:nth-child(6) { animation-delay:-3.5s; } .fall span:nth-child(7) { animation-delay:-4.2s; } .fall span:nth-child(8) { animation-delay:-4.9s; }
+  .still *, .still *::after { animation:none !important; }
+  @media (prefers-reduced-motion:reduce) { *, *::after { animation:none !important; } }
 
   /* the label on the wall */
   .label { margin:0 0 2.2em; }
@@ -94,6 +106,7 @@
   .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .row figure { margin:0; }
   .wide { grid-column:2 / 4; max-width:46rem; }
+  .full { grid-column:1 / 4; }
 
   /* lists: steps, moves, works, supplies */
   ol, dl { list-style:none; margin:1.8em 0 2.2em; padding:0; }
@@ -121,8 +134,9 @@
   .built .mk { flex:none; margin-top:0; transform:translateY(-1px); }
 
   /* the live piece */
-  .live { position:relative; aspect-ratio:4/3; margin:2.4em 0 1.2em; overflow:hidden; border-radius:50%/37.5%; box-shadow:0 0 0 1px rgba(228,223,210,.08); }
-  .live iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:var(--ink); }
+  .live { position:relative; aspect-ratio:4/3; margin:.6em auto 0; width:min(100%, 1180px);   /* no edge: the piece fades into the field of dots */
+    -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 48%, rgba(0,0,0,.55) 70%, transparent 98%); mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 48%, rgba(0,0,0,.55) 70%, transparent 98%); }
+  .live iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent; }
   /* bracket words: a bracket hides a letter; take it out and the word says something else. hover or focus shows both readings */
   .kick .bw { font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; outline-offset:6px; }
   .kick .bw .br { font-style:normal; color:var(--dim); }
@@ -152,7 +166,7 @@
 
   @media (max-width:960px) {
     section { grid-template-columns:minmax(0, 1fr); padding:0 28px; margin-top:22vh; }
-    section > *, .wide, .kick, .note { grid-column:1; }
+    section > *, .wide, .full, .kick, .note { grid-column:1; }
     .note { margin:-.4em 0 1.6em 1.2em; padding-left:.9em; border-left:1px solid rgba(207,196,251,.3); max-width:none; }
     .kick { position:static; justify-self:start; text-align:left; margin-bottom:1.6em; }
     .thesis { grid-template-columns:minmax(0, 1fr); }
@@ -315,7 +329,7 @@
 <section id="link" data-n="08">
   <h2 class="kick"><span class="mono">08</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">c</i><span class="br">]</span>lock</span><span class="alt mono"><span class="one">live</span><span class="two">clock / lock</span></span></h2>
   <p class="say" data-r>this is <a data-piece="home" href="index.html">the piece in a browser</a>, not a recording.</p>
-  <div class="live wide" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: a basin seen from above, drawn as dots of light round a drain. press and hold to reach in."></iframe></div>
+  <div class="live full" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: a basin seen from above, drawn as dots of light round a drain. press and hold to reach in."></iframe></div>
   <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. press. hold. let go.</p>
 </section>
 
@@ -360,6 +374,7 @@ const PIECE = { frame:'index.html', home:'https://kat-titter.github.io/currents-
 document.querySelectorAll('[data-piece]').forEach((el) => { el[el.tagName === 'IFRAME' ? 'src' : 'href'] = PIECE[el.getAttribute('data-piece')]; });
 
 const STILL = new URLSearchParams(location.search).has('still') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (STILL) document.documentElement.classList.add('still');
 const BONE = [228, 223, 210], FILM = [[89, 230, 255], [158, 122, 255], [255, 115, 184]];   // the piece's pearl: bone under a film of cyan, violet, rose
 const mixc = (a, b, f) => [a[0] + (b[0] - a[0])*f, a[1] + (b[1] - a[1])*f, a[2] + (b[2] - a[2])*f];
 function film(x){ x = (x % 1 + 1) % 1*3; const i = Math.floor(x), f = x - i; return mixc(FILM[i], FILM[(i + 1) % 3], f*f*(3 - 2*f)); }
@@ -462,29 +477,61 @@ else { let last = 0; const loop = (now) => { requestAnimationFrame(loop); if (do
 
 // the pictures, drawn as dots: one dot per cell, as large as the cell is bright; bone at its heart, the film toward its edge
 const imgs = new Map();
+const FIGS = new Set();                                                      // the pictures as dots: poured in from the middle, then each dot keeps its own clock
 function dotFig(fig){
   const canvas = fig.querySelector('canvas'), src = fig.dataset.src, w = canvas.clientWidth; if (!w) return;
   const go = (img) => {
     const ratio = img ? img.naturalHeight/img.naturalWidth : 0.75, h = Math.round(w*ratio), d = Math.min(3, devicePixelRatio || 1);
     canvas.width = Math.round(w*d); canvas.height = Math.round(h*d); canvas.style.height = h + 'px';
-    const x = canvas.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, w, h);
     const p = w < 300 ? 5 : w < 520 ? 6 : 7, cols = Math.floor(w/p), rows = Math.floor(h/p), ox = (w - cols*p)/2 + p/2, oy = (h - rows*p)/2 + p/2;
     let px = null;
     if (img) { const s = document.createElement('canvas'); s.width = cols; s.height = rows; const sx = s.getContext('2d'); sx.drawImage(img, 0, 0, cols, rows);
       try { px = sx.getImageData(0, 0, cols, rows).data; } catch (e) { px = null; } }
+    const dots = [], hw = w/2, hh = h/2, far = Math.hypot(hw, hh);
     for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
-      const cx_ = ox + i*p, cy_ = oy + j*p;
-      if (!px) { x.fillStyle = 'rgba(228,223,210,0.22)'; x.beginPath(); x.arc(cx_, cy_, p*0.13, 0, 6.2832); x.fill(); continue; }   // water = None: the grid, its dots out
+      const cx_ = ox + i*p, cy_ = oy + j*p, dist = Math.hypot(cx_ - hw, cy_ - hh)/far;
+      if (!px) { dots.push([cx_, cy_, p*0.13, 'rgba(228,223,210,0.22)', null, dist, hash(i, j), hash(j, i + 7)]); continue; }   // water = None: the grid, its dots out
       const k = (j*cols + i)*4, c = [px[k], px[k + 1], px[k + 2]], l = (0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2])/255;
       const r = p*0.5*(0.08 + 0.88*Math.sqrt(l)); if (r < 0.3) continue;
       const f = film(i/cols*0.9 + j/rows*0.5 + 0.6*l);
-      x.fillStyle = rgb(mixc(c, f, 0.42), 0.95); x.beginPath(); x.arc(cx_, cy_, r, 0, 6.2832); x.fill();
-      if (r > 1.1) { x.fillStyle = rgb(mixc(c, BONE, 0.55), 1); x.beginPath(); x.arc(cx_, cy_, r*0.56, 0, 6.2832); x.fill(); }
+      dots.push([cx_, cy_, r, rgb(mixc(c, f, 0.42), 0.95), r > 1.1 ? rgb(mixc(c, BONE, 0.55), 1) : null, dist, hash(i, j), hash(j, i + 7)]);
     }
+    fig._dots = { dots, w, h, d, born:null }; FIGS.add(fig); drawFig(fig, STILL ? null : performance.now()/1000);
   };
   if (!src) return go(null);
   if (imgs.has(src)) { const im = imgs.get(src); return im.complete && im.naturalWidth ? go(im) : im.addEventListener('load', () => go(im), { once:true }); }
   const im = new Image(); imgs.set(src, im); im.onload = () => go(im); im.src = src;
+}
+function drawFig(fig, t){
+  const S = fig._dots; if (!S) return; const x = fig.querySelector('canvas').getContext('2d');
+  x.setTransform(S.d, 0, 0, S.d, 0, 0); x.clearRect(0, 0, S.w, S.h);
+  if (t !== null && S.born === null) { if (!fig._seen) return; S.born = t; }
+  for (const q of S.dots) {
+    let s = 1;
+    if (t !== null) {
+      const pour = Math.min(1, Math.max(0, (t - S.born - 1.1*q[5])/0.55)); if (pour <= 0) continue;   // poured in from the middle outward
+      const clock = Math.sqrt(Math.max(0.04, Math.min(1, q[5]*3)));          // near the middle the clocks run slow, as round the hole
+      const tick = Math.floor(t*1.5*clock*(0.6 + 0.8*q[6]) + 9*q[7]);
+      s = pour*pour*(3 - 2*pour)*(0.8 + 0.2*hash(tick, q[6]*97));
+    }
+    x.fillStyle = q[3]; x.beginPath(); x.arc(q[0], q[1], q[2]*s, 0, 6.2832); x.fill();
+    if (q[4]) { x.fillStyle = q[4]; x.beginPath(); x.arc(q[0], q[1], q[2]*s*0.56, 0, 6.2832); x.fill(); }
+  }
+}
+if (!STILL) {
+  const seen = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { e.target._seen = e.isIntersecting; }), { rootMargin:'0px 0px -10% 0px' }) : null;
+  document.querySelectorAll('figure.dots').forEach((f) => { if (seen) seen.observe(f); else f._seen = true; });
+  let last = 0; const tick = (now) => { requestAnimationFrame(tick); if (document.hidden || now - last < 80) return; last = now;
+    for (const f of FIGS) if (f._seen) drawFig(f, now/1000); }; requestAnimationFrame(tick);
+}
+// captions decode out of the code they were made from
+if (!STILL && 'IntersectionObserver' in window) {
+  const G = '01[]{}<>/=+*#%&~k.:';
+  const io2 = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; io2.unobserve(e.target); const el = e.target, txt = el.textContent, t0 = performance.now();
+    const step = (now) => { const k = Math.min(1, (now - t0)/900), n = Math.floor(k*txt.length);
+      el.textContent = txt.slice(0, n) + [...txt.slice(n)].map((ch) => ch === ' ' ? ' ' : G[Math.floor(Math.random()*G.length)]).join('');
+      if (k < 1) requestAnimationFrame(step); else el.textContent = txt; }; requestAnimationFrame(step); }), { rootMargin:'0px 0px -12% 0px' });
+  document.querySelectorAll('figcaption, .key > span:last-child').forEach((el) => { if (!el.children.length) io2.observe(el); });
 }
 let dotT = 0;
 function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => document.querySelectorAll('figure.dots').forEach(dotFig), 120); }
