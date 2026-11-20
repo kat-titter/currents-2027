@@ -38,8 +38,9 @@
   .frame i:nth-child(1) { left:16px; top:16px; border-width:1px 0 0 1px; }  .frame i:nth-child(2) { right:16px; top:16px; border-width:1px 1px 0 0; }
   .frame i:nth-child(3) { left:16px; bottom:16px; border-width:0 0 1px 1px; } .frame i:nth-child(4) { right:16px; bottom:16px; border-width:0 1px 1px 0; }
   .bar { position:fixed; z-index:4; left:48px; right:48px; top:18px; display:flex; justify-content:space-between; pointer-events:none; }
-  .bar a, .bar span { pointer-events:auto; color:var(--dim); text-decoration:none; }
-  .bar a:hover { color:var(--bone); }
+  .bar a, .bar span { pointer-events:auto; color:var(--dim); text-decoration:none; white-space:nowrap; }
+  .bar a { color:var(--text); text-decoration:underline; text-decoration-color:rgba(158,122,255,.75); text-underline-offset:4px; }
+  .bar a:hover { color:#fff; }
   #lost { position:fixed; z-index:4; left:48px; bottom:17px; margin:0; }
   #lost b { font-weight:400; color:var(--bone); }
 
@@ -56,7 +57,6 @@
 
   /* the opening */
   .hero { --hb:13vh; min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px var(--hb); }
-  .hero .where { position:absolute; left:48px; top:64px; margin:0; }
   .hero h1 { margin:0; font:300 clamp(64px, 12.4vw, 210px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
   .hero .sub { margin:calc(clamp(64px, 12.4vw, 210px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
@@ -157,7 +157,7 @@
     .kick { position:static; justify-self:start; text-align:left; margin-bottom:1.6em; }
     .thesis { grid-template-columns:minmax(0, 1fr); }
     .bar { left:28px; right:28px; } #lost { left:28px; }
-    .hero { --hb:15vh; padding:0 28px var(--hb); } .hero .where { left:28px; top:56px; }
+    .hero { --hb:15vh; padding:0 28px var(--hb); }
   }
   @media (max-width:600px) {
     body { font-size:18.5px; }
@@ -166,7 +166,7 @@
     .frame i { width:16px; height:16px; }
     .frame i:nth-child(1), .frame i:nth-child(3) { left:10px; } .frame i:nth-child(2), .frame i:nth-child(4) { right:10px; }
     .frame i:nth-child(1), .frame i:nth-child(2) { top:10px; } .frame i:nth-child(3), .frame i:nth-child(4) { bottom:10px; }
-    .hero { --hb:17vh; padding:0 20px var(--hb); } .hero .where { left:20px; top:50px; }
+    .hero { --hb:17vh; padding:0 20px var(--hb); } .bar .far { display:none; } .hero .cue { left:auto; right:20px; transform:none; } .hero .cue::after { margin-right:0; }
     .hero .lede { font-size:19px; }
     .say { font-size:22px; }
     .row { grid-template-columns:minmax(0, 1fr); gap:28px; } .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
@@ -180,12 +180,11 @@
 <body>
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<nav class="bar mono"><a data-piece="frame" href="index.html">[syn[k]]hole</a><span id="count" aria-hidden="true">00 / 08</span></nav>
+<nav class="bar mono"><span>made for <a href="https://currentsnewmedia.org/">currents 2027</a><span class="far">, el museo cultural de santa fe, june 2027</span></span><span id="count" aria-hidden="true">00 / 08</span></nav>
 <p id="lost" class="mono" aria-hidden="true">lost = <b>00:00</b></p>
 
 <main>
 <section class="hero" id="top">
-  <p class="where mono">currents 2027, installations<br>el museo cultural de santa fe, june 2027</p>
   <h1>[syn<span class="k">[k]</span>]hole</h1>
   <p class="sub">dry season</p>
   <p class="lede">inside this basin, a machine dreams the water.<br>every day, it runs dry.</p>
