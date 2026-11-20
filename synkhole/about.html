@@ -108,6 +108,18 @@
   .row { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin:2.4em 0 2.6em; }
   .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .row figure { margin:0; }
+  /* an animated picture with one axis: the value moves, the picture follows */
+  .anim { margin:2.4em 0 2.6em; } .anim canvas { display:block; width:100%; }
+  .axis { display:grid; grid-template-columns:auto minmax(0, 1fr) 4.2em; align-items:center; column-gap:16px; margin-top:16px; padding-bottom:18px; }
+  .axis .nm { color:var(--bone); }
+  .axis .track { position:relative; height:1px; background:linear-gradient(90deg, rgba(89,230,255,.55), rgba(158,122,255,.55), rgba(255,115,184,.55)); }
+  .axis .tick { position:absolute; top:9px; transform:translateX(-50%); font-style:normal; font-size:11px; line-height:1; color:var(--dim); white-space:nowrap; }
+  .axis .tick.end { transform:translateX(-100%); }
+  .axis .tick::before { content:""; position:absolute; left:50%; top:-9px; width:1px; height:5px; background:var(--dim); }
+  .axis .tick.end::before { left:100%; }
+  .axis .tick.here { color:#cfc4fb; }
+  .axis .mark { position:absolute; top:-4px; left:0; width:9px; height:9px; margin-left:-4.5px; border-radius:50%; background:var(--film); box-shadow:0 0 8px rgba(207,196,251,.6); }
+  .axis .val { color:var(--bone); text-align:right; }
   .wide { grid-column:2 / 4; max-width:46rem; }
   .full { grid-column:1 / 4; }
 
@@ -241,11 +253,8 @@
   <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">3</sup></p>
   <aside class="note" data-r><b>3</b>dives last as long as the air you carry down. days here last as long as the morning's water.</aside>
   <p data-r>one allocation of dreaming per morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. once spent, it drains to black in under a minute and stays dry until morning.</p>
-  <div class="row wide" data-r>
-    <figure class="dots" data-src="doc/water.webp"><canvas role="img" aria-label="full"></canvas><figcaption class="mono">water = 1.00</figcaption></figure>
-    <figure class="dots" data-src="doc/drain.webp"><canvas role="img" aria-label="draining"></canvas><figcaption class="mono">water = 0.16</figcaption></figure>
-    <figure class="dots" data-src=""><canvas role="img" aria-label="dry: the dots go out"></canvas><figcaption class="mono">water = None</figcaption></figure>
-  </div>
+  <figure class="anim wide" data-param="water" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin drains, slow then fast, from full to dry, waits, and fills again"></canvas>
+    <div class="axis mono"><span class="nm">water</span><span class="track"><i class="tick" style="left:0%">1.00</i><i class="tick" style="left:84%">0.16</i><i class="tick end" style="left:100%">None</i><b class="mark"></b></span><span class="val">1.00</span></div></figure>
   <p data-r>come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
   <p class="mirror" aria-hidden="true">come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
   <p class="quiet" data-r>proposed. only the drain is built so far.</p>
@@ -267,11 +276,11 @@
   </ol>
   <aside class="note" data-r><b>4</b>corpus mundi, the body of everything. this water's dreamer was made from the pictures of the web and the words people wrote under them: everything, read at once, remembered nowhere.<sup class="fn">4a</sup><aside class="note"><b>4a</b>corpus: a body, and a body of text. mundi: of the world. here it drinks the record and pours it back as water.</aside></aside>
   <div class="row wide" data-r>
-    <figure class="dots" data-src="doc/mood1_pearl.webp"><canvas role="img" aria-label="one of the eight pictures"></canvas></figure>
-    <figure class="dots" data-src="doc/mood6_pearl.webp"><canvas role="img" aria-label="one of the eight pictures"></canvas></figure>
-    <figure class="dots" data-src="doc/mood7_pearl.webp"><canvas role="img" aria-label="one of the eight pictures"></canvas></figure>
+    <figure class="dots" data-src="doc/mood1_pearl.webp"><canvas role="img" aria-label="picture 01: a skull of white beads over a sleeping face"></canvas><figcaption class="mono">01 skull of beads, sleeping face</figcaption></figure>
+    <figure class="dots" data-src="doc/mood6_pearl.webp"><canvas role="img" aria-label="picture 06: a white peony glittering on grey"></canvas><figcaption class="mono">06 peony on grey</figcaption></figure>
+    <figure class="dots" data-src="doc/mood7_pearl.webp"><canvas role="img" aria-label="picture 07: a bright skull between two faces with closed eyes"></canvas><figcaption class="mono">07 skull between closed eyes</figcaption></figure>
   </div>
-  <p class="quiet mono" data-r>three of the eight</p>
+  <p class="quiet" data-r>three of the eight pictures i chose by hand in midjourney. every dream leans toward one of them, so the water keeps half remembering a skull, a flower, a sleeping face.</p>
 </section>
 
 <section id="k" data-n="05">
@@ -286,10 +295,8 @@
     <li><span class="n">5</span><div><h3>almost a face</h3></div><p>two hollows above the hole, and the hole is its mouth. you won't be sure you saw it.</p></li>
     <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring, their clocks slowing to a stop.<sup class="fn">7</sup></p></li>
   </ol>
-  <div class="row two wide" data-r>
-    <figure class="dots" data-src="doc/hole_k0.webp"><canvas role="img" aria-label="the drain at k = 0"></canvas><figcaption class="mono">k = 0</figcaption></figure>
-    <figure class="dots" data-src="doc/hole_k1.webp"><canvas role="img" aria-label="the drain at k = 1: the basin seen again inside the hole"></canvas><figcaption class="mono">k = 1</figcaption></figure>
-  </div>
+  <figure class="anim wide" data-param="k" data-src="doc/hole_k0.webp" data-src2="doc/hole_k1.webp" data-r><canvas role="img" aria-label="k sweeps from 0 to 1, where the basin is seen again inside the hole, and settles at 0.25"></canvas>
+    <div class="axis mono"><span class="nm">k</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick here" style="left:25%">0.25</i><i class="tick end" style="left:100%">1</i><b class="mark"></b></span><span class="val">0.25</span></div></figure>
   <aside class="note" data-r><b>6</b>bottom left, a counter has been running since you arrived. it is not counting down.</aside>
   <aside class="note" data-r><b>7</b>inside a program there is no clock and no room, only numbers standing in for them. bend the numbers and time and space bend too. stay long enough and so do you.<sup class="fn">7a</sup><aside class="note"><b>7a</b>losing time, losing place, losing the line between you and the picture: the old names for that are not gentle ones.</aside></aside>
   <p data-r>k sets the depth. <s>k = 0.5</s> <s>k = 0.5</s> it runs at 0.25:</p>
@@ -397,11 +404,11 @@ const rgb = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 const lostEl = document.querySelector('#lost b'), t0 = performance.now();
 setInterval(() => { const s = Math.floor((performance.now() - t0)/1000); lostEl.textContent = `${String(Math.floor(s/60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }, 1000);
 
-let HS = 0;                                                                   // one song: the heart's steps (lub and dub) are the clock every dot on this page twinkles on
+let HS = 0, HT = 0; const RIP = [];                                                                   // one song: the heart's steps (lub and dub) are the clock every dot on this page twinkles on
 // an alien heartbeat along the bottom, the same as the piece's drain: lub, dub, each gap from a logistic map at r = 3.71 (the edge of chaos), the dub drifting, now and then a third beat
 { const pc = document.getElementById('pulse'), px = pc.getContext('2d'), hb = { t:0, len:0.8, x:0.37, dub:0.16, ghost:0 }, trace = [], SPEED = 46;
   const heart = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.05)**2)) + Math.exp(-(((1 - f)/0.015)**2)) + 0.62*Math.exp(-(((f - dub)/0.035)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.03)**2))); };
-  const step = (dt) => { hb.t += dt; if (hb.t >= hb.len) { hb.t -= hb.len; hb.x = 3.71*hb.x*(1 - hb.x); hb.len = (0.9 + 0.2*hb.x)/1.15; hb.dub = 0.13 + 0.06*hb.x; hb.ghost = hb.x > 0.92 ? 0.4 : 0; HS++; hb.dd = false; } if (!hb.dd && hb.t >= hb.dub*hb.len) { HS++; hb.dd = true; } return heart(hb.t/hb.len, hb.dub, hb.ghost); };
+  const step = (dt) => { hb.t += dt; HT += dt; if (hb.t >= hb.len) { hb.t -= hb.len; hb.x = 3.71*hb.x*(1 - hb.x); hb.len = (0.9 + 0.2*hb.x)/1.15; hb.dub = 0.13 + 0.06*hb.x; hb.ghost = hb.x > 0.92 ? 0.4 : 0; HS++; hb.dd = false; RIP.push([HT, HS % 16 === 1 ? 1.3 : 1]); if (RIP.length > 10) RIP.shift(); } if (!hb.dd && hb.t >= hb.dub*hb.len) { HS++; hb.dd = true; RIP.push([HT, 0.55]); if (RIP.length > 10) RIP.shift(); } return heart(hb.t/hb.len, hb.dub, hb.ghost); };
   let pw = 0, ph = 0, pd = 1, acc = 0, lastT = 0;
   const size = () => { pd = Math.min(3, devicePixelRatio || 1); pw = pc.clientWidth; ph = pc.clientHeight; pc.width = Math.round(pw*pd); pc.height = Math.round(ph*pd);
     while (trace.length < pw) trace.unshift(0); while (trace.length > pw) trace.shift(); };
@@ -478,9 +485,11 @@ function field(t){
       const mag = Math.min(2.4, Math.sqrt(at/b)); if (th < 0 && mag < 0.3) continue;
       const clock = Math.sqrt(Math.max(0, 1 - RH/at)), z = 1 - clock;          // near the edge a dot's clock runs slow, and its light goes rose
       const tk = Math.floor(HS/(Math.pow(2, Math.floor(Math.min(3, -1.3*Math.log2(Math.max(clock, 0.05)))))*(hash(i, gj) < 0.5 ? 1 : 2))) + 9*Math.floor(hash(gj, i)*7);   // near the hole, half time, quarter, eighth
-      const ang = tw*RH*RH/Math.max(at*at, RH*RH), ca = Math.cos(ang), sa = Math.sin(ang);
-      const px = ux*th, py = uy*th;
-      put(hx + px*ca - py*sa, hy + px*sa + py*ca, base*mag*(0.7 + 0.3*hash(i + tk, gj)), Math.min(1, v + 0.25*(mag - 1)), z, i, gj);
+      const orb = STILL ? 0 : t*0.35*Math.pow(RH/at, 1.5)*Math.sign(th);       // the dots near the hole orbit it, faster the nearer
+      const ang = tw*RH*RH/Math.max(at*at, RH*RH) + orb, ca = Math.cos(ang), sa = Math.sin(ang);
+      let cr = 0, pu = 0; if (!STILL) for (const e of RIP) { const a = HT - e[0]; if (a < 0 || a > 5) continue; const w = (at - RH*1.15 - 46*a)/16, g = e[1]*Math.exp(-0.6*a)*Math.exp(-w*w); cr += g; pu += w*g; }   // each beat, a ring out from the dark
+      const sc = 1 + 7*pu/at, px = ux*th*sc, py = uy*th*sc;
+      put(hx + px*ca - py*sa, hy + px*sa + py*ca, base*mag*(0.7 + 0.3*hash(i + tk, gj))*(1 + 0.7*cr), Math.min(1, v + 0.25*(mag - 1) + 0.45*cr), z, i, gj);
     }
   }
   for (let h = 0; h < NB; h++) for (let a = 0; a < NA; a++) {
@@ -491,7 +500,8 @@ function field(t){
     cx.fillStyle = '#030304'; cx.beginPath(); cx.arc(hx, hy, RH, 0, 6.2832); cx.fill();
     const g = cx.createConicGradient ? cx.createConicGradient(t*0.04, hx, hy) : null;
     if (g) { g.addColorStop(0, '#59e6ff'); g.addColorStop(0.33, '#9e7aff'); g.addColorStop(0.66, '#ff73b8'); g.addColorStop(1, '#59e6ff'); }
-    cx.lineWidth = 1; cx.strokeStyle = g || '#cfc4fb'; cx.globalAlpha = 0.85; cx.beginPath(); cx.arc(hx, hy, RH*1.1, 0, 6.2832); cx.stroke();
+    let fl = 0; for (const e of RIP) { const a = HT - e[0]; if (a >= 0) fl += e[1]*Math.exp(-7*a); }   // the ring flares on each beat
+    cx.lineWidth = 1 + 1.4*Math.min(1, fl); cx.strokeStyle = g || '#cfc4fb'; cx.globalAlpha = Math.min(1, 0.8 + 0.2*fl); cx.beginPath(); cx.arc(hx, hy, RH*1.1, 0, 6.2832); cx.stroke();
     cx.globalAlpha = 0.9; cx.lineWidth = 1.6; cx.strokeStyle = 'rgba(228,223,210,0.55)'; cx.beginPath(); cx.arc(hx, hy, RH*1.1, 2.0, 3.4); cx.stroke();   // brighter on the side that turns toward you
     cx.globalAlpha = 0.35; cx.lineWidth = 0.6; cx.strokeStyle = g || '#cfc4fb'; cx.beginPath(); cx.arc(hx, hy, RH*1.2, 0, 6.2832); cx.stroke();
     cx.globalAlpha = 1;
@@ -546,9 +556,47 @@ function drawFig(fig, t){
 }
 if (!STILL) {
   const seen = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { e.target._seen = e.isIntersecting; }), { rootMargin:'0px 0px -10% 0px' }) : null;
-  document.querySelectorAll('figure.dots').forEach((f) => { if (seen) seen.observe(f); else f._seen = true; });
+  document.querySelectorAll('figure.dots, figure.anim').forEach((f) => { if (seen) seen.observe(f); else f._seen = true; });
   let last = 0; const tick = (now) => { requestAnimationFrame(tick); if (document.hidden || now - last < 80) return; last = now;
-    for (const f of FIGS) if (f._seen) drawFig(f, now/1000); }; requestAnimationFrame(tick);
+    for (const f of FIGS) if (f._seen) drawFig(f, now/1000);
+    for (const f of ANIMS) if (f._seen) drawAnim(f, now/1000); }; requestAnimationFrame(tick);
+}
+// animated pictures with one axis: water drains slow then fast, sits dry, and fills; k sweeps up and settles where the piece runs
+const ANIMS = new Set();
+const PARAM = {
+  water:(t) => { const c = t % 10; if (c < 1.2) return 1; if (c < 6.5) { const f = (c - 1.2)/5.3; return Math.max(0, 1 - f*f*f); } if (c < 8.4) return 0; return Math.min(1, (c - 8.4)/1.6); },
+  k:(t) => { const c = t % 11; if (c < 4) { const f = c/4; return f*f*(3 - 2*f); } if (c < 5) return 1; if (c < 8) { const f = (c - 5)/3; return 1 - 0.75*f*f*(3 - 2*f); } return 0.25; },
+};
+function animFig(fig){
+  const canvas = fig.querySelector('canvas'), w = canvas.clientWidth; if (!w) return;
+  const srcs = [fig.dataset.src, fig.dataset.src2].filter(Boolean);
+  Promise.all(srcs.map((s) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = s; }))).then((ims) => {
+    if (!ims[0]) return;
+    const ratio = ims[0].naturalHeight/ims[0].naturalWidth, h = Math.round(w*ratio), d = Math.min(3, devicePixelRatio || 1);
+    canvas.width = Math.round(w*d); canvas.height = Math.round(h*d); canvas.style.height = h + 'px';
+    const p = w < 300 ? 5 : w < 520 ? 6 : 7, cols = Math.floor(w/p), rows = Math.floor(h/p), ox = (w - cols*p)/2 + p/2, oy = (h - rows*p)/2 + p/2;
+    const read = (im) => { const s = document.createElement('canvas'); s.width = cols; s.height = rows; const sx = s.getContext('2d'); sx.drawImage(im, 0, 0, cols, rows); return sx.getImageData(0, 0, cols, rows).data; };
+    const A = read(ims[0]), B2 = ims[1] ? read(ims[1]) : A, hw = w/2, hh = h/2, far = Math.hypot(hw, hh), cells = [];
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const k = (j*cols + i)*4, x = ox + i*p, y = oy + j*p;
+      cells.push([x, y, [A[k], A[k + 1], A[k + 2]], [B2[k], B2[k + 1], B2[k + 2]], Math.hypot(x - hw, y - hh)/far, i/cols*0.9 + j/rows*0.5]); }
+    fig._anim = { cells, w, h, d, p }; ANIMS.add(fig); drawAnim(fig, STILL ? null : performance.now()/1000);
+  });
+}
+function drawAnim(fig, t){
+  const S = fig._anim; if (!S) return; const prm = fig.dataset.param, v = t === null ? (prm === 'k' ? 0.25 : 1) : PARAM[prm](t);
+  const mark = fig.querySelector('.mark'), val = fig.querySelector('.val');
+  if (mark) mark.style.left = ((prm === 'water' ? 1 - v : v)*100).toFixed(2) + '%';
+  if (val) val.textContent = prm === 'water' && v <= 0.001 ? 'None' : v.toFixed(2);
+  const x = fig.querySelector('canvas').getContext('2d'); x.setTransform(S.d, 0, 0, S.d, 0, 0); x.clearRect(0, 0, S.w, S.h);
+  const front = prm === 'water' ? Math.pow(1 - v, 0.6)*1.15 : 0;
+  for (const q of S.cells) {
+    const c = prm === 'k' ? mixc(q[2], q[3], v) : q[2], l = (0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2])/255;
+    let r = S.p*0.5*(0.08 + 0.88*Math.sqrt(l));
+    if (prm === 'water') { const e = Math.min(1, Math.max(0, (q[4] - front + 0.08)/0.14)); r *= e*e*(3 - 2*e)*(0.35 + 0.65*Math.pow(v, 0.4)); }   // the drain eats it from the middle out
+    if (r < 0.55) { x.fillStyle = 'rgba(228,223,210,0.2)'; x.beginPath(); x.arc(q[0], q[1], S.p*0.12, 0, 6.2832); x.fill(); continue; }   // where the water has gone, the grid stays
+    x.fillStyle = rgb(mixc(c, film(q[5] + 0.6*l), 0.42), 0.95); x.beginPath(); x.arc(q[0], q[1], r, 0, 6.2832); x.fill();
+    if (r > 1.1) { x.fillStyle = rgb(mixc(c, BONE, 0.55), 1); x.beginPath(); x.arc(q[0], q[1], r*0.56, 0, 6.2832); x.fill(); }
+  }
 }
 // captions decode out of the code they were made from
 if (!STILL && 'IntersectionObserver' in window) {
@@ -560,7 +608,7 @@ if (!STILL && 'IntersectionObserver' in window) {
   document.querySelectorAll('figcaption, .key > span:last-child').forEach((el) => { if (!el.children.length) io2.observe(el); });
 }
 let dotT = 0;
-function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => document.querySelectorAll('figure.dots').forEach(dotFig), 120); }
+function dotAll(){ clearTimeout(dotT); dotT = setTimeout(() => { document.querySelectorAll('figure.dots').forEach(dotFig); document.querySelectorAll('figure.anim').forEach(animFig); }, 120); }
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(dotAll); dotAll();
 })();
 </script>
