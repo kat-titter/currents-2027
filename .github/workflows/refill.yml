@@ -1,6 +1,6 @@
 # The refill: the reservoir the page pours while the spring sleeps, dreamed again on a runner (refill/refill.py)
 # out of the water the page pours now, and published with the pages. The repo is the site; the piece lives in its folder DIR (below),
-# with reservoir/ beside its page. The frames never enter git: the
+# with reservoir/ beside its page, built from src/ (src/deploy.py), which is never published. The frames never enter git: the
 # site is deployed from this run's own files (Pages source: GitHub Actions), and the last water is read back from the live page,
 # which is all the memory the loop has; its taste leans on the water banked by hand in this repo (reservoir/).
 # A push to main publishes the pages with the water as it is.
@@ -80,7 +80,7 @@ jobs:
               print(f'the page gave no water ({e!r})'); shutil.rmtree(live, ignore_errors=True)
           index = lambda d: json.loads((d/'index.json').read_text()) if (d/'index.json').exists() else {}
           if kept.exists(): shutil.copytree(kept, 'banked')      # the water banked by hand: the loop's taste leans on it, and starts again from it
-          # the newer water pours; on a tie, the water kept in this repo: it was banked by hand (verse/reservoir.py)
+          # the newer water pours; on a tie, the water kept in this repo: it was banked by hand (src/reservoir.py)
           if index(live).get('made', '') > index(kept).get('made', ''):
               print(f'the water on the page (made {index(live)["made"]}) is newer than the water kept here (made {index(kept).get("made", "never")})')
               shutil.rmtree(kept, ignore_errors=True); live.rename(kept)
@@ -150,7 +150,7 @@ jobs:
 
       - name: the pages, with the water
         if: steps.now.outputs.publish == 'true'
-        run: rm -rf site/.git site/.github site/refill
+        run: rm -rf site/.git site/.github site/refill site/src     # src/: the source; synkhole/ holds the built piece
 
       - uses: actions/upload-pages-artifact@v3
         if: steps.now.outputs.publish == 'true'
