@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta property="og:title" content="[s[i/y][k][w]hole, dry season: about the piece">
-<meta property="og:description" content="[s[i/y][k][w]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
+<meta property="og:title" content="[s[i/y][k][w]hole: about the piece">
+<meta property="og:description" content="[s[i/y][k][w]hole, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/about.html">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>[s[i/y][k][w]hole, dry season: about the piece</title>
-<meta name="description" content="[s[i/y][k][w]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
+<title>[s[i/y][k][w]hole: about the piece</title>
+<meta name="description" content="[s[i/y][k][w]hole, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap">
-<!-- The page about [s[i/y][k][w]hole, dry season, redrawn 2026-11-19 to look like the piece now looks: the same dots of light on black, the same pearl film,
+<!-- The page about [s[i/y][k][w]hole, redrawn 2026-11-19 to look like the piece now looks: the same dots of light on black, the same pearl film,
      the same black hole. Kat: "more negative space. thinner, sparser text and design ... cyrptic, shamanistic, computational, serif font" and
      "about page design should resonate design and style with the piece itself - colors, shapes, density".
      The ground is a field of dots drawn at the screen's own pixels; the pictures are drawn as dots too, from synkhole/doc/. Reduced motion and ?still hold everything still. -->
@@ -63,7 +63,7 @@
   .hero h1 { margin:0; font:300 clamp(42px, 10.4vw, 190px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
   .hero .sub { margin:calc(clamp(42px, 10.4vw, 190px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
-  .hero .lede { margin:1.6em 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
+  .hero .lede { margin:calc(clamp(42px, 10.4vw, 190px)*.3) 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
   .hero .sync { margin:1.4em 0 0 .15em; }
   .hero .cue { position:absolute; left:50%; bottom:calc(var(--hb) - 44px); transform:translateX(-50%); margin:0; }
   .hero .cue::after { content:""; display:block; width:1px; height:34px; margin:10px auto 0; background:linear-gradient(var(--dim), transparent); animation:fall 2.6s ease-in-out infinite; }
@@ -268,7 +268,24 @@
     .time .lb, .time li:nth-child(even) .lb { grid-row:1; grid-column:2; }
     .acts { gap:21px; }
   }
-  @media print { #field, .frame, .bar, #lost, .cue, .live { display:none; } body { background:#fff; color:#111; } .rv [data-r] { opacity:1; transform:none; } }
+  @media print {   /* each line once: no glows (Chrome prints a text-shadow as extra copies of the words), no fixed layers, notes inline, the address in full */
+    *, *::before, *::after { text-shadow:none !important; box-shadow:none !important; animation:none !important; transition:none !important; }
+    #field, #pulse, .frame, .bar, #lost, .cue, .live, .gloss { display:none !important; }
+    body { background:#fff; color:#111; font-size:11.5pt; }
+    main p, main li, main dt, main dd, .note, .say, .thesis p { color:#111 !important; }
+    .quiet, .mono, .note, figcaption { color:#444 !important; }
+    .hero { min-height:0; padding:0 0 .6em; display:block; }
+    .hero h1 { font-size:44pt; color:#111; white-space:normal; }
+    .hero h1 .k, .h { background:none !important; color:#111 !important; -webkit-text-fill-color:#111; }
+    section, .thesis { display:block; margin:1.4em 0 0; padding:0; break-inside:auto; }
+    .kick { position:static; justify-content:flex-start; margin:0 0 .6em; }
+    .note, .note .note { display:block; margin:.3em 0 .8em 1.2em; padding-left:.8em; border-left:1px solid #bbb; max-width:none; }
+    .rv [data-r] { opacity:1 !important; transform:none !important; }
+    figure, .row, .anim { break-inside:avoid; margin:.8em 0; }
+    .fall span { margin-left:0 !important; font-size:12pt !important; opacity:1 !important; display:inline; }
+    a { color:#111; text-decoration:underline; }
+    a[href^="http"]::after { content:" (" attr(href) ")"; font-size:.8em; color:#444; }
+  }
 </style>
 </head>
 <body>
@@ -281,7 +298,6 @@
 <main>
 <section class="hero" id="top">
   <h1>[s[i/y][<span class="k">k</span>][w]hole</h1>
-  <p class="sub">dry season</p>
   <p class="lede">inside this basin, a machine dreams the water.<br>every day, it runs dry.</p>
   <p class="mono sync">sync == sink</p>
   <p class="cue mono">katherine titterton</p>
@@ -295,7 +311,7 @@
 
 <section id="wall" data-n="01">
   <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</span><span class="alt mono"><span class="one">wall text</span><span class="two">hole / whole</span></span></h2>
-  <p class="label mono" data-r><b>katherine titterton</b><br>[s[i/y][k][w]hole, dry season, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
+  <p class="label mono" data-r><b>katherine titterton</b><br>[s[i/y][k][w]hole, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
   <figure class="side" data-r><canvas class="g" data-g="basin" role="img" aria-label="the piece from three quarters, to scale: a block 30 by 25 inches, its rim at 34 inches over a 30 inch plinth, the screen set in its top with the water and the hole"></canvas><figcaption class="mono">rim at 34 in, plinth to 30</figcaption></figure>
   <p class="say" data-r>most beautiful things have something nasty in them. here, it is the drain: the [s[i/y][k][w]hole, where time goes missing.</p>
   <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; here both run out, and you climb back up.</p>
