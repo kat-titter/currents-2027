@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta property="og:title" content="[syn[k]]hole, dry season: about the piece">
-<meta property="og:description" content="[syn[k]]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
+<meta property="og:title" content="[s[i/y][k][w]hole, dry season: about the piece">
+<meta property="og:description" content="[s[i/y][k][w]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/about.html">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>[syn[k]]hole, dry season: about the piece</title>
-<meta name="description" content="[syn[k]]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
+<title>[s[i/y][k][w]hole, dry season: about the piece</title>
+<meta name="description" content="[s[i/y][k][w]hole, dry season, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap">
-<!-- The page about [syn[k]]hole, dry season, redrawn 2026-11-19 to look like the piece now looks: the same dots of light on black, the same pearl film,
+<!-- The page about [s[i/y][k][w]hole, dry season, redrawn 2026-11-19 to look like the piece now looks: the same dots of light on black, the same pearl film,
      the same black hole. Kat: "more negative space. thinner, sparser text and design ... cyrptic, shamanistic, computational, serif font" and
      "about page design should resonate design and style with the piece itself - colors, shapes, density".
      The ground is a field of dots drawn at the screen's own pixels; the pictures are drawn as dots too, from synkhole/doc/. Reduced motion and ?still hold everything still. -->
@@ -60,9 +60,9 @@
 
   /* the opening */
   .hero { --hb:13vh; min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px var(--hb); }
-  .hero h1 { margin:0; font:300 clamp(64px, 12.4vw, 210px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
+  .hero h1 { margin:0; font:300 clamp(42px, 10.4vw, 190px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
-  .hero .sub { margin:calc(clamp(64px, 12.4vw, 210px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
+  .hero .sub { margin:calc(clamp(42px, 10.4vw, 190px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
   .hero .lede { margin:1.6em 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
   .hero .sync { margin:1.4em 0 0 .15em; }
   .hero .cue { position:absolute; left:50%; bottom:calc(var(--hb) - 44px); transform:translateX(-50%); margin:0; }
@@ -112,7 +112,8 @@
   .anim { margin:2.4em 0 2.6em; } .anim canvas { display:block; width:100%; }
   .axis { display:grid; grid-template-columns:auto minmax(0, 1fr) 4.2em; align-items:center; column-gap:16px; margin-top:16px; padding-bottom:18px; }
   .axis .nm { color:var(--bone); }
-  .axis .track { position:relative; height:1px; background:linear-gradient(90deg, rgba(89,230,255,.55), rgba(158,122,255,.55), rgba(255,115,184,.55)); }
+  .axis .track { position:relative; height:1px; }
+  .axis .track::after { content:""; position:absolute; left:0; right:0; top:0; height:1px; background:linear-gradient(90deg, rgba(89,230,255,.55), rgba(158,122,255,.55), rgba(255,115,184,.55)); }
   .axis .tick { position:absolute; top:9px; transform:translateX(-50%); font-style:normal; font-size:11px; line-height:1; color:var(--dim); white-space:nowrap; }
   .axis .tick.end { transform:translateX(-100%); }
   .axis .tick::before { content:""; position:absolute; left:50%; top:-9px; width:1px; height:5px; background:var(--dim); }
@@ -215,7 +216,7 @@
 
 <main>
 <section class="hero" id="top">
-  <h1>[syn<span class="k">[k]</span>]hole</h1>
+  <h1>[s[i/y][<span class="k">k</span>][w]hole</h1>
   <p class="sub">dry season</p>
   <p class="lede">inside this basin, a machine dreams the water.<br>every day, it runs dry.</p>
   <p class="mono sync">sync == sink</p>
@@ -230,8 +231,8 @@
 
 <section id="wall" data-n="01">
   <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</span><span class="alt mono"><span class="one">wall text</span><span class="two">hole / whole</span></span></h2>
-  <p class="label mono" data-r><b>katherine titterton</b><br>[syn[k]]hole, dry season, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
-  <p class="say" data-r>most beautiful things have something nasty in them. here, it is the drain: the [syn[k]]hole, where time goes missing.</p>
+  <p class="label mono" data-r><b>katherine titterton</b><br>[s[i/y][k][w]hole, dry season, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
+  <p class="say" data-r>most beautiful things have something nasty in them. here, it is the drain: the [s[i/y][k][w]hole, where time goes missing.</p>
   <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; here both run out, and you climb back up.</p>
   <p data-r>once each morning of the festival, it fills. every hand in this room spends it.</p>
   <p class="quiet" data-r>ai: stable diffusion 1.5 with lcm-lora dreams the water live on its own computer, toward pictures i chose by hand in midjourney.</p>
@@ -333,7 +334,7 @@
     <li><span class="mk on" role="img" aria-label="built"></span>spring</li>
     <li><span class="mk on" role="img" aria-label="built"></span>web basin</li>
     <li><span class="mk on" role="img" aria-label="built"></span>drain to black</li>
-    <li><span class="mk on" role="img" aria-label="built"></span>[syn[k]]hole</li>
+    <li><span class="mk on" role="img" aria-label="built"></span>[s[i/y][k][w]hole</li>
     <li><span class="mk off" role="img" aria-label="proposed"></span>basin on its plinth</li>
     <li><span class="mk off" role="img" aria-label="proposed"></span>daily budget</li>
   </ol>
@@ -362,7 +363,7 @@
     <summary aria-label="glossary of the bracket words">[ ]</summary>
     <p>a bracket hides a letter. take it out and the word says something else. when the basin runs dry, its dots spell these.</p>
     <dl>
-      <div><dt><span class="br">[</span>syn<span class="br">[</span><i class="h">k</i><span class="br">]]</span>hole</dt><dd>sync, sink, k, hole. the bracket inside the bracket is the hole inside the hole.</dd></div>
+      <div><dt><span class="br">[</span>s<span class="br">[</span>i/y<span class="br">][</span><i class="h">k</i><span class="br">][</span>w<span class="br">]</span>hole</dt><dd>sin or syn, sink or sync, k, hole or whole. one bracket opens and never closes.</dd></div>
       <div><dt>sync == sink</dt><dd>to keep time with something, and to go under with it.</dd></div>
       <div><dt><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</dt><dd>the hole, and the whole. one paragraph holds all of it.</dd></div>
       <div><dt><span class="br">[</span><i class="h">s</i><span class="br">]</span>ink</dt><dd>the basin, and the ink. the water is written.</dd></div>
