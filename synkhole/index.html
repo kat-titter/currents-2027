@@ -410,6 +410,8 @@ if (K > 0) {                                           // ?k: the k lines join t
   put('dye', '*smoothstep(RD, 0.10, r)*(1.-held));', '*mix(smoothstep(RD, 0.10, r), smoothstep(RD*0.8, RD*1.6, r), uKRev)*(1.-held)*(1.-0.85*uKSoft));', 'swap');
   put('display', 'void main(){', `uniform vec4 uKH;                  // the hole: the ring's radius, the turn of each copy, the picture's mip level at 1:1, how soft
 uniform vec4 uKB;                  // the beat: its phase, its strength, the shimmer's clock, how clear
+uniform vec3 uKP;                  // the heartbeat's shape: where the second beat falls, how strong a third
+float kheart(float f){ f = fract(f); return clamp(exp(-pow(f/0.05, 2.)) + exp(-pow((1. - f)/0.015, 2.)) + 0.62*exp(-pow((f - uKP.x)/0.035, 2.)) + uKP.y*exp(-pow((f - 1.9*uKP.x)/0.03, 2.)), 0., 1.); }   // lub, dub, and now and then a third
 uniform float uKI, uKF, uKFm, uKT, uKE; // 7 how iridescent; 8 how far the second face has surfaced, and which face; how far the picture leans to the hole
 float kLod = 0., kDeep = 0.;
 vec4 kdye(vec2 p){ return textureLod(uDye, p, kLod); }
@@ -420,9 +422,9 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
 }
 `, 'before');
   put('display', 'float r = length(q), aa = 1.5/uS;', `
-  float kb = 0.5 - 0.5*cos(uKB.x + r*7.); kb = kb*kb*(3. - 2.*kb);     // 3 the beat: each one runs in from the wall to the drain
+  float kb = kheart(uKB.x/6.28318 + r*1.1);                             // 3 the beat, an alien heart: each one runs in from the wall to the drain
   float kin = uKB.y*smoothstep(0., -0.07, sdBox(q));                    // the water beats; the steel holds still
-  vec2 kn = q/max(r, 1e-4); q -= kn*0.006*(kb - 0.5)*kin;
+  vec2 kn = q/max(r, 1e-4); q -= kn*0.007*(kb - 0.15)*kin;
   q *= 1. + uKT*smoothstep(0., -0.10, sdBox(q));                        // ?kn: time drawn. A slow clock lets the picture ease out from the hole; a fast one pulls it in
   vec2 kshim = kn*0.0016*kin*(1. - kb)*sin(r*800. - uKB.z*85. + 6.*vnoise(q*30.));   // between beats, a fine fast shimmer
   float kr = length(q); kLod = uKH.z;
@@ -430,7 +432,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
   kLod = max(0., kLod) + uKH.w;                                          // 4 soft: the picture read from a smaller copy of itself`);
   put('display', 'vec2 ql = q;', ' ql += kshim;');
   put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', ' c = clamp(c + (c - textureLod(uDye, p, kLod + 2.5).rgb)*0.7*uKB.w, 0., 1.);   // 4 clear: sharper than the water has been');
-  put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'b *= 1. + 0.07*kin*(kb - 0.5); ', 'before');
+  put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'b *= 1. + 0.09*kin*(kb - 0.15); ', 'before');
   put('display', 'col = mix(col, b, smoothstep(0.002, -0.006, sd));', 'col = mix(col, b, smoothstep(0.002, -0.006 - uKE*(0.05 + 0.08*vnoise(q*6. + 0.02*uTime)), sd));', 'swap');   // ?kb: no clear border, the water fades unevenly into the dark
   put('display', 'col = mix(col, steel, lip*0.9);', 'col = mix(col, steel, lip*0.9*(1. - uKE));', 'swap');   // and the steel lip goes
   put('display', 'vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);', `
@@ -481,7 +483,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       ql = mat2(cos(tw), sin(tw), -sin(tw), cos(tw))*ql;
       bhClock *= sqrt(clamp(1. - uBH.x/max(bhr, 1e-4), 0., 1.)); }   // a clock near the hole runs slow; at its edge it stops
     `, 'before');
-    put('display', 'b *= 1. + 0.07*kin*(kb - 0.5); ', `
+    put('display', 'b *= 1. + 0.09*kin*(kb - 0.15); ', `
     if (uQD.w > 0.) {                                     // quanta: each cell of the grid the dream was dreamed on is one dot of light, as large as the cell is bright
       vec2 gs = vec2(uQD.x, floor(uQD.x*0.75 + 0.5));
       vec2 gp = (ql + B)/(2.*B)*gs, gc = floor(gp), gf = fract(gp) - 0.5;
@@ -755,7 +757,8 @@ addEventListener('blur', () => { reach(false); if (lever) tap(true); if (plug) {
 
 // ---- ?k: the weirder water. kq.w is the current's clock (1 true, 0 stalled, below 0 backwards); kq.d is the picture's, a little late
 const kss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }, kh = (n) => { const x = Math.sin(n*127.1 + 3.7)*43758.5453; return x - Math.floor(x); };
-const kq = { w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
+const kheartJ = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.05)**2)) + Math.exp(-(((1 - f)/0.015)**2)) + 0.62*Math.exp(-(((f - dub)/0.035)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.03)**2))); };
+const kq = { bt:0, bl:0.8, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
   late:[], lh:{ u:0.5, v:0.5, vx:0, vy:0 }, ls:{ x:0.5, y:0.5, vx:0, vy:0 }, lg:0, ld:false };
 const kMip = K > 0 ? gl.createSampler() : null;          // the far copies and the soft water are read from smaller copies of the picture
 if (kMip) { gl.samplerParameteri(kMip, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.samplerParameteri(kMip, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -807,7 +810,9 @@ function kTick(dt, now){                              // once a frame: the clock
   kq.hist.push([simTime, kq.w]); while (kq.hist.length > 1 && kq.hist[1][0] <= simTime - lag) kq.hist.shift();
   kq.d = kq.hist[0][1]; kq.t += dt*kq.w; kq.bub += dt*kq.w;
   kq.amp = kOn('3') ? kq.e*kss(0.02, 0.3, drainAmt) : 0;   // 3: draining, the basin beats: 1 Hz as the hole opens, 3 Hz at its deepest (Vesuna 2020, doi:10.1038/s41586-020-2731-9)
-  kq.hz = 1 + 2*Math.min(1, drainAmt/0.6); kq.ph += 2*Math.PI*kq.hz*dt; kq.pulse = 0.5 - 0.5*Math.cos(kq.ph);
+  kq.hz = 1.3 + 1.3*Math.min(1, drainAmt/0.6);   // 3, an alien heartbeat (Kat: "edge of chaos, almost human but not quite"): lub-dub, each gap from a logistic map at r = 3.71, the dub drifting, now and then a third beat
+  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = 3.71*kq.lx*(1 - kq.lx); kq.bl = (0.78 + 0.44*kq.lx)/kq.hz; kq.dub = 0.12 + 0.09*kq.lx; kq.ghost = kq.lx > 0.9 ? 0.5 : 0; }
+  kq.ph = 2*Math.PI*kq.bt/kq.bl; kq.pulse = kheartJ(kq.bt/kq.bl, kq.dub, kq.ghost);
   return dt*Math.abs(kq.w);
 }
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
@@ -925,7 +930,7 @@ function render(){
   const mips = kOn('2') || kOn('4') || kOn('8');                   // ?k: the hole's far copies and the soft water are read from smaller copies of the picture
   if (mips) { gl.generateMipmap(gl.TEXTURE_2D); gl.bindSampler(0, kMip); }
   if (K > 0) { gl.uniform4f(u.uKH, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), mips ? Math.log2(dye.read.w/(view.S*d)) : -99, 2.2*kq.e*kq.soft);
-    gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
+    gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, kq.dub, kq.ghost, 0); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
     gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*Math.pow(0.5 + 0.5*Math.sin(simTime*0.29 + 1.3), 2) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), kq.t*1.6, QD);   // the dots step on the water's clock: when time stalls, they hold
       gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + 0.35*Math.sin(simTime*0.043)), 0.11*QD);

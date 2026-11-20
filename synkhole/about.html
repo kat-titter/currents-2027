@@ -43,6 +43,9 @@
   .bar a:hover { color:#fff; }
   #lost { position:fixed; z-index:4; left:48px; bottom:17px; margin:0; }
   #lost b { font-weight:400; color:var(--bone); }
+  #pulse { position:fixed; z-index:3; left:172px; bottom:13px; width:calc(100% - 220px); height:26px; pointer-events:none; }   /* an alien heartbeat along the bottom */
+  @media (max-width:960px) { #pulse { left:150px; width:calc(100% - 178px); } }
+  @media (max-width:600px) { #pulse { left:132px; width:calc(100% - 156px); bottom:15px; height:22px; } }
 
   main { position:relative; z-index:1; }
   section { position:relative; padding:0 48px; margin:34vh 0 0; display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 33rem) minmax(0, 1.5fr); column-gap:56px; }
@@ -196,6 +199,7 @@
 <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <nav class="bar mono"><span>made for <a href="https://currentsnewmedia.org/">currents 2027</a><span class="far">, el museo cultural de santa fe, june 2027</span></span><span id="count" aria-hidden="true">00 / 08</span></nav>
 <p id="lost" class="mono" aria-hidden="true">lost = <b>00:00</b></p>
+<canvas id="pulse" aria-hidden="true"></canvas>
 
 <main>
 <section class="hero" id="top">
@@ -392,6 +396,24 @@ const rgb = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 // time lost here, as the drain counts it
 const lostEl = document.querySelector('#lost b'), t0 = performance.now();
 setInterval(() => { const s = Math.floor((performance.now() - t0)/1000); lostEl.textContent = `${String(Math.floor(s/60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }, 1000);
+
+// an alien heartbeat along the bottom, the same as the piece's drain: lub, dub, each gap from a logistic map at r = 3.71 (the edge of chaos), the dub drifting, now and then a third beat
+{ const pc = document.getElementById('pulse'), px = pc.getContext('2d'), hb = { t:0, len:0.8, x:0.37, dub:0.16, ghost:0 }, trace = [], SPEED = 46;
+  const heart = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.05)**2)) + Math.exp(-(((1 - f)/0.015)**2)) + 0.62*Math.exp(-(((f - dub)/0.035)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.03)**2))); };
+  const step = (dt) => { hb.t += dt; if (hb.t >= hb.len) { hb.t -= hb.len; hb.x = 3.71*hb.x*(1 - hb.x); hb.len = (0.78 + 0.44*hb.x)/1.15; hb.dub = 0.12 + 0.09*hb.x; hb.ghost = hb.x > 0.9 ? 0.5 : 0; } return heart(hb.t/hb.len, hb.dub, hb.ghost); };
+  let pw = 0, ph = 0, pd = 1, acc = 0, lastT = 0;
+  const size = () => { pd = Math.min(3, devicePixelRatio || 1); pw = pc.clientWidth; ph = pc.clientHeight; pc.width = Math.round(pw*pd); pc.height = Math.round(ph*pd);
+    while (trace.length < pw) trace.unshift(0); while (trace.length > pw) trace.shift(); };
+  const draw = () => { px.setTransform(pd, 0, 0, pd, 0, 0); px.clearRect(0, 0, pw, ph); const n = trace.length; if (n < 2) return;
+    const g = px.createLinearGradient(0, 0, pw, 0); g.addColorStop(0, 'rgba(89,230,255,0)'); g.addColorStop(0.4, 'rgba(89,230,255,.5)'); g.addColorStop(0.75, 'rgba(158,122,255,.8)'); g.addColorStop(1, 'rgba(255,115,184,.95)');
+    px.strokeStyle = g; px.lineWidth = 1; px.lineJoin = 'round'; px.beginPath();
+    for (let i = 0; i < n; i++) { const x = pw - (n - i), y = ph - 3 - trace[i]*(ph - 6); i ? px.lineTo(x, y) : px.moveTo(x, y); } px.stroke();
+    px.fillStyle = '#f7c6de'; px.beginPath(); px.arc(pw - 1.5, ph - 3 - trace[n - 1]*(ph - 6), 1.6, 0, 6.2832); px.fill(); };
+  size(); for (let i = 0; i < pw; i++) { trace.shift(); trace.push(step(1/SPEED)); }   // it was beating before you came
+  addEventListener('resize', () => { size(); draw(); });
+  if (STILL) draw();
+  else { const run = (now) => { requestAnimationFrame(run); const dt = Math.min(0.1, lastT ? (now - lastT)/1000 : 0); lastT = now; if (document.hidden) return;
+      acc += dt*SPEED; while (acc >= 1) { acc -= 1; trace.shift(); trace.push(step(1/SPEED)); } draw(); }; requestAnimationFrame(run); } }
 
 // where you are: 01 / 08
 const countEl = document.getElementById('count'), secs = [...document.querySelectorAll('section[data-n]')];
