@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-# Build [s[i/y][k][w]hole into the CURRENTS 2027 site, ~/Claude/Projects/currents-2027, served at HOME.
-# The piece lives in synkhole/ of that site; the site's root index.html only sends a visitor on to it.
-# It only writes files. It never commits and never pushes: publishing is Kat's, by hand, from that folder.
-#   python3 synkhole/deploy.py                 every page
-#   python3 synkhole/deploy.py index.html      the piece only (about.html and doc/ left as they are, e.g. while the about page is being edited)
-# Writes synkhole/index.html (the piece), synkhole/about.html and synkhole/doc/ (the page about the piece and its pictures, another
-# session's work, copied as they are), and at the root index.html (sends a visitor on to synkhole/), README.md and .nojekyll.
-# The reservoir (synkhole/reservoir/: stored dreams for when the spring sleeps) is made by synkhole/reservoir.py or by the daily refill;
-# here it is only checked: whole, and 6 MB at most. No reservoir, nothing written: without it the basin is dry.
-# A link preview picture (synkhole/og.jpg, 1200 x 630) lives only in the built folder (no binaries in the source repo); its tags are added when it is there.
+# Build [s[i/y][k][w]hole from src/ (its source) into synkhole/ (the built pages) of this repo, served at HOME.
+# The site's root index.html only sends a visitor on to synkhole/. src/ is never published (the refill workflow leaves it out).
+# It only writes files. It never commits and never pushes: publishing is Kat's, by hand.
+#   python3 src/deploy.py                 every page
+#   python3 src/deploy.py index.html      the piece only (about.html left as it is, e.g. while the about page is being edited)
+# Writes synkhole/index.html (the piece), synkhole/about.html (the page about the piece), and at the root index.html (sends a visitor
+# on to synkhole/), README.md and .nojekyll.
+# Binaries live once, in the built folder, never in src/: the about page's pictures in synkhole/doc/ (here only checked: every picture
+# about.html names is there), the reservoir in synkhole/reservoir/ (stored dreams for when the spring sleeps, made by src/reservoir.py
+# or by the refill; here only checked: whole, and 6 MB at most; no reservoir, nothing written: without it the basin is dry), and a link
+# preview picture, synkhole/og.jpg (1200 x 630), whose tags are added when it is there.
 # Vanitas Veritas is a separate piece with its own script (verse/deploy_verse.py) and its own address; nothing here writes to it.
-import json, pathlib, re, shutil, sys
+import json, pathlib, re, sys
 
-HERE = pathlib.Path(__file__).resolve().parent
-DEST = pathlib.Path.home() / 'Claude/Projects/currents-2027'   # the site (Kat, 2026-11-17: "Yes, currents-2027")
+HERE = pathlib.Path(__file__).resolve().parent                # src/: the source
+DEST = HERE.parent                                             # the repo, which is the site (Kat, 2026-11-17: "Yes, currents-2027")
 SITE = DEST / 'synkhole'                                       # the piece inside it
 HOME = 'https://kat-titter.github.io/currents-2027/synkhole/'  # the piece's public address: change it here and in the veritas forwarding pages
 
@@ -56,23 +57,25 @@ Kat Titterton's work for CURRENTS 2027, Santa Fe.
 - about the piece: {HOME}about.html
 
 By Kat Titterton (macrofluidic). An evolution of Vanitas Veritas, an earlier sink, which keeps its own address: https://kat-titter.github.io/veritas/
-These are built pages.
+
+- `src/`: the source of the piece and its about page; `python3 src/deploy.py` builds them into `synkhole/`. Never published.
+- `synkhole/`: the built pages, with `doc/` (the about page's pictures) and `reservoir/` (stored dreams, from `src/reservoir.py` or the refill).
+- `refill/`: dreams new water on a runner (`.github/workflows/refill.yml`).
+- `src/archive/`: three versions of the piece from 17 Nov and the script that built them, retired.
 """
 
 NAMES = [a for a in sys.argv[1:] if a in ('index.html', 'about.html')] or ['index.html', 'about.html']
-if 'about.html' in NAMES and not (HERE / 'about.html').exists(): sys.exit('synkhole/about.html is missing and the piece links to it; nothing written')
+if 'about.html' in NAMES and not (HERE / 'about.html').exists(): sys.exit('src/about.html is missing and the piece links to it; nothing written')
 SITE.mkdir(parents=True, exist_ok=True)
 print(reservoir())
 pages = {name: (HERE / name).read_text() for name in NAMES}
 stale = [w for w in ['sync.html?', 'dry_season.html', 'github.io/veritas/about'] if w in pages.get('about.html', '')]     # addresses the piece had under veritas on 2026-11-17
 if stale: sys.exit(f'about.html still points at {", ".join(stale)}: the old addresses; nothing written')
+lost = sorted({p for p in re.findall(r'\bdoc/[\w.-]+\.webp', pages.get('about.html', '')) if not (SITE / p).exists()})   # pictures live in synkhole/doc/ only
+if lost: sys.exit(f'about.html names {len(lost)} pictures missing from {SITE / "doc"}: {", ".join(lost)}; nothing written')
 for name, html in pages.items(): (SITE / name).write_text(preview(html, name))
-if 'about.html' in pages:                                 # the about page's pictures, copied whole: a picture dropped from the source is dropped here too
-    if (SITE / 'doc').exists(): shutil.rmtree(SITE / 'doc')
-    if (HERE / 'doc').is_dir(): shutil.copytree(HERE / 'doc', SITE / 'doc')
 (DEST / 'index.html').write_text(FORWARD)
 (DEST / '.nojekyll').write_text('')
 (DEST / 'README.md').write_text(README)
-print('wrote', ', '.join('synkhole/' + n for n in pages) + ',', sum(1 for f in (SITE / 'doc').rglob('*') if f.is_file()) if (SITE / 'doc').exists() else 0,
-      'pictures in synkhole/doc/, and index.html, README.md at the root of', DEST)
+print('wrote', ', '.join('synkhole/' + n for n in pages) + ', and index.html, README.md at the root of', DEST)
 print('not committed, not pushed: that is done by hand in', DEST)

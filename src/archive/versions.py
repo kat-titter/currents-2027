@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Build the versions of [syn[k]]hole beside the piece: synkhole/v1.html, v2.html, v3.html, each from index.html (the staged starter) plus
+"""Retired 2026-11-19: its anchors match the 17 Nov index.html, not today's (the LOOK line has moved on), so it stops at the first anchor;
+kept with the three pages it built. v2's grain and code glyphs went on into the piece (src/index.html, ?qd glyphs).
+Build the versions of [syn[k]]hole beside the piece: synkhole/v1.html, v2.html, v3.html, each from index.html (the staged starter) plus
 one move of its own and its own defaults. index.html is read, never written. Each move is a flag in its page's LOOK, so <flag>=off on a
 version's address gives back the starter exactly (the stepped-clock proof compares them).
-    python3 synkhole/versions.py            writes all three; stops with nothing written if an anchor is missing
-Private overnight work for Kat, 2026-11-17 (the versions session); notes in currents_2027/private/versions.md."""
+    python3 src/archive/versions.py         writes all three; stops with nothing written if an anchor is missing
+Overnight work for Kat, 2026-11-17 (the versions session)."""
 import pathlib, sys
 HERE = pathlib.Path(__file__).resolve().parent
-SRC = (HERE / 'index.html').read_text()
+SRC = (HERE.parent / 'index.html').read_text()   # the piece, src/index.html
 
 def patch(text, edits):
     for at, new, how in edits:

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-# Fill the reservoir: the stored dreams [syn[k]]hole pours when no spring answers (synkhole/index.html, `reservoir` in its LOOK).
+# Fill the reservoir: the stored dreams [syn[k]]hole pours when no spring answers (src/index.html, `reservoir` in its LOOK).
 # The frames come from a folder banked while the spring ran: its small frames (f<seq>_s.jpg), and frames.jsonl with one
 # line for each frame logged while banking (seq, prompt, whether a face was at the sink). The longest unbroken run of
 # frame numbers is the walk. A frame logged with a face at the sink, or with --oref in its prompt, is never taken: the walk
 # is cut there. The walk is then cut into equal passages (the page pours them in a fresh order each visit, and the frames
 # of a passage in order), each of --frames frames, one in every few so the passages span the whole walk.
-# The reservoir lives only in the built-pages repo (as og.jpg does), 6 MB in all at most: this repo gains no binary.
-#   python3 synkhole/reservoir.py <banked folder> [--passages 6] [--frames 10] [--width 1024] [--every 5]
-# writes ~/Claude/Projects/currents-2027/synkhole/reservoir/: index.json and a00.jpg, a01.jpg ... (a, b, c: the passages; 00, 01: their frames in order)
+# The reservoir lives only in the built folder, synkhole/reservoir/ (as og.jpg does), 6 MB in all at most: src/ gains no binary.
+#   python3 src/reservoir.py <banked folder> [--passages 6] [--frames 10] [--width 1024] [--every 5]
+# writes synkhole/reservoir/ of this repo: index.json and a00.jpg, a01.jpg ... (a, b, c: the passages; 00, 01: their frames in order)
 import argparse, datetime, json, pathlib, re, shutil, sys
 from PIL import Image
 ap = argparse.ArgumentParser(); ap.add_argument('src'); ap.add_argument('--passages', type=int, default=6); ap.add_argument('--frames', type=int, default=10)
 ap.add_argument('--width', type=int, default=1024); ap.add_argument('--every', type=float, default=5); ap.add_argument('--budget', type=int, default=5_900_000)
-a = ap.parse_args(); SRC = pathlib.Path(a.src); DEST = pathlib.Path.home() / 'Claude/Projects/currents-2027/synkhole/reservoir'
+a = ap.parse_args(); SRC = pathlib.Path(a.src); DEST = pathlib.Path(__file__).resolve().parent.parent / 'synkhole/reservoir'
 log = {r['seq']: r for r in (json.loads(l) for l in (SRC / 'frames.jsonl').read_text().splitlines() if l.strip())}
 faced = lambda s: bool(log.get(s, {}).get('face')) or '--oref' in (log.get(s, {}).get('prompt') or '')
 seqs = sorted(int(m.group(1)) for m in (re.match(r'f(\d+)_s\.jpg$', f.name) for f in SRC.iterdir()) if m)

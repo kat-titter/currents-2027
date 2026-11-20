@@ -5,12 +5,12 @@
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
-//   2. node synkhole/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
-//      node synkhole/check.mjs "http://127.0.0.1:8806/?spring=nofeed/"     no spring: the reservoir must pour
+//   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
+//      node src/check.mjs "http://127.0.0.1:8806/?spring=nofeed/"     no spring: the reservoir must pour
 //   CHECK_PORT=<port> picks another Chrome; a second argument writes a PNG of the page after the hand has left.
 import fs from 'node:fs';
 const PORT = +process.env.CHECK_PORT || 9396, [url, png] = process.argv.slice(2), nap = (ms) => new Promise((r) => setTimeout(r, ms));
-if (!url) { console.log('usage: node synkhole/check.mjs <address> [out.png]'); process.exit(2); }
+if (!url) { console.log('usage: node src/check.mjs <address> [out.png]'); process.exit(2); }
 const page = (await (await fetch(`http://127.0.0.1:${PORT}/json`)).json()).find((t) => t.type === 'page');
 const ws = new WebSocket(page.webSocketDebuggerUrl), wait = new Map(), errors = []; let id = 0;
 await new Promise((r, j) => { ws.onopen = r; ws.onerror = () => j(new Error('no Chrome on port ' + PORT)); });
