@@ -551,6 +551,10 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
 `, 'before');                                         // so a steady heart leaves every dot one size; a two-beat, rings of two sizes; a period of three, three; chaos, no two rings alike
       put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));', 'swap');
     }
+    if (RCON === 'grid') {                               // thirst: a copy's dots go dry one by one, in patches, like a silkscreen running out of ink; each leaves a faint point of the grid
+      put('display', 'uniform vec4 uKH;', 'uniform float uInk, uInkSeed;      // how much of this copy has gone dry today, and where its patches fall\n', 'before');
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', '{ float thr = 0.5*hash(gc + 9.7) + 0.5*vnoise(gc*0.12 + uInkSeed); dq *= 1. - 0.96*smoothstep(thr - 0.015, thr, uInk*1.02); }\n      ', 'before');
+    }
     if (RCON === 'field') FS.lattice = `
 uniform highp sampler2D uL; uniform vec2 uLN, uLT; uniform vec4 uLH; uniform float uInit, uStepNow, uSteps, uDt, uBHr;
 float lf(vec4 s){ return s.g*s.r*(1. - s.r); }      // one cell's map: r x (1 - x), with its own r
@@ -938,6 +942,13 @@ const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.
 // ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
 // and every cell's edge is a small bump it sticks on; a ghost beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
 const NAV = !!grid && params.get('nav') === 'lost';
+// thirst (Kat 2026-11-21, "thirsty"; "do both!"): the 48 hearts drink from one water through the day. The day starts at 06:00 in Santa Fe (13:00 UTC) for everyone, so strangers share one level.
+// The thirstiest copies (the chaotic ones, and a little the faster ones) start drying at dawn; the steady ones dry last, by night. Inside a drying copy the dots go dark one by one, each on that copy's beat:
+// it drinks as it beats. A visit of a few minutes sees dots wink out; a full drain takes the day. ?thirst=<speed> (1 unless set; 600: a day in 2.4 minutes; 0: never thirsty)
+const THIRST = grid ? (params.has('thirst') ? Math.max(0, parseFloat(params.get('thirst')) || 0) : 1) : 0, DAY = 864e5, DAWN = 13*36e5;
+const thirst0 = { p:(((Date.now() - DAWN) % DAY) + DAY) % DAY/DAY, at:performance.now() };
+const dayP = () => (thirst0.p + (performance.now() - thirst0.at)*THIRST/DAY) % 1;   // how far through today's water, 0 at dawn
+const dryAt = (h, p) => THIRST ? kss((1 - 0.35)*(1 - h.thirst), (1 - 0.35)*(1 - h.thirst) + 0.35, p) : 0;   // each copy dries over a third of the day, the thirstiest first
 function navTick(dt){
   const g = grid, cw = view.w/Math.max(1, g.cr), ch = view.h/Math.max(1, GRID_N/Math.max(1, g.cr));
   if (g.zt || g.z > 0) { g.vx *= Math.exp(-dt/0.15); g.vy *= Math.exp(-dt/0.15); }   // inside one universe, the field holds still
@@ -953,7 +964,8 @@ function navTick(dt){
 function gridAssign(c, rows){                         // which copy steps which setting depends on the page's shape: r runs along its longer side
   const long = c >= rows, na = long ? c : rows, nb = long ? rows : c;
   grid.hearts.forEach((h, i) => { const a = long ? i % c : Math.floor(i/c), b = long ? Math.floor(i/c) : i % c;
-    h.r0 = gridR(na > 1 ? a/(na - 1) : 0.5); h.tf = 1 + 0.06*(nb > 1 ? b/(nb - 1) - 0.5 : 0); });
+    h.r0 = gridR(na > 1 ? a/(na - 1) : 0.5); h.tf = 1 + 0.06*(nb > 1 ? b/(nb - 1) - 0.5 : 0);
+    h.thirst = 0.85*kss(3.45, 4.0, h.r0) + 0.15*(h.tf - 0.97)/0.06; h.ink = h.inkT = dryAt(h, dayP()); });   // how thirsty: chaos drinks most, a faster pace a little more
   grid.cr = c;
 }
 function gridLayout(){                                // as many columns as make each basin largest, packed tight; then the camera, moving into one of them
@@ -998,7 +1010,7 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
     gl.scissor(x0 + 1, y0 + 1, sw, sh);
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
-    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, h.ghost, 0); ripUp(u, h.rip); orbUp(u, h.orb);
+    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, h.ghost, 0); ripUp(u, h.rip); orbUp(u, h.orb); gl.uniform1f(u.uInk, h.ink || 0); gl.uniform1f(u.uInkSeed, h.seed*13.1);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, qn, Math.max(0, Math.log2(dye.read.w*2*BX/qn)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt);
       gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
       if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/qn*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
@@ -1039,7 +1051,7 @@ function latStep(){
   gl.uniform1f(u.uInit, lat.init); gl.uniform1f(u.uStepNow, kq.steps !== lat.steps ? 1 : 0); gl.uniform1f(u.uSteps, kq.steps); gl.uniform1f(u.uDt, dtL); gl.uniform1f(u.uBHr, 0.046*BH*(1 - plugAmt));
   draw(lat.write); lat.swap(); lat.init = 0; lat.steps = kq.steps;
 }
-function rTick(dt){ if (grid) { grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/0.9)); if (NAV) navTick(dt); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); hBeat(h, dt, h.rip, 0, 0, true); } } if (sync) syncTick(dt); }   // a grid copy's r wanders a hair round its place
+function rTick(dt){ if (grid) { grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/0.9)); if (NAV) navTick(dt); const p = dayP(); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); if (hBeat(h, dt, h.rip, 0, 0, true)) h.inkT = dryAt(h, p); h.ink += ((h.inkT ?? 0) - (h.ink ?? 0))*(1 - Math.exp(-dt/0.14)); } } if (sync) syncTick(dt); }   // a copy drinks on its beat   // a grid copy's r wanders a hair round its place
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
   kq.ls.vx = kq.ls.vy = 0;
