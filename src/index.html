@@ -117,7 +117,7 @@ function gxAtlas(){                       // printable ASCII and a dot, 16 by 6 
 }
 const GX_WORDS = '[s]ink  [d]rain  s[pace]  [k]now  [c]lock  [h]old  pe[a]rl  [w]hole  ';   // a bracket hides a letter; take it out and the word says something else (Kat: "Yes, bracket words")
 function gxLine(){                        // the line as the page writes it while a dream pours: the prompt, or the reservoir (without its comment); draining or dry, the bracket words
-  const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : RES && res.on && water > 0.5 ? RES_LINE.split('  #')[0] : GX_WORDS;
+  const t = RCON === 'grid' ? GX_WORDS : water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : RES && res.on && water > 0.5 ? RES_LINE.split('  #')[0] : GX_WORDS;   // the grid's letters are always the bracket words
   if (t === gx.line) return; gx.line = t; gx.n = Math.max(1, Math.min(192, t.length));
   for (let i = 0; i < gx.n; i++) { const c = t.charCodeAt(i); gx.codes[i] = c >= 32 && c < 127 ? c - 32 : 95; }
 }
@@ -553,7 +553,9 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
     }
     if (RCON === 'grid') {                               // thirst: a copy's dots go dry one by one, in patches, like a silkscreen running out of ink; each leaves a faint point of the grid
       put('display', 'uniform vec4 uKH;', 'uniform float uInk, uInkSeed;      // how much of this copy has gone dry today, and where its patches fall\n', 'before');
-      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', '{ float thr = 0.5*hash(gc + 9.7) + 0.5*vnoise(gc*0.12 + uInkSeed); dq *= 1. - 0.96*smoothstep(thr - 0.015, thr, uInk*1.02); }\n      ', 'before');
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float kthr = 0.5*hash(gc + 9.7) + 0.5*vnoise(gc*0.12 + uInkSeed), kdry = smoothstep(kthr - 0.015, kthr, uInk*1.02); dq *= 1. - 0.96*kdry;\n      ', 'before');
+      put('display', '+ uGX.z);', '+ uGX.z + 0.9*kdry);', 'swap');                      // a dry dot turns into a letter of the bracket words, faint: when the water is gone, the meaning shows
+      put('display', 'dq = mix(dq, gq, gon); }', 'dq = mix(dq, gq*(1. - 0.5*kdry), gon); }', 'swap');
     }
     if (RCON === 'field') FS.lattice = `
 uniform highp sampler2D uL; uniform vec2 uLN, uLT; uniform vec4 uLH; uniform float uInit, uStepNow, uSteps, uDt, uBHr;
