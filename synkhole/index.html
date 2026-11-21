@@ -96,6 +96,13 @@ const KW = K > 0 ? kNum('kw', 0) : 0;   // warmth out: how much of a dream's gol
 // ?bh=<0 to 1> the hole as a black hole: it bends the grid of dots round it (a ring where the light behind it is focused, and inside the ring the basin again, upside down),
 //   drags it into a slow twist, and slows the dots' clocks to a stop at its edge, where their light goes to rose. A thin ring of light at the edge of the dark
 const QD = K > 0 ? kNum('qd', 0) : 0, QN = Math.max(24, Math.min(256, parseInt(params.get('qn')) || 128)), BH = K > 0 ? kNum('bh', 0) : 0;
+// ?r=<2.5 to 4>: the heart's own r, the logistic map that spaces its beats (3.71 unless set: past the edge of chaos). Concepts for many hearts (Kat 2026-11-20, "grid of heartbeats with different parameters"), each a way of choosing r:
+//   ?r=grid   twelve basins, one water: each heart a step further from order (2.8, a steady beat) into chaos (4); the dots show the beats' values, so each copy's period is drawn. Tap one to go in, tap again to come out
+//   ?r=sync   seven hearts in one basin, each its own r and pace; a ring that reaches a heart pulls its next beat early, so they drift, lock and slip; a tap is a beat too
+//   ?r=field  every dot a heart, coupled to its four neighbours (a coupled map lattice, after Kaneko); the hand is a point on the plane of r (across) and coupling (up)
+//   ?r=held   the hold is the dial: a hand in the water steadies the heart, then, the longer it stays, walks it past the edge into chaos
+const RF = K > 0 ? params.get('r') || '' : '', RCON = /^(grid|sync|field|held)$/.test(RF) ? RF : '', KR = !RF || RCON ? 3.71 : Math.max(2.5, Math.min(4, parseFloat(RF) || 3.71));
+const RN = RCON === 'sync' ? 32 : 16, RL = RCON === 'sync' ? 3.5 : 6.5;   // ripples at once, and how long each lives: seven hearts need more, shorter
 const hg = { a:0, t:0 };   // ?bh: how much gravity the hand has now (eased)
 // ?qd glyphs (Kat: "Yes, glyphs"; after v2's code in the grain): where a dot dies (near the hole, near a hand, everywhere as the basin drains) it turns into one letter of the page's own code line, read along its row
 const gx = { tex:null, codes:new Float32Array(192), n:1, line:'' };
@@ -534,6 +541,47 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
     `, 'before');
     put('display', 'b *= 1. + 0.035*kin*(kb - 0.15); ', 'b = b*(1. + 0.2*krip) + pearl(0.6 + 2.*krip + 0.03*uTime)*0.03*krip; ', 'before');
   }
+  if (RCON) {                                            // ?r=<concept>: the ripples one slot each (how old, how strong, where), as many as the concept needs
+    put('display', 'uniform float uRA[16], uRM[16], uRP; uniform vec2 uRO[16];', `uniform vec4 uRp[${RN}]; uniform float uRP;`, 'swap');
+    put('display', 'for (int i = 0; i < 16; i++) { float a = uRA[i]; if (a < 0. || uRM[i] <= 0.) continue;', `for (int i = 0; i < ${RN}; i++) { float a = uRp[i].x; if (a < 0. || uRp[i].y <= 0.) continue;`, 'swap');
+    put('display', 'float d = length(q - uRO[i])/lump', 'float d = length(q - uRp[i].zw)/lump', 'swap');
+    put('display', 'float f = uRM[i]*', 'float f = uRp[i].y*', 'swap');
+    put('display', '(1. - smoothstep(5., 6.5, a))', `(1. - smoothstep(${(RL - 1.5).toFixed(1)}, ${RL.toFixed(1)}, a))`, 'swap');
+    const TW = 'float tw8 = 0.72 + 0.28*mix(hash(gc + (tick - 1.)*0.137 + 0.5), hash(gc + tick*0.137 + 0.5), tE);';
+    if (RCON === 'grid' || RCON === 'held') {              // the beats drawn: each ring carries its beat's value out from the drain, and a dot is as large as the last ring that passed it said.
+      put('display', 'uniform vec4 uKH;', `uniform vec4 uOrb[8];             // the heart's last 16 beats, newest first: its value on the logistic map, and how long ago, two to a slot
+float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 e = i % 2 == 0 ? s.xy : s.zw; if (e.y >= back) { vec4 s1 = uOrb[(i + 1)/2]; return mix((i + 1) % 2 == 0 ? s1.x : s1.z, e.x, smoothstep(0., 0.14, e.y - back)); } } return uOrb[7].z; }
+`, 'before');                                         // so a steady heart leaves every dot one size; a two-beat, rings of two sizes; a period of three, three; chaos, no two rings alike
+      put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));', 'swap');
+    }
+    if (RCON === 'field') FS.lattice = `
+uniform highp sampler2D uL; uniform vec2 uLN, uLT; uniform vec4 uLH; uniform float uInit, uStepNow, uSteps, uDt, uBHr;
+float lf(vec4 s){ return s.g*s.r*(1. - s.r); }      // one cell's map: r x (1 - x), with its own r
+void main(){                                         // the lattice, one cell a pixel: its value (r), its r (g), its last value (b), its coupling (a)
+  ivec2 c = ivec2(gl_FragCoord.xy), n = ivec2(uLN) - 1; vec2 q = (vec2(c) + 0.5)/uLN*2.*B - B;
+  if (uInit > 0.5) { float x = 0.1 + 0.8*hash(vec2(c) + 0.37); o = vec4(x, 3.71, x, 0.25); return; }
+  vec4 s = texelFetch(uL, c, 0); vec2 hd = q - uLH.xy;
+  float k = 1. - exp(-uDt*(4.*uLH.z*exp(-dot(hd, hd)/0.012) + (uLH.z > 0.5 ? 0.2 : 0.08)));   // r and the coupling follow the hand: at once under it, over seconds across the basin; no hand, home to 3.71 and k = 0.25
+  vec2 pe = mix(vec2(s.g, s.a), mix(vec2(3.71, 0.25), uLT, uLH.z), k); float x = s.r, xp = s.b;
+  if (uStepNow > 0.5) {
+    float bc = sqrt(clamp(1. - uBHr/max(length(q), 1e-4), 0., 1.)), td = exp2(floor(min(3., -1.3*log2(max(bc, 0.05)))));   // near the hole a cell keeps slow time: every 2nd, 4th, 8th step
+    xp = x;
+    if (mod(uSteps, td) < 0.5) { vec4 l = texelFetch(uL, clamp(c - ivec2(1, 0), ivec2(0), n), 0), r = texelFetch(uL, clamp(c + ivec2(1, 0), ivec2(0), n), 0);
+      vec4 d = texelFetch(uL, clamp(c - ivec2(0, 1), ivec2(0), n), 0), u = texelFetch(uL, clamp(c + ivec2(0, 1), ivec2(0), n), 0);
+      x = (1. - s.a)*lf(s) + s.a*0.25*(lf(l) + lf(r) + lf(d) + lf(u)); } }   // its own map, and its four neighbours', shared by the coupling
+  o = vec4(clamp(x, 0., 1.), pe.x, xp, pe.y);
+}`;
+    if (RCON === 'field') {                              // every dot a heart: its size is its own value on the map, eased from the last
+      put('display', 'uniform vec4 uKH;', 'uniform highp sampler2D uL;           // the lattice: each cell its value, its r, its last value, its coupling\n', 'before');
+      put('display', TW, 'vec4 ls = texelFetch(uL, ivec2(clamp(gc, vec2(0.), gs - 1.)), 0); float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, mix(ls.b, ls.r, smoothstep(0., 0.14, uKStep)));', 'swap');
+    }
+    if (RCON === 'sync') {                               // the hearts themselves: the dots over each one swell as it beats
+      put('display', 'uniform vec4 uKH;', 'uniform vec4 uCell[8];             // each heart: where, how far into its beat it swells\n', 'before');
+      put('display', 'float rad = min(0.47,', `vec2 cq = (gc + 0.5)/gs*2.*B - B; float cel = 0.; for (int i = 0; i < 8; i++) { vec2 e = cq - uCell[i].xy; cel += (0.3 + 0.7*uCell[i].z)*step(0.001, uCell[i].w)*exp(-dot(e, e)/0.00045); }   // a heart is a small knot of brighter dots, and it swells as it beats
+      float rad = min(0.47, 0.16*cel + `, 'swap');
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'dq += dotm*cel*0.55*mix(BONE, film, 0.35); ', 'before');
+    }
+  }
   FS.display = FS.display.split('texture(uDye,').join('kdye(');
 }
 
@@ -715,7 +763,7 @@ function others(){                                    // replay each other hand 
 const hand = { x:0, y:0, on:false, u:0.5, v:0.5, vx:0, vy:0, t:0, down:false, t0:0 };
 const stir = { x:0.5, y:0.5, vx:0, vy:0 };
 let faceAmt = 0, drainAmt = 0, water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
-const toSim = (x, y) => [0.5 + (x-view.cx)/view.S, 0.5 + (view.cy-y)/view.S];
+const toSim = (x, y) => RCON === 'grid' ? gridSim(x, y) : [0.5 + (x-view.cx)/view.S, 0.5 + (view.cy-y)/view.S];   // ?r=grid: the copy under the hand
 function moveTo(ev){
   const [u, v] = toSim(ev.clientX, ev.clientY), t = performance.now(), dt = Math.max(0.008, (t-hand.t)/1000);
   if (hand.on) {
@@ -777,7 +825,7 @@ addEventListener('blur', () => { reach(false); if (lever) tap(true); if (plug) {
 const kss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }, kh = (n) => { const x = Math.sin(n*127.1 + 3.7)*43758.5453; return x - Math.floor(x); };
 // a ripple runs slower through hidden lumps in spacetime, so its ring bends where they are: the same lumps in the shader and here
 const kLump = (x, y) => 0.72 + 0.56*(0.5 + 0.5*(0.6*Math.sin(x*7.1 + 1.3)*Math.sin(y*6.3 - 0.7) + 0.4*Math.sin((x + y)*4.7 + 2.1)));
-const NR = 16, RLIFE = 6.5;                            // ripples: at most sixteen at once; each fades out by 6.5 s, so none is ever cut short
+const NR = RN, RLIFE = RL;                             // ripples: at most sixteen at once; each fades out by 6.5 s, so none is ever cut short (?r=sync: 32, by 3.5 s)
 const kRip = (x, y) => { let c = 0, p = 0; for (const e of kq.rip) { const a = simTime - e[0]; if (a < 0) continue;   // the shader's ripple, here: [crest, push] at a point, for the bubbles that ride it
     const d = Math.hypot(x - e[2], y - e[3])/kLump(x, y), s = 0.035 + 0.022*a, w = (d - 0.13*a)/s, env = Math.exp(-w*w);
     const f = e[1]*kss(0, 0.3, a)*Math.exp(-0.4*a)/Math.sqrt(1 + d/0.06)*Math.sqrt(0.035/s)*(1 - kss(5, RLIFE, a)), ph = 6.28318*(d - 0.195*a)/(0.06 + 0.015*a);
@@ -785,7 +833,7 @@ const kRip = (x, y) => { let c = 0, p = 0; for (const e of kq.rip) { const a = s
 const RA = new Float32Array(NR), RM = new Float32Array(NR), RO = new Float32Array(2*NR);
 const kheartJ = (f, dub, ghost) => { f -= Math.floor(f); return Math.min(1, Math.exp(-((f/0.16)**2)) + Math.exp(-(((1 - f)/0.06)**2)) + 0.5*Math.exp(-(((f - dub)/0.08)**2)) + ghost*Math.exp(-(((f - 1.9*dub)/0.07)**2))); };
 const kNoise = (t) => { const i = Math.floor(t), f = t - i; return kh(i) + (kh(i + 1) - kh(i))*f*f*(3 - 2*f); };   // smooth noise: no two swells alike
-const kq = { nb:0, steps:0, stepAt:0, dubDone:true, rip:[], rp:0.55, ba:1, touch:0, tq:0, under:0, bt:0, bl:1.1, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
+const kq = { r:KR, orb:[], nb:0, steps:0, stepAt:0, dubDone:true, rip:[], rp:0.55, ba:1, touch:0, tq:0, under:0, bt:0, bl:1.1, lx:0.37, dub:0.16, ghost:0, w:1, d:1, dr:0, dw:1, lean:0, full:0, fold:0, hist:[], t:0, bub:100, unpop:0, ph:0, amp:0, pulse:0, hz:1, soft:0, clear:0, e:K, out:-1e9, inFor:0, swal:0, due:false, lost:'',
   late:[], lh:{ u:0.5, v:0.5, vx:0, vy:0 }, ls:{ x:0.5, y:0.5, vx:0, vy:0 }, lg:0, ld:false };
 const kMip = K > 0 ? gl.createSampler() : null;          // the far copies and the soft water are read from smaller copies of the picture
 if (kMip) { gl.samplerParameteri(kMip, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.samplerParameteri(kMip, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -841,22 +889,129 @@ function kTick(dt, now){                              // once a frame: the clock
   // It rests near 0.9 Hz and rises gently to 1.3 as the basin drains. Its tempo breathes over each phrase of 32 beats, quicker on the in-breath, slower on the out, as a resting heart's does.
   // A touch startles it: the next beat comes early and a few run quick, then it settles. A hand kept in the water slows it below rest, the way a body slows under water; let go, it quickens a little and settles again
   const held = hand.down ? (now - hand.t0)/1000 : 0;
+  if (RCON === 'held') {                                  // ?r=held, the hold is the dial: in the first 6 s the heart steadies to a plain two-beat (r 3.2); held on past 8 s it climbs back through four, eight, the edge (about 25 s), and into chaos by 45; out, it comes home to 3.71
+    const rt = hand.down ? 3.71 + (3.2 + 0.8*kss(8, 45, held) - 3.71)*kss(0, 6, held) : 3.71;
+    kq.r += (rt - kq.r)*(1 - Math.exp(-dt/(hand.down ? 0.8 : 4))); }
   kq.touch *= Math.exp(-dt/3); kq.tq += (kq.touch - kq.tq)*(1 - Math.exp(-dt/0.4));
   kq.under += ((hand.down ? kss(1.5, 6, held) : 0) - kq.under)*(1 - Math.exp(-dt/(hand.down ? 2 : 0.8)));
   kq.hz = (0.9 + 0.4*Math.min(1, drainAmt/0.6))*(1 + 0.045*Math.sin(6.28318*((kq.nb % 32) + kq.bt/kq.bl)/32))*(1 + 0.3*kq.tq)*(1 - 0.18*kq.under);
-  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = 3.71*kq.lx*(1 - kq.lx); kq.bl = (0.9 + 0.2*kq.lx)/kq.hz*(kq.lx < 0.05 ? 1.5 : 1); kq.dub = 0.13 + 0.06*kq.lx; kq.ghost = kq.lx > 0.92 ? 0.4 : 0;   // a groove: the gaps wobble about 10 per cent, and now and then a long pause, as after a skipped beat
+  kq.bt += dt; if (kq.bt >= kq.bl) { kq.bt -= kq.bl; kq.lx = kq.r*kq.lx*(1 - kq.lx); kq.bl = (0.9 + 0.2*kq.lx)/kq.hz*(kq.lx < 0.05 ? 1.5 : 1); kq.dub = 0.13 + 0.06*kq.lx; kq.ghost = kq.lx > 0.92 ? 0.4 : 0;   // a groove: the gaps wobble about 10 per cent, and now and then a long pause, as after a skipped beat
     kq.nb++; kq.steps++; kq.stepAt = simTime; kq.dubDone = false;
     const pi = kq.nb % 32, pn = Math.floor(kq.nb/32);   // each beat's strength: the phrase swells over its first eight beats and ebbs over its last ten; each phrase peaks on its own (every fourth barely there); a downbeat on each eighth; the chaos shades every beat
     kq.ba = (0.3 + 0.7*kss(0, 8, pi)*(1 - 0.8*kss(22, 32, pi)))*(pn % 4 === 3 ? 0.35 : 0.75 + 0.35*kh(pn + 0.17))*(0.85 + 0.3*kq.lx)*(pi % 8 === 0 ? 1.25 : 1)*(1 + 0.4*kq.tq);
     const oa = 6.28318*kh(kq.nb*0.37 + 0.1), or = 0.022*Math.sqrt(kh(kq.nb*0.71 + 0.3)), ox = or*Math.cos(oa), oy = or*Math.sin(oa);   // dropped a little off centre: the rings cross, as rain's do
     kq.rip.push([simTime, kq.ba, ox, oy], [simTime + kq.dub*kq.bl, 0.45*kq.ba, ox*0.8, oy*0.8]);   // the dub, a smaller ring just behind: a drop, and the drop it throws back up
-    if (kq.ghost) kq.rip.push([simTime + 1.9*kq.dub*kq.bl, 0.35*kq.ba, -ox, -oy]); }
+    if (kq.ghost) kq.rip.push([simTime + 1.9*kq.dub*kq.bl, 0.35*kq.ba, -ox, -oy]);
+    if (RCON) { kq.orb.unshift([kq.lx, simTime]); kq.orb.length = Math.min(kq.orb.length, 16); if (RCON === 'sync') syncFire(kq, 0, 0, kq.ba, 0.5); } }
   while (kq.rip.length && (simTime - kq.rip[0][0] > RLIFE || kq.rip.length > NR)) kq.rip.shift();
   if (!kq.dubDone && kq.bt >= kq.dub*kq.bl) { kq.steps++; kq.stepAt = simTime; kq.dubDone = true; }
   kq.rp = 0.55 + 0.45*Math.min(1, drainAmt/0.4);   // the ripples: always, a resting heart; stronger as it drains
   kq.ph = 2*Math.PI*kq.bt/kq.bl; kq.pulse = kheartJ(kq.bt/kq.bl, kq.dub, kq.ghost);
+  if (RCON) rTick(dt);
   return dt*Math.abs(kq.w);
 }
+// ---- ?r=<concept>: more hearts than one. Each is the piece's own heart (kTick's lines) with its own r; the water stays one
+const RP4 = new Float32Array(4*RN), ORB = new Float32Array(32), CEL = new Float32Array(32);
+function ripUp(u, rip){ for (let i = 0; i < RN; i++) { const e = rip[i]; RP4.set(e ? [simTime - e[0], e[1], e[2], e[3]] : [-1, 0, 0, 0], 4*i); } gl.uniform4fv(u['uRp[0]'], RP4); }
+function orbUp(u, orb){ if (!u['uOrb[0]']) return; for (let i = 0; i < 16; i++) { const e = orb[i]; ORB[2*i] = e ? e[0] : 0.37; ORB[2*i + 1] = e ? simTime - e[1] : 1e4; } gl.uniform4fv(u['uOrb[0]'], ORB); }
+const hNew = (r, seed, o) => Object.assign({ r, seed, bt:0, bl:1.1, lx:0.37, dub:0.16, ghost:0, nb:0, steps:0, stepAt:0, dubDone:true, ba:1, rip:[], orb:[], ph:0, pulse:0, f0:0, sus:1 }, o);
+const hHz = (h) => (h.f0 ? h.f0*(1 + 0.3*Math.min(1, drainAmt/0.6)) : 0.9 + 0.4*Math.min(1, drainAmt/0.6))*(1 + 0.045*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32))*(1 + 0.3*kq.tq)*(1 - 0.18*kq.under);
+function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not the piece's own: the same beat, its own r; true on the frame it beats
+  h.bt += dt; let beat = false;
+  if (h.bt >= h.bl) { h.bt -= h.bl; h.lx = h.r*h.lx*(1 - h.lx); h.bl = (0.9 + 0.2*h.lx)/hHz(h)*(h.lx < 0.05 ? 1.5 : 1); h.dub = 0.13 + 0.06*h.lx; h.ghost = h.lx > 0.92 ? 0.4 : 0;
+    h.nb++; h.steps++; h.stepAt = simTime; h.dubDone = false; beat = true;
+    const pi = h.nb % 32, pn = Math.floor(h.nb/32);
+    h.ba = (0.3 + 0.7*kss(0, 8, pi)*(1 - 0.8*kss(22, 32, pi)))*(pn % 4 === 3 ? 0.35 : 0.75 + 0.35*kh(pn + 0.17))*(0.85 + 0.3*h.lx)*(pi % 8 === 0 ? 1.25 : 1)*(1 + 0.4*kq.tq);
+    const oa = 6.28318*kh(h.nb*0.37 + 0.1 + h.seed), or = 0.022*Math.sqrt(kh(h.nb*0.71 + 0.3 + h.seed)), ox = or*Math.cos(oa), oy = or*Math.sin(oa);
+    rip.push([simTime, dub ? h.ba : 0.8*h.ba, x0 + ox, y0 + oy]);
+    if (dub) { rip.push([simTime + h.dub*h.bl, 0.45*h.ba, x0 + ox*0.8, y0 + oy*0.8]); if (h.ghost) rip.push([simTime + 1.9*h.dub*h.bl, 0.35*h.ba, x0 - ox, y0 - oy]); }
+    h.orb.unshift([h.lx, simTime]); h.orb.length = Math.min(h.orb.length, 16); }
+  if (!h.dubDone && h.bt >= h.dub*h.bl) { h.steps++; h.stepAt = simTime; h.dubDone = true; }
+  while (rip.length && (simTime - rip[0][0] > RLIFE || rip.length > NR)) rip.shift();
+  h.ph = 6.28318*h.bt/h.bl; h.pulse = kheartJ(h.bt/h.bl, h.dub, h.ghost);
+  return beat;
+}
+// ?r=grid: twelve copies of the basin, one water and one dream; only the heart's r differs, rising in reading order through 1, 2, 4 and 8 beats, the edge (3.57), the windows of 6, 5 and 3 inside chaos, and today's 3.71
+const GRID_R = [2.8, 3.2, 3.45, 3.55, 3.57, 3.63, 3.68, 3.71, 3.74, 3.83, 3.9, 4.0];
+const grid = RCON === 'grid' ? { hearts:GRID_R.map((r, i) => hNew(r, i*0.618)), z:0, zt:0, sel:7, hover:-1, tiles:[], labels:null } : null;
+function gridLayout(){                                // as many columns as make each basin largest; then the camera, moving into one of them
+  const w = view.w, h = view.h, n = GRID_R.length; let g = null;
+  for (const c of [1, 2, 3, 4, 6, 12]) { const r = n/c, cw = w/c, ch = h/r, S = Math.min(0.88*cw/(2*BX), 0.76*ch/(2*BY)); if (!g || S > g.S) g = { c, r, cw, ch, S }; }
+  const ze = kss(0, 1, grid.z), full = 1.02*Math.max(w/(2*BX), h/(2*BY)), Z = Math.pow(full/g.S, ze), sel = grid.sel;
+  const cs = [((sel % g.c) + 0.5)*g.cw, (Math.floor(sel/g.c) + 0.5)*g.ch];
+  grid.tiles = GRID_R.map((_, i) => { const c = [((i % g.c) + 0.5)*g.cw, (Math.floor(i/g.c) + 0.5)*g.ch], cx = (c[0] - cs[0])*Z + cs[0] + (w/2 - cs[0])*ze, cy = (c[1] - cs[1])*Z + cs[1] + (h/2 - cs[1])*ze;
+    return { cx, cy:cy - 0.035*g.ch*Z*(1 - ze), S:g.S*Z, x0:cx - g.cw*Z/2, x1:cx + g.cw*Z/2, y0:cy - g.ch*Z/2, y1:cy + g.ch*Z/2 }; });   // each basin sits a little high in its cell, so its label fits under it
+  grid.ze = ze;
+}
+function gridAt(x, y){ let best = 0, bd = 1e9; grid.tiles.forEach((t, i) => { const d = Math.hypot(Math.max(t.x0 - x, 0, x - t.x1), Math.max(t.y0 - y, 0, y - t.y1)); if (d < bd) { bd = d; best = i; } }); return best; }
+function gridSim(x, y){ if (!grid.tiles.length) gridLayout(); const i = gridAt(x, y), t = grid.tiles[i]; grid.hover = i; return [0.5 + (x - t.cx)/t.S, 0.5 + (t.cy - y)/t.S]; }
+function gridTap(x, y){ if (grid.zt) grid.zt = 0; else if (x !== undefined) { grid.sel = gridAt(x, y); grid.zt = 1; } canvas.style.cursor = grid.zt ? 'zoom-out' : 'zoom-in'; }
+if (grid) {                                           // a tap goes into a basin and a second comes out (Esc too); a press held reaches into the water, which every copy shares
+  canvas.style.cursor = 'zoom-in'; let dn = null;
+  canvas.addEventListener('pointerdown', (ev) => { dn = { x:ev.clientX, y:ev.clientY, t:performance.now() }; });
+  canvas.addEventListener('pointerup', (ev) => { const d = dn; dn = null; if (d && performance.now() - d.t < 300 && Math.hypot(ev.clientX - d.x, ev.clientY - d.y) < 10) gridTap(ev.clientX, ev.clientY); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') gridTap(); });
+  const box = document.createElement('div'); box.setAttribute('aria-hidden', 'true'); document.body.append(box);   // each copy's r, small, under its basin: a specimen's label
+  grid.labels = GRID_R.map((r) => { const s = document.createElement('span'); s.textContent = `r = ${r.toFixed(2)}`;
+    Object.assign(s.style, { position:'fixed', left:'0', top:'0', font:'10.5px/1 var(--mono)', letterSpacing:'.04em', pointerEvents:'none', whiteSpace:'nowrap', textShadow:'0 0 4px var(--ink)', transition:'color .4s' });
+    box.append(s); return s; });
+}
+function gridLabels(){
+  grid.labels.forEach((s, i) => { const t = grid.tiles[i], on = i === grid.sel, x = t.cx - BX*t.S, y = t.cy + BY*t.S + 7, ze = grid.ze;
+    const lx = on ? x + (28 - x)*ze : x, ly = on ? y + (view.h - 34 - y)*ze : y;
+    s.style.transform = `translate(${lx.toFixed(1)}px, ${ly.toFixed(1)}px)`; s.style.opacity = on ? 1 : (1 - ze).toFixed(3);
+    s.style.color = i === grid.hover || GRID_R[i] === 3.71 ? 'var(--bone)' : 'rgba(138,141,147,.75)'; });
+}
+function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each in its own cell of the page, with its own heart
+  const d = view.dpr; gridLayout(); gridLabels(); gl.enable(gl.SCISSOR_TEST);
+  grid.tiles.forEach((t, i) => {
+    if (t.x1 < 0 || t.x0 > view.w || t.y1 < 0 || t.y0 > view.h) return;
+    const h = grid.hearts[i], x0 = Math.max(0, Math.floor(t.x0*d)), y0 = Math.max(0, Math.floor((view.h - t.y1)*d));
+    gl.scissor(x0, y0, Math.min(canvas.width, Math.ceil(t.x1*d)) - x0, Math.min(canvas.height, Math.ceil((view.h - t.y0)*d)) - y0);
+    gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
+    gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
+    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, h.ghost, 0); ripUp(u, h.rip); orbUp(u, h.orb);
+    if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt);
+      gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
+      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/QN*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
+    draw(null); });
+  gl.disable(gl.SCISSOR_TEST);
+}
+// ?r=sync: seven hearts in one basin, after the heart cells in a dish that beat alone, then, touching, as one (Mukherjee, The Song of the Cell). Six cells round the drain, each its own r and pace; the drain's own heart is the seventh.
+// A ring that reaches a heart late in its beat pulls the next beat early (a pulse-coupled oscillator, after Peskin, Mirollo and Strogatz). How strongly wanders by itself, never on a timer: they drift, lock, slip, lock again. A tap is a beat too
+const sync = RCON === 'sync' ? { ev:[], eps:0, cells:[3.5, 3.83, 3.57, 4.0, 3.63, 3.9].map((r, i) => { const a = 0.52 + i*1.0472 + 0.35*(kh(i + 0.4) - 0.5), rr = 0.78 + 0.32*kh(i + 0.9);
+  return hNew(r, 1.7 + i, { x:0.30*rr*Math.cos(a), y:0.215*rr*Math.sin(a), f0:0.72 + 0.5*kh(i + 0.2), bt:0.9*kh(i + 0.6) }); }) } : null;
+function syncFire(src, x, y, s){                      // a beat at (x, y): when its ring reaches each other heart, it is felt there
+  if (!sync) return;
+  for (const h of [kq, ...sync.cells]) { if (h === src) continue; const hx = h === kq ? 0 : h.x, hy = h === kq ? 0 : h.y;
+    sync.ev.push({ at:simTime + Math.hypot(hx - x, hy - y)/kLump((hx + x)/2, (hy + y)/2)/0.13, h, s }); }
+}
+function syncTick(dt){
+  sync.eps = 0.8*kss(0.3, 0.75, kNoise(simTime/41 + 1.7));   // how much the hearts feel each other
+  sync.ev = sync.ev.filter((e) => { if (e.at > simTime) return true;
+    const f = e.h.bt/e.h.bl, sus = e.h === kq ? 0.5 : 1;    // the drain's heart, the largest, is pulled half as far
+    if (f > 0.2) e.h.bt = Math.min(1, f + sync.eps*e.s*sus*4*f*f)*e.h.bl;   // late in its beat, a heart is pulled to beat now; early, it has just beaten and does not feel it
+    return false; });
+  for (const c of sync.cells) if (hBeat(c, dt, kq.rip, c.x, c.y, false)) syncFire(c, c.x, c.y, c.ba);
+}
+if (sync) canvas.addEventListener('pointerdown', () => { const x = hand.u - 0.5, y = hand.v - 0.5; if (Math.abs(x) < BX && Math.abs(y) < BY) { kq.rip.push([simTime, 1, x, y]); syncFire(null, x, y, 1.2); } });
+function syncUp(u){ CEL.fill(0); sync.cells.forEach((c, i) => CEL.set([c.x, c.y, c.pulse, 1], 4*i)); gl.uniform4fv(u['uCell[0]'], CEL); }
+// ?r=field: every dot a heart. A lattice of the grid's cells, each a logistic map, each step sharing a part (the coupling) with its four neighbours: a coupled map lattice (Kaneko, 1984).
+// It steps on the heart, lub and dub. The hand is a point on the plane of r (left to right, 2.9 to 4) and coupling (bottom to top, 0.02 to 0.5); with no hand, the field goes home to 3.71 and k = 0.25
+const lat = RCON === 'field' ? (() => { const w = QN, h = Math.floor(QN*0.75 + 0.5);
+  const mk = () => { const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, w, h, 0, gl.RGBA, gl.FLOAT, null);
+    const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0); return { tex, fbo, w, h }; };
+  let a = mk(), b = mk(); return { w, h, init:1, steps:-1, t:performance.now(), get read(){ return a; }, get write(){ return b; }, swap(){ [a, b] = [b, a]; } }; })() : null;
+function latStep(){
+  const nowL = performance.now(), dtL = Math.min(0.1, (nowL - lat.t)/1000), u = use(P.lattice); lat.t = nowL;
+  const un = Math.max(0, Math.min(1, (hand.u - 0.5 + BX)/(2*BX))), vn = Math.max(0, Math.min(1, (hand.v - 0.5 + BY)/(2*BY)));
+  bind(u.uL, lat.read.tex); gl.uniform2f(u.uLN, lat.w, lat.h); gl.uniform2f(u.uLT, 2.9 + 1.1*un, 0.02 + 0.48*vn); gl.uniform4f(u.uLH, hand.u - 0.5, hand.v - 0.5, hand.on ? 1 : 0, 0);
+  gl.uniform1f(u.uInit, lat.init); gl.uniform1f(u.uStepNow, kq.steps !== lat.steps ? 1 : 0); gl.uniform1f(u.uSteps, kq.steps); gl.uniform1f(u.uDt, dtL); gl.uniform1f(u.uBHr, 0.046*BH*(1 - plugAmt));
+  draw(lat.write); lat.swap(); lat.init = 0; lat.steps = kq.steps;
+}
+function rTick(dt){ if (grid) { grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/0.9)); for (const h of grid.hearts) hBeat(h, dt, h.rip, 0, 0, true); } if (sync) syncTick(dt); }
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
   kq.ls.vx = kq.ls.vy = 0;
@@ -970,6 +1125,7 @@ function blow(){
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
   if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; }
+  if (lat) latStep();                                  // ?r=field: the lattice steps first, then the water is drawn over it
   blow(); const d = view.dpr, u = use(P.display); bind(u.uDye, dye.read.tex); gl.uniform4fv(u['uBub[0]'], BUB); gl.uniform1fv(u['uBs[0]'], BS);
   gl.uniform2f(u.uCenter, view.cx*d, (view.h-view.cy)*d); gl.uniform2f(u.uRes, pw, ph); gl.uniform1f(u.uS, view.S*d);
   gl.uniform2f(u.uCursor, hand.x*d, (view.h-hand.y)*d); gl.uniform1f(u.uCursorOn, hand.on ? 1 : 0);
@@ -980,8 +1136,10 @@ function render(){
   if (mips) { gl.generateMipmap(gl.TEXTURE_2D); gl.bindSampler(0, kMip); }
   if (K > 0) { gl.uniform4f(u.uKH, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), mips ? Math.log2(dye.read.w/(view.S*d)) : -99, 2.2*kq.e*kq.soft);
     gl.uniform4f(u.uKB, kq.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, kq.dub, kq.ghost, 0);
+    if (RCON) { ripUp(u, kq.rip); orbUp(u, kq.orb); if (sync) syncUp(u); } else {   // ?r=<concept>: the ripples packed; the beats' values; the hearts
     for (let i = 0; i < NR; i++) { const e = kq.rip[i]; RA[i] = e ? simTime - e[0] : -1; RM[i] = e ? e[1] : 0; RO[2*i] = e ? e[2] : 0; RO[2*i + 1] = e ? e[3] : 0; }
-    gl.uniform1fv(u['uRA[0]'], RA); gl.uniform1fv(u['uRM[0]'], RM); gl.uniform2fv(u['uRO[0]'], RO); gl.uniform1f(u.uRP, kq.rp); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
+    gl.uniform1fv(u['uRA[0]'], RA); gl.uniform1fv(u['uRM[0]'], RM); gl.uniform2fv(u['uRO[0]'], RO); }
+    gl.uniform1f(u.uRP, kq.rp); gl.uniform1f(u.uKI, kOn('7') ? kq.e : 0);
     // 8: the second face surfaces when it will, for a few seconds or longer, never on a timer
     gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*kss(0.45, 0.95, kNoise(simTime/9 + 3.1)) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), kq.steps, QD);   // the dots step on the heart: lub and dub
@@ -992,7 +1150,9 @@ function render(){
       gl.uniform4f(u.uHG, hand.u - 0.5, hand.v - 0.5, 0.030*BH*hg.a, 0.022);
       if (QD > 0) { if (!gx.tex) gx.tex = gxAtlas(); gxLine(); bind(u.uGA, gx.tex); gl.uniform4fv(u['uGC[0]'], gx.codes);   // the glyphs: the atlas read at the size of one cell on screen; the rows re-rolled every other beat, on the heart
         gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/QN*view.S*view.dpr))), 0.9*drainAmt, Math.floor(kq.nb/2) % 991); } } }   // 8: up for a few seconds in every 22
-  draw(null); if (mips) gl.bindSampler(0, null);
+  if (lat) bind(u.uL, lat.read.tex);
+  if (grid) gridDraw(u, mips, kOn('2') ? (0.03 + 0.11*kq.e)*(1 - plugAmt) : 0, kq.e*(0.55 + 0.25*Math.sin(simTime*0.11)), 2.2*kq.e*kq.soft); else draw(null);   // ?r=grid: once per copy
+  if (mips) gl.bindSampler(0, null);
 }
 
 let lastText = '';
@@ -1017,7 +1177,7 @@ function frame(now){
   holdAmt += ((hand.down ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.25));
   plugAmt += ((plug ? 1 : 0)-plugAmt)*(1-Math.exp(-dt/0.15));
   if (dt > 0) step(dt);
-  render(); words(); if (kRim) kRimDraw(); send(false);
+  render(); words(); if (kRim) { if (grid && grid.z < 0.99) kRim.svg.style.opacity = '0'; else kRimDraw(); } send(false);
   nextFrame(frame);
 }
 addEventListener('resize', layout);
@@ -1025,6 +1185,7 @@ window.__snap = (q) => canvas.toDataURL('image/jpeg', q || 0.82);
 window.__basin = { get t(){ return simTime; }, get water(){ return water; }, get seq(){ return live.seq; }, get grip(){ return grip; }, get prompt(){ return live.prompt; }, get have(){ return live.have; }, get others(){ return net.remote.size; }, get net(){ return net.socks.filter((x) => x.open).length; },
   get drain(){ return drainAmt; }, get k(){ return K; }, get kq(){ return kq; },
   get res(){ return RES ? { on:res.on, runs:res.runs ? res.runs.length : 0, order:res.order.join(' '), run:res.order[res.i], frame:res.j } : null; } };
+if (RCON) Object.defineProperty(window.__basin, 'hearts', { get: () => ({ grid, sync, lat }) });   // ?r=<concept>: the other hearts, for the documents and the checks
 const nextFrame = params.has('snap') ? (f) => setTimeout(() => f(performance.now()), 16) : requestAnimationFrame;   // ?snap runs on timers, so stills render even off screen
 nextFrame(frame);
 netStart();
