@@ -938,7 +938,22 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
 // so the copies at an edge of order flicker across it. Every neighbour is almost the same, never quite. No words on the page: a copy's r shows, faint, only under a pointer
 const GRID_N = 48, GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0];
 const gridR = (f) => { const x = f*(GRID_RS.length - 1), i = Math.min(GRID_RS.length - 2, Math.floor(x)); return GRID_RS[i] + (GRID_RS[i + 1] - GRID_RS[i])*(x - i); };
-const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618)), z:0, zt:0, sel:0, hover:-1, tiles:[], cr:0, label:null } : null;
+const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618)), z:0, zt:0, sel:0, hover:-1, tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
+// ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
+// and every cell's edge is a small bump it sticks on; a ghost beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
+const NAV = !!grid && params.get('nav') === 'lost';
+function navTick(dt){
+  const g = grid, cw = view.w/Math.max(1, g.cr), ch = view.h/Math.max(1, GRID_N/Math.max(1, g.cr));
+  if (g.zt || g.z > 0) { g.vx *= Math.exp(-dt/0.15); g.vy *= Math.exp(-dt/0.15); }   // inside one universe, the field holds still
+  else {
+    if (hand.on && g.hx !== null) { g.vx += 2.2*(hand.x - g.hx)/cw; g.vy += 2.2*(hand.y - g.hy)/ch; }   // the hand pushes it
+    g.vx += dt*(0.5*(2*kNoise(simTime/19 + 3.3) - 1) - 1.4*Math.sin(6.28318*g.ox)); g.vy += dt*(0.35*(2*kNoise(simTime/23 + 8.1) - 1) - 1.4*Math.sin(6.28318*g.oy));   // a slow drift of its own, and a bump at every cell's edge
+    if (kq.ghost && !g.gh) { const a = 6.28318*kh(kq.nb + 0.77); g.vx += 2.6*Math.cos(a); g.vy += 2.6*Math.sin(a); }   // a ghost beat knocks it a cell aside
+    g.vx *= Math.exp(-dt/1.1); g.vy *= Math.exp(-dt/1.1); }
+  g.gh = kq.ghost; g.hx = hand.on ? hand.x : null; g.hy = hand.on ? hand.y : null;
+  const lim = 4; g.vx = Math.max(-lim, Math.min(lim, g.vx)); g.vy = Math.max(-lim, Math.min(lim, g.vy));
+  g.ox += g.vx*dt; g.oy += g.vy*dt;
+}
 function gridAssign(c, rows){                         // which copy steps which setting depends on the page's shape: r runs along its longer side
   const long = c >= rows, na = long ? c : rows, nb = long ? rows : c;
   grid.hearts.forEach((h, i) => { const a = long ? i % c : Math.floor(i/c), b = long ? Math.floor(i/c) : i % c;
@@ -951,14 +966,17 @@ function gridLayout(){                                // as many columns as make
   g.S *= 1.16;                                        // the water fades before its rim, so each copy is drawn a little larger than its cell and cut at the cell's edge: copies butt like prints, a hairline apart
   if (g.c !== grid.cr) gridAssign(g.c, g.r);
   const ze = kss(0, 1, grid.z), full = 1.02*Math.max(w/(2*BX), h/(2*BY)), Z = Math.pow(full/g.S, ze), sel = grid.sel;
-  const cs = [((sel % g.c) + 0.5)*g.cw, (Math.floor(sel/g.c) + 0.5)*g.ch];
-  grid.tiles = grid.hearts.map((_, i) => { const c = [((i % g.c) + 0.5)*g.cw, (Math.floor(i/g.c) + 0.5)*g.ch], cx = (c[0] - cs[0])*Z + cs[0] + (w/2 - cs[0])*ze, cy = (c[1] - cs[1])*Z + cs[1] + (h/2 - cs[1])*ze;
-    return { cx, cy, S:g.S*Z, x0:cx - g.cw*Z/2, x1:cx + g.cw*Z/2, y0:cy - g.ch*Z/2, y1:cy + g.ch*Z/2 }; });
+  const wrap = (v, n) => ((v % n) + n) % n, at = [];   // ?nav=lost: each copy's place on the loop, and a second (or fourth) instance where it straddles an edge
+  grid.hearts.forEach((_, i) => { const u = NAV ? wrap(i % g.c + grid.ox, g.c) : i % g.c, v = NAV ? wrap(Math.floor(i/g.c) + grid.oy, g.r) : Math.floor(i/g.c);
+    for (const du of u > g.c - 1 ? [0, -g.c] : [0]) for (const dv of v > g.r - 1 ? [0, -g.r] : [0]) at.push([i, (u + du + 0.5)*g.cw, (v + dv + 0.5)*g.ch]); });
+  const cs = at.find((a) => a[0] === sel).slice(1);
+  grid.tiles = at.map(([i, x, y]) => { const cx = (x - cs[0])*Z + cs[0] + (w/2 - cs[0])*ze, cy = (y - cs[1])*Z + cs[1] + (h/2 - cs[1])*ze;
+    return { hi:i, cx, cy, S:g.S*Z, x0:cx - g.cw*Z/2, x1:cx + g.cw*Z/2, y0:cy - g.ch*Z/2, y1:cy + g.ch*Z/2 }; });
   grid.ze = ze;
 }
 function gridAt(x, y){ let best = 0, bd = 1e9; grid.tiles.forEach((t, i) => { const d = Math.hypot(Math.max(t.x0 - x, 0, x - t.x1), Math.max(t.y0 - y, 0, y - t.y1)); if (d < bd) { bd = d; best = i; } }); return best; }
-function gridSim(x, y){ if (!grid.tiles.length) gridLayout(); const i = gridAt(x, y), t = grid.tiles[i]; grid.hover = i; return [0.5 + (x - t.cx)/t.S, 0.5 + (t.cy - y)/t.S]; }
-function gridTap(x, y){ if (grid.zt) grid.zt = 0; else if (x !== undefined) { grid.sel = gridAt(x, y); grid.zt = 1; } canvas.style.cursor = grid.zt ? 'zoom-out' : 'zoom-in'; }
+function gridSim(x, y){ if (!grid.tiles.length) gridLayout(); const i = gridAt(x, y), t = grid.tiles[i]; grid.hover = t.hi; return [0.5 + (x - t.cx)/t.S, 0.5 + (t.cy - y)/t.S]; }
+function gridTap(x, y){ if (grid.zt) grid.zt = 0; else if (x !== undefined) { grid.sel = grid.tiles[gridAt(x, y)].hi; grid.zt = 1; } canvas.style.cursor = grid.zt ? 'zoom-out' : 'zoom-in'; }
 if (grid) {                                           // a tap goes into a copy and a second comes out (Esc too); a press held reaches into the water, which every copy shares
   canvas.style.cursor = 'zoom-in'; let dn = null;
   canvas.setAttribute('aria-label', 'Forty-eight basins seen from above, one water and one dream, each beating to a heart a step further from order. Tap one to go in, tap again to come out; press and hold to reach into the water they share.');
@@ -970,7 +988,7 @@ if (grid) {                                           // a tap goes into a copy 
   document.body.append(s);
 }
 function gridLabel(){
-  const s = grid.label, i = grid.hover, t = grid.tiles[i], on = hand.on && i >= 0 && t;
+  const s = grid.label, i = grid.hover, t = grid.tiles.find((u) => u.hi === i && hand.x >= u.x0 && hand.x <= u.x1 && hand.y >= u.y0 && hand.y <= u.y1), on = hand.on && i >= 0 && t;
   s.style.opacity = on ? '0.55' : '0'; if (!on) return;
   const h = grid.hearts[i], txt = `r = ${h.r0.toFixed(2)}  ${(0.9*h.tf).toFixed(3)} Hz`; if (s.textContent !== txt) s.textContent = txt;
   s.style.transform = `translate(${(Math.max(0, t.x0) + 7).toFixed(1)}px, ${(Math.min(view.h, t.y1) - 17).toFixed(1)}px)`;   // in the copy's own cell, lower left
@@ -979,8 +997,9 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
   const d = view.dpr; gridLayout(); gridLabel(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(3/255, 3/255, 4/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);   // the seams stay ink (the screen, not the last water target)
   grid.tiles.forEach((t, i) => {
     if (t.x1 < 0 || t.x0 > view.w || t.y1 < 0 || t.y0 > view.h) return;
-    const h = grid.hearts[i], x0 = Math.max(0, Math.floor(t.x0*d)), y0 = Math.max(0, Math.floor((view.h - t.y1)*d)), qn = 4*Math.round(Math.max(24, Math.min(QN, 2*BX*t.S*d/5.5))/4);
-    gl.scissor(x0 + 1, y0 + 1, Math.min(canvas.width, Math.ceil(t.x1*d)) - x0 - 2, Math.min(canvas.height, Math.ceil((view.h - t.y0)*d)) - y0 - 2);
+    const h = grid.hearts[t.hi], x0 = Math.max(0, Math.floor(t.x0*d)), y0 = Math.max(0, Math.floor((view.h - t.y1)*d)), qn = 4*Math.round(Math.max(24, Math.min(QN, 2*BX*t.S*d/5.5))/4);
+    const sw = Math.min(canvas.width, Math.ceil(t.x1*d)) - x0 - 2, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0)*d)) - y0 - 2; if (sw <= 0 || sh <= 0) return;   // a copy with no pixels on screen
+    gl.scissor(x0 + 1, y0 + 1, sw, sh);
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, h.ghost, 0); ripUp(u, h.rip); orbUp(u, h.orb);
@@ -1024,7 +1043,7 @@ function latStep(){
   gl.uniform1f(u.uInit, lat.init); gl.uniform1f(u.uStepNow, kq.steps !== lat.steps ? 1 : 0); gl.uniform1f(u.uSteps, kq.steps); gl.uniform1f(u.uDt, dtL); gl.uniform1f(u.uBHr, 0.046*BH*(1 - plugAmt));
   draw(lat.write); lat.swap(); lat.init = 0; lat.steps = kq.steps;
 }
-function rTick(dt){ if (grid) { grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/0.9)); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); hBeat(h, dt, h.rip, 0, 0, true); } } if (sync) syncTick(dt); }   // a grid copy's r wanders a hair round its place
+function rTick(dt){ if (grid) { grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/0.9)); if (NAV) navTick(dt); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); hBeat(h, dt, h.rip, 0, 0, true); } } if (sync) syncTick(dt); }   // a grid copy's r wanders a hair round its place
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
   kq.ls.vx = kq.ls.vy = 0;
