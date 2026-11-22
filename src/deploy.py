@@ -26,13 +26,19 @@ PEARL = ('#bfe6ee', '#cfc9f2', '#f2c9dd')     # the hole's thin ring (--pearl in
 def film(t):                                  # a colour along the film, t from 0 (cyan) to 1 (rose)
     a, b, u = (FILM[0], FILM[1], 2*t) if t < .5 else (FILM[1], FILM[2], 2*t - 1)
     return '#' + ''.join(f'{round(int(a[k:k+2], 16)*(1 - u) + int(b[k:k+2], 16)*u):02x}' for k in (1, 3, 5))
-def icon(bleed=False):                        # the tab icon: the hole, its pearl ring, twelve dots round it in the film, on ink
-    dots = ''.join(f"<circle cx='{32 + 24*math.cos(a):.1f}' cy='{32 + 24*math.sin(a):.1f}' r='4' fill='{film(abs(1 - 2*((i/12 + .375) % 1)))}'/>"
-                   for i in range(12) for a in [-math.pi/2 + i*math.pi/6])
+def icon(bleed=False):                        # the tab icon, the fall: the piece's dot grid swirling into the hole, in a squircle, on ink
+    dots = []
+    for i in range(8):
+        for j in range(8):                    # an 8 x 8 grid, pulled in toward the hole and turned a little as it falls
+            x, y = 4 + 8*j, 4 + 8*i; dx, dy = x - 32, y - 32; r = math.hypot(dx, dy); rr = r - 64/r
+            if rr < 11: continue
+            a = math.atan2(dy, dx) + 16/r; px, py = rr*math.cos(a), rr*math.sin(a); rad = 1.5 + 1.8*min(1, (rr - 11)/16)   # smaller as they fall in
+            if (abs(px)**3.2 + abs(py)**3.2)**(1/3.2) > 29.5 - rad: continue   # the field's edge: a squircle, between square and circle (Kat)
+            dots.append(f"<circle cx='{32 + px:.1f}' cy='{32 + py:.1f}' r='{rad:.1f}' fill='{film(min(1, max(0, (x + y - 8)/112)))}'/>")
     ring = "<linearGradient id='p' x1='0' y1='0' x2='1' y2='1'>" + ''.join(f"<stop offset='{o}' stop-color='{c}'/>" for o, c in zip(('0', '.5', '1'), PEARL))
     corner = '' if bleed else " rx='14'"      # full bleed for the home screen, whose corners iOS rounds itself
     return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs>{ring}</linearGradient></defs><rect width='64' height='64'{corner} fill='#030304'/>"
-            f"{dots}<circle cx='32' cy='32' r='14.1' fill='url(#p)'/><circle cx='32' cy='32' r='11.9' fill='#000'/></svg>")
+            f"{''.join(dots)}<circle cx='32' cy='32' r='9.5' fill='url(#p)'/><circle cx='32' cy='32' r='7.5' fill='#000'/></svg>")
 ICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,' + icon().replace('#', '%23').replace('<', '%3C').replace('>', '%3E') + '">\n'
         f'<link rel="apple-touch-icon" href="{HOME}apple-touch-icon.png">\n')   # that SVG at 180 px, drawn by the --icon recipe at the top
 
