@@ -28,8 +28,8 @@
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
   h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }   /* the name is in the tab; the page shows only the water */
   body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
-  #about { position:fixed; right:28px; bottom:22px; font-size:11.5px; color:rgba(138,141,147,.82); text-decoration:none; padding:8px 0 8px 13px; text-shadow:0 0 6px var(--ink), 0 0 2px var(--ink); }   /* the one way out of the water: the page about the piece */
-  #about:hover, #about:focus-visible { color:var(--bone); }
+  #about { position:fixed; right:28px; bottom:22px; font-size:11.5px; color:rgba(138,141,147,.2); text-decoration:none; padding:8px 0 8px 13px; text-shadow:0 0 6px var(--ink), 0 0 2px var(--ink); transition:color .5s; }   /* the one way out of the water, barely there: the page about the piece */
+  #about:hover, #about:focus-visible { color:var(--bone); transition-duration:.2s; }   /* found by a hand or a key, it reads; a tap goes straight through */
   body.sink #about, body.doc #about, body.framed #about { display:none; }   /* in the stone, in a document, or framed by another page: only the water */
   @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } #about { right:16px; bottom:13px; } }
 </style>

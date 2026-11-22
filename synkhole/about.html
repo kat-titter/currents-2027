@@ -221,6 +221,7 @@
   figure.side figcaption { margin-top:8px; }
   figure.gfig { margin:1.6em 0 2em; } figure.gfig canvas { display:block; width:100%; height:84px; }
   figure.gfig.axes canvas { height:150px; }
+  figure.gfig.size canvas { height:124px; }
   figure.gfig.wall canvas { height:320px; }
   .hand canvas { display:block; width:100%; height:190px; cursor:crosshair; touch-action:pan-y; border-radius:21px; }
   .hand canvas:focus-visible { outline:1px solid rgba(207,196,251,.6); outline-offset:6px; }
@@ -228,8 +229,9 @@
   .nums.two { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .ico { width:15px; height:15px; margin-right:.45em; vertical-align:-2px; fill:currentColor; }
   .nums > div { display:grid; grid-template-columns:minmax(0, 1fr); align-items:center; }
-  .nums canvas.g { display:inline-block; width:58px; height:22px; margin-left:.35em; vertical-align:middle; }   /* the key to every dot picture: dark small, bright large */
-  .nums b { font:300 34px/1.05 var(--serif); color:var(--bone); white-space:nowrap; }
+  .nums i { font:400 11px/1 var(--mono); font-style:normal; letter-spacing:.08em; color:var(--dim); margin-bottom:.7em; }   /* which body clock */
+  .nums b { font:300 34px/1.05 var(--serif); font-variant-numeric:lining-nums; color:var(--bone); white-space:nowrap; }   /* lining figures: a 1 that reads as one */
+  .nums.clocks > div { align-content:start; }
   .nums span { font:400 12px/1.55 var(--mono); letter-spacing:.04em; color:var(--dim); }
   /* built against proposed: one line, solid where built, dotted where proposed; time above it, names below at one offset; now is the hole's ring, beating on the heart */
   .time { grid-column:2 / 4; display:flex; position:relative; isolation:isolate; list-style:none; margin:2.6em 0 2em; padding:0; font:400 12px/1.7 var(--mono); letter-spacing:.04em; color:var(--dim); }
@@ -350,7 +352,7 @@
   <p class="say" data-r>the most beautiful things usually have something nasty about them. here, it is the drain: the [s[i/y]n[k][w]hole, where time goes missing.</p>
   <p data-r>one heart, printed 48 times over the same water. copy by copy, a single number steps it from steady, through doubling, into chaos.</p>
   <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; this water runs out every day, and you climb back up.</p>
-  <p data-r>at six each morning, santa fe time, it fills. all day a curl of dry turns through the grid; the last copy runs dry just before dawn. watched or not.</p>
+  <p data-r>at six each morning, santa fe time, it fills. it stays nearly full past noon; then the dry spreads from the shallows of a land drawn new each day, and the last copy runs dry just before dawn. watched or not.</p>
   <p class="quiet" data-r>ai: stable diffusion 1.5 with lcm-lora dreamed this water on my laptop, leaning toward eight pictures i chose by hand in midjourney. none of them appears in the piece. what pours now was stored on 17 nov 2026.</p>
 </section>
 
@@ -358,15 +360,17 @@
   <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">s</i><span class="br">]</span>ink</span><span class="alt mono"><span class="one">work</span><span class="two">sink / ink</span></span></h2>
   <p class="say" data-r>under the glass, a vanitas<sup class="fn">1</sup> pours: skulls, cut flowers, soap bubbles, a still life that refuses to stay still.</p>
   <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. of these, bubbles pass fastest.<sup class="fn">1a</sup><aside class="note"><b>1a</b>homo bulla, the old prints say: a person is a bubble. lately the word floats over a whole industry too. here they swell slowly and pop, nacre rather than glass: no shine, each dot whole and one flat colour of the soap film, cyan, violet or rose, in rings across the dome, the rim sunk in the water's shadow.</aside></aside>
-  <div class="nums wide" data-r>
-    <div><b>5 s</b><span>between stored frames</span></div>
-    <div><b>48</b><span>copies of one heart</span></div>
-    <div><b>size = light × beat<canvas class="g" data-g="ramp" aria-hidden="true"></canvas></b><span>one dot per patch of water</span></div>
+  <div class="nums clocks wide" data-r>
+    <div><i>breath</i><b>5 s</b><span>each stored dream holds one breath: four and a half beats of a resting heart<sup class="fn">2</sup></span></div>
+    <div><i>heart</i><b>48</b><span>copies of one heart: 8 steps from steady to chaos, at 6 paces</span></div>
+    <div><i>thirst</i><b>1</b><span>water a day: full at six, dry before dawn</span></div>
   </div>
-  <p data-r>slow for a computer, about right for a tide pool. light arrives as dots, each as large as its patch of water is bright, and as the last heartbeat that rolled past it.</p>
-  <p data-r>at the centre of each copy sits a black hole. it bends the grid round itself and drags it in a slow twist. near its edge a dot's clock runs slow, and its light goes rose, then dim, then turns into a letter.<sup class="fn">2</sup></p>
+  <p data-r>the piece runs on three clocks a body keeps: the picture turns on a breath, the rings on a beat, the water on a day. light arrives as dots, each as large as its patch of water is bright, and as the last heartbeat that rolled past it.</p>
+  <aside class="note" data-r><b>2</b>at rest a heart beats about four times to each breath: 134 healthy adults, median 4.19. this heart rests at 54 beats a minute, so its breath takes about 5 s. <span class="mono">scholkmann, zohdi and wolf, 2019, <a href="https://doi.org/10.33549/physiolres.934232">doi:10.33549/physiolres.934232</a></span></aside>
+  <figure class="gfig size wide" data-r><canvas class="g" data-g="size" role="img" aria-label="a grid of dots, light from 0 to 1 across, beat from 0.2 to 1 up: each dot as large as the two multiplied, so the dark corner is empty and the bright, freshly beaten corner holds the largest dots"></canvas><figcaption class="mono">size = light × beat</figcaption></figure>
+  <p data-r>at the centre of each copy sits a black hole. it bends the grid round itself and drags it in a slow twist. near its edge a dot's clock runs slow, and its light goes rose, then dim, then turns into a letter.<sup class="fn">3</sup></p>
   <figure class="gfig wide" data-r><canvas class="g" data-g="clocks" role="img" aria-label="five dots in a row toward the hole, their clocks at 1, 0.75, 0.5, 0.25 and 0: bone, then rose, then dim, and at the edge a letter"></canvas><figcaption class="mono">clock = √(1 − edge/r)</figcaption></figure>
-  <aside class="note" data-r><b>2</b>near a black hole, a clock watched from far away runs slow, then stops at the edge; light climbing out loses its blue. here the dots keep that clock and show it as colour.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
+  <aside class="note" data-r><b>3</b>near a black hole, a clock watched from far away runs slow, then stops at the edge; light climbing out loses its blue. here the dots keep that clock and show it as colour.<sup class="fn">3a</sup><aside class="note"><b>3a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
   <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = reservoir.pour()  # stored dreams: the spring is asleep</figcaption></figure>
   <p data-r>tap a copy and you fall into it; tap again to climb out. press and hold, and you reach into the water they all share: the same patch moves in all 48. it follows your hand, then slips through your fingers, and the dots lean toward your hand as toward a small hole.</p>
   <figure class="hand wide" data-r><canvas tabindex="0" role="img" aria-label="a small basin of dots to reach into: move a pointer or a finger over it, or the arrow keys; the water follows about a second behind, then lets go"></canvas><figcaption class="mono">grip = exp(−held/1.7 s)</figcaption></figure>
@@ -374,8 +378,8 @@
 
 <section id="dry" data-n="03">
   <h2 class="kick"><span class="mono">03</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">t</i><span class="br">]</span>hirst</span><span class="alt mono"><span class="one">thirsty</span><span class="two">thirst / hirst</span></span></h2>
-  <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">3</sup></p>
-  <aside class="note" data-r><b>3</b>dives last as long as the air you carry down. days here last as long as the morning's water.<sup class="fn">3a</sup><aside class="note"><b>3a</b>thirsty: late in a long night, strangers take turns at one sink. nobody asks whose water it is.</aside></aside>
+  <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">4</sup></p>
+  <aside class="note" data-r><b>4</b>dives last as long as the air you carry down. days here last as long as the morning's water.<sup class="fn">4a</sup><aside class="note"><b>4a</b>thirsty: late in a long night, strangers take turns at one sink. nobody asks whose water it is.</aside></aside>
   <p data-r>one water a day for all 48. the day turns at six in the morning in santa fe, the same moment for everyone who opens the piece, wherever they are. which copies go dry first follows the lie of a land that is new each day: smooth noise folded into itself, so its hills and hollows wander like a shoreline. the shallows dry first and the dry spreads from their edges, as puddles go after rain. chaos drinks a little more, and each copy leans on its neighbours. most of the day the grid stays full: nine copies in ten at 3 pm, four in five at 5 pm, half at 10 pm. then the night drinks fast, and the grid is dry before dawn. each copy drinks on its own beat, a dot at a time, in patches, from the side that faces the dry, like a silkscreen running out of ink.</p>
   <figure class="gfig wide" data-r><canvas class="g" data-g="days" role="img" aria-label="the 48 copies at six times of day, 6 am to 2 am, each as dry as the piece's own formula makes it today: full through the morning, a few shallows dry by the afternoon, the dry spreading from their edges into the night"></canvas><figcaption class="mono">thirst = rank(.87*land + .08*chaos + .05*rand)</figcaption></figure>
   <figure class="anim wide" data-param="dry" data-src="doc/water.webp" data-r><canvas role="img" aria-label="one copy goes dry dot by dot, in patches, from the side that faces the dry; each dry dot leaves a faint point of the grid; then it fills again at dawn"></canvas>
@@ -396,7 +400,7 @@
   <ol class="steps" data-r>
     <li><span class="n">01</span><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney, never shown in the piece. each dream starts 35 to 70% of the way from the last dream toward one, like a plant toward a window.</p></li>
     <li><span class="n">02</span><div><h3>prompt</h3><span class="ai">not ai</span></div><p>44 subjects, 28 moods, 18 lights: more than a million prompts. <code>vanitas [subject, subject, subject], mood, light</code></p></li>
-    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora, on my laptop. 3 or 4 of 10 steps follow the prompt, so subjects only half surface.<sup class="fn">4</sup></p></li>
+    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora, on my laptop. 3 or 4 of 10 steps follow the prompt, so subjects only half surface.<sup class="fn">5</sup></p></li>
     <li><span class="n">04</span><div><h3>walk</h3><span class="ai on">ai</span></div><p>from one dream to the next, frame by frame, through the space the dreams come from.</p></li>
     <li><span class="n">05</span><div><h3>detail</h3><span class="ai on">ai</span></div><p>real-esrgan, four times larger.</p></li>
     <li><span class="n">06</span><div><h3>store</h3><span class="ai">not ai</span></div><p>60 frames of one walk, kept 17 nov 2026, poured 5 s apart in a fresh order each visit. <code>water = reservoir.pour()</code></p></li>
@@ -406,7 +410,7 @@
     <li><span class="n">10</span><div><h3>thirst</h3><span class="ai">not ai</span></div><p>one water a day, on the clock, full most of the day. a new lie of the land each day decides who drinks first.</p></li>
     <li><span class="n">11</span><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
   </ol>
-  <aside class="note" data-r><b>4</b>corpus mundi, the body of everything. this water's dreamer was made from the pictures of the web and the words people wrote under them: everything, read at once, remembered nowhere.<sup class="fn">4a</sup><aside class="note"><b>4a</b>corpus: a body, and a body of text. mundi: of the world. here it drinks the record and pours it back as water.</aside></aside>
+  <aside class="note" data-r><b>5</b>corpus mundi, the body of everything. this water's dreamer was made from the pictures of the web and the words people wrote under them: everything, read at once, remembered nowhere.<sup class="fn">5a</sup><aside class="note"><b>5a</b>corpus: a body, and a body of text. mundi: of the world. here it drinks the record and pours it back as water.</aside></aside>
   <div class="row wide" data-r>
     <figure class="dots" data-src="doc/mood1_pearl.webp"><canvas role="img" aria-label="picture 01: a skull of white beads over a sleeping face"></canvas><figcaption class="mono">01 skull of beads, sleeping face</figcaption></figure>
     <figure class="dots" data-src="doc/mood6_pearl.webp"><canvas role="img" aria-label="picture 06: a white peony glittering on grey"></canvas><figcaption class="mono">06 peony on grey</figcaption></figure>
@@ -417,37 +421,37 @@
 
 <section id="k" data-n="05">
   <h2 class="kick"><span class="mono">05</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">k</i><span class="br">]</span>now</span><span class="alt mono"><span class="one">k</span><span class="two">know / now</span></span></h2>
-  <p class="say" data-r>first i taught the water to misbehave at the drain, loudly, at k = 1. then i turned it down.<sup class="fn">5</sup></p>
-  <aside class="note" data-r><b>5</b>k: one setting, 0 to 1. what it stands for is the hole's business.</aside>
+  <p class="say" data-r>near the drain, time comes loose. first i made it misbehave loudly, at k = 1; then i turned it down.<sup class="fn">6</sup></p>
+  <aside class="note" data-r><b>6</b>k: one setting, 0 to 1. what it stands for is the hole's business.</aside>
   <ol class="steps" data-r>
     <li><span class="n">1</span><div><h3>inside the hole, the basin again</h3></div><p>round the drain the picture repeats, smaller and turned, without end.</p></li>
     <li><span class="n">2</span><div><h3>time stutters</h3></div><p>for stretches the water runs backwards, stalls and skips; the picture lags its own current.</p></li>
     <li><span class="n">3</span><div><h3>clarity, only on the way out</h3></div><p>while a hand is in, the water goes soft; as it leaves, one breath of clear.</p></li>
-    <li><span class="n">4</span><div><h3>it counts what you lost</h3></div><p>once a hand leaves, a ring of small type says how long it stayed: <code>lost = 00:07</code><sup class="fn">6</sup></p></li>
+    <li><span class="n">4</span><div><h3>it counts what you lost</h3></div><p>once a hand leaves, a ring of small type says how long it stayed: <code>lost = 00:07</code><sup class="fn">7</sup></p></li>
     <li><span class="n">5</span><div><h3>almost a face</h3></div><p>two hollows above the hole, and the hole is its mouth. you won't be sure you saw it.</p></li>
-    <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring; inside it, the basin again, upside down.<sup class="fn">7</sup></p></li>
+    <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring; inside it, the basin again, upside down.<sup class="fn">8</sup></p></li>
   </ol>
   <figure class="anim wide" data-param="k" data-src="doc/hole_k0.webp" data-src2="doc/hole_k1.webp" data-r><canvas role="img" aria-label="k sweeps from 0 to 1, where the basin is seen again inside the hole, and settles at 0.25"></canvas>
     <div class="axis mono"><span class="nm">k</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick here" style="left:25%">0.25</i><i class="tick was" style="left:50%">0.5</i><i class="tick end" style="left:100%">1</i><input class="drag" type="range" min="0" max="1" step="0.01" value="0.25" aria-label="k, from 0 to 1"><b class="mark"></b></span><span class="val">0.25</span></div></figure>
-  <aside class="note" data-r><b>6</b>bottom left, a counter has been running since you arrived. it is not counting down.</aside>
-  <aside class="note" data-r><b>7</b>inside a program there is no clock and no room, only numbers standing in for them. bend the numbers and time and space bend too. stay long enough and so do you.<sup class="fn">7a</sup><aside class="note"><b>7a</b>losing time, losing place, losing the line between you and the picture: the old names for that are not gentle ones.</aside></aside>
+  <aside class="note" data-r><b>7</b>bottom left, a counter has been running since you arrived. it is not counting down.</aside>
+  <aside class="note" data-r><b>8</b>inside a program there is no clock and no room, only numbers standing in for them. bend the numbers and time and space bend too. stay long enough and so do you.<sup class="fn">8a</sup><aside class="note"><b>8a</b>losing time, losing place, losing the line between you and the picture: the old names for that are not gentle ones.</aside></aside>
   <p data-r>k sets the depth. <s>k = 0.5</s> <s>k = 0.5</s> it runs at 0.25:</p>
   <p class="fall" data-r aria-label="strange enough to notice, quiet enough to doubt"><span style="font-size:30px">strange</span><span style="font-size:27px;margin-left:1.2em">enough</span><span style="font-size:24px;margin-left:2.6em">to notice,</span><span style="font-size:20px;margin-left:4.4em;opacity:.85">quiet</span><span style="font-size:17px;margin-left:6.2em;opacity:.7">enough</span><span style="font-size:14px;margin-left:7.8em;opacity:.55">to</span><span style="font-size:12px;margin-left:9em;opacity:.45">doubt</span><span style="font-size:12px;margin-left:10.6em"><span class="ring"></span></span></p>
 </section>
 
 <section id="tune" data-n="06">
   <h2 class="kick"><span class="mono">06</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">l</i><span class="br">]</span>edge</span><span class="alt mono"><span class="one">tuning</span><span class="two">ledge / edge</span></span></h2>
-  <p class="say" data-r>choosing the numbers was the painting.</p>
-  <p data-r>trillions of cells, each alive on its own, keep one body's time.<sup class="fn">8</sup> so does each copy: its dots, rings, glyphs, thirst and the hole's slow twist all step on that copy's heart. the bubbles keep the water's own.</p>
-  <aside class="note" data-r><b>8</b>after siddhartha mukherjee's the song of the cell: a body as a citizenship of cells, each one alive, all of them cooperating.</aside>
+  <p class="say" data-r>one number walks the heart from steady to chaos. choosing it was the painting.</p>
+  <p data-r>trillions of cells, each alive on its own, keep one body's time.<sup class="fn">9</sup> so does each copy: its dots, rings, glyphs, thirst and the hole's slow twist all step on that copy's heart. the bubbles keep the water's own.</p>
+  <aside class="note" data-r><b>9</b>after siddhartha mukherjee's the song of the cell: a body as a citizenship of cells, each one alive, all of them cooperating.</aside>
   <figure class="score wide" data-r><ol aria-hidden="true"><li>heart</li><li>rings</li><li>glyphs</li><li>twist</li><li>thirst</li><li>bubbles</li></ol><canvas class="g" data-g="score" role="img" aria-label="a score of one 32-beat phrase: the heart's beats swell, hold and ebb; each beat drops a ring, each dub a smaller one; the glyphs re-read every second beat; the twist breathes once a phrase; a drying copy loses dots on its beats; bubbles pop on some beats of the water's heart. A playhead moves with this page's heart."></canvas><figcaption class="mono">for (part of copy) heart.on(part.step);</figcaption></figure>
   <p data-r>each beat drops a ring at the drain that carries the beat's value outward, and a dot takes the size the last ring said. a steady heart leaves every dot one size; a heart that doubles, rings of two sizes; chaos, no two rings alike. crests roll through each ring at 1.5 times its speed, three to two, the ratio of a fifth. a phrase is 32 beats, as a dj counts one, and every fourth phrase goes quiet.</p>
   <figure class="gfig wide" data-r><canvas class="g" data-g="rings" role="img" aria-label="four copies of dots, each with rings sized by its heart's last beats: at r = 2.9 every ring one size, at 3.2 two sizes alternating, at 3.83 three, at 4.0 no two alike"></canvas><figcaption class="mono">ring.size = x</figcaption></figure>
-  <p data-r>warhol pulled 50 marilyns from one photograph in 1962, and the ink never landed the same way twice.<sup class="fn">9</sup> his trick was insistence, the way techno insists: repeat a thing until it turns beautiful. the piece insists on one heart, 48 times over one water. along the long side, r climbs from a steady beat into chaos, a lineage; along the short side, the pace quickens 6%, so twin rhythms drift out of step, as in phase music. each copy's r also wanders a hair, so copies at an edge of order flicker across it. the uncanny lives between neighbours: one small step, and the system behaves like someone else.</p>
+  <p data-r>warhol pulled 50 marilyns from one photograph in 1962, and the ink never landed the same way twice.<sup class="fn">10</sup> his trick was insistence, the way techno insists: repeat a thing until it turns beautiful. the piece insists on one heart, 48 times over one water. along the long side, r climbs from a steady beat into chaos, a lineage; along the short side, the pace quickens 6%, so twin rhythms drift out of step, as in phase music. each copy's r also wanders a hair, so copies at an edge of order flicker across it. the uncanny lives between neighbours: one small step, and the system behaves like someone else.</p>
   <p data-r>the piece names nothing on the screen. its two axes, here:</p>
   <figure class="gfig axes wide" data-r><canvas class="g" data-g="axes" role="img" aria-label="the 48 copies as eight columns by six rows. Across the long side r steps 2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0, and each copy's heart loops every 1, 2, 4 and 8 beats, then never, then every 3 in the window at 3.83, then never. Down the short side the pace runs from 3% slower to 3% faster, 0.873 to 0.927 beats a second at rest."></canvas><figcaption class="mono">r = gridR(x);  pace = 0.97 + 0.06*y</figcaption></figure>
   <p data-r>below, the same insistence taken apart, one number to a row; down the middle, the numbers the piece runs, with r at 3.71.</p>
-  <aside class="note" data-r><b>9</b>marilyn diptych: one publicity photograph, screen-printed 50 times, colour on the left panel, black and white on the right.</aside>
+  <aside class="note" data-r><b>10</b>marilyn diptych: one publicity photograph, screen-printed 50 times, colour on the left panel, black and white on the right.</aside>
   <figure class="prints-fig wide" data-r><div class="prints" id="prints"></div><p class="mono vread" id="vread" aria-live="polite"></p><figcaption class="mono">under each print, its heart: the monitor, then a dot per beat, higher when the gap ran long</figcaption></figure>
   <p data-r>of all these numbers, one decides whether the heart sounds alive. each gap between beats comes from the one before, by the logistic map. below r = 3 the beat settles to one steady gap; past it the loop doubles, two beats long, then four, then eight. past 3.57 the loop never closes. at 3.71 two hearts started a thousandth apart fall out of step within about 12 beats, and each still sounds like a heart, almost. one beat in 16, when x tops 0.92, comes early and misshapen, without its second sound, and the next waits to make up the time. the piece lays this line along its long side, from 2.9 to 4.0, through 3.71 and the window of three at 3.83.</p>
   <figure class="edge wide" data-r>
@@ -460,16 +464,16 @@
 
 <section id="hear" data-n="07">
   <h2 class="kick"><span class="mono">07</span><span class="ring"></span><span class="bw" tabindex="0">hear<span class="br">[</span><i class="h">t</i><span class="br">]</span></span><span class="alt mono"><span class="one">speakers</span><span class="two">heart / hear</span></span></h2>
-  <p class="say" data-r>from across the room, the grid is a wall of speakers.<sup class="fn">10</sup></p>
-  <aside class="note" data-r><b>10</b>each copy a cone, the hole its dust cap, a ring pushed out on every beat. the piece makes no sound. the wall plays to the eyes.</aside>
-  <p data-r>what would it play? under every picture in this water lies noise. a diffusion model is taught by ruin: a picture is buried in noise a little at a time, until only static is left, and the model learns to take each step back.<sup class="fn">11</sup> to dream from nothing, it starts in static and takes all the steps back. drag t, or watch.</p>
-  <aside class="note" data-r><b>11</b>ho, jain and abbeel, denoising diffusion probabilistic models, 2020: 1000 steps, each adding a little more noise than the last (variance 0.0001 rising to 0.02), on pictures scaled to −1 to 1. drawn here on one dream, at every step's noise. <span class="mono"><a href="https://arxiv.org/abs/2006.11239">arxiv:2006.11239</a></span></aside>
+  <p class="say" data-r>from across the room, the grid is a wall of speakers.<sup class="fn">11</sup></p>
+  <aside class="note" data-r><b>11</b>each copy a cone, the hole its dust cap, a ring pushed out on every beat. the piece makes no sound. the wall plays to the eyes.</aside>
+  <p data-r>what would it play? under every picture in this water lies noise. a diffusion model is taught by ruin: a picture is buried in noise a little at a time, until only static is left, and the model learns to take each step back.<sup class="fn">12</sup> to dream from nothing, it starts in static and takes all the steps back. drag t, or watch.</p>
+  <aside class="note" data-r><b>12</b>ho, jain and abbeel, denoising diffusion probabilistic models, 2020: 1000 steps, each adding a little more noise than the last (variance 0.0001 rising to 0.02), on pictures scaled to −1 to 1. drawn here on one dream, at every step's noise. <span class="mono"><a href="https://arxiv.org/abs/2006.11239">arxiv:2006.11239</a></span></aside>
   <figure class="anim wide" data-param="noise" data-src="doc/dream_b.webp" data-r><canvas role="img" aria-label="a dream drawn as dots, buried in static and dug out again: at t = 1000 only noise, at t = 0 the picture, by the schedule of ho, jain and abbeel"></canvas>
     <div class="axis mono"><span class="nm">t</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick" style="left:50%">500</i><i class="tick end" style="left:100%">1000</i><input class="drag" type="range" min="0" max="1" step="0.001" value="0.3" aria-label="t, the step of noise, from 0 to 1000"><b class="mark"></b></span><span class="val">300</span></div>
     <figcaption class="mono">x = sqrt(a[t])*dream + sqrt(1 - a[t])*noise</figcaption></figure>
   <p data-r>this water never starts from static. each dream is the last one, sunk 3 or 4 steps of 10 back into noise and pulled out again (04, dream). the noise is the machine's. what comes out of it is the last picture, remembered a little wrong.</p>
-  <p data-r>the heart runs the other way: no noise goes in. x = r x (1 − x) has no chance in it, yet at r = 4 it never repeats, and its beats scatter like static. the wall plays that one heart 48 times. along the long side a steady pulse comes apart; along the short side each copy runs a hair faster than its neighbour, so twins slide out of step and, where the beat repeats, back in. steve reich made piano phase that way in 1967: two players, one pattern, one slowly pulling a beat ahead until they meet again in unison. <q>everything is worked out, there is no improvisation.</q><sup class="fn">12</sup></p>
-  <aside class="note" data-r><b>12</b>steve reich, in his 1967 note on piano phase. <span class="mono"><a href="https://www.boosey.com/cr/music/Steve-Reich-Piano-Phase/102359">boosey &amp; hawkes</a></span></aside>
+  <p data-r>the heart runs the other way: no noise goes in. x = r x (1 − x) has no chance in it, yet at r = 4 it never repeats, and its beats scatter like static. the wall plays that one heart 48 times. along the long side a steady pulse comes apart; along the short side each copy runs a hair faster than its neighbour, so twins slide out of step and, where the beat repeats, back in. steve reich made piano phase that way in 1967: two players, one pattern, one slowly pulling a beat ahead until they meet again in unison. <q>everything is worked out, there is no improvisation.</q><sup class="fn">13</sup></p>
+  <aside class="note" data-r><b>13</b>steve reich, in his 1967 note on piano phase. <span class="mono"><a href="https://www.boosey.com/cr/music/Steve-Reich-Piano-Phase/102359">boosey &amp; hawkes</a></span></aside>
   <figure class="gfig wall wide" data-r><canvas class="g" data-g="wall" role="img" aria-label="the score of the wall: 48 rows of beats over the last 20 seconds, in eight bands by r, each band six copies from slow to fast. at 2.9 every beat one size and evenly spaced, the six rows sliding apart; at 3.2 long and short; at 3.45 and 3.56 loops of four and eight; from 3.71 the beats scatter, with a loop of three at 3.83; at 4.0 static"></canvas><figcaption class="mono">gap = (0.9 + 0.2*x)/(0.9*pace)</figcaption></figure>
   <p class="quiet" data-r>maybe ai only adds noise. stand back from the wall, and the noise keeps time.</p>
 </section>
@@ -884,7 +888,11 @@ const GLY = {
     const c = P(hx, hy, 34); x.fillStyle = '#030304'; x.beginPath(); x.ellipse(c[0], c[1], RH*1.2247*s, RH*0.7071*s, 0, 0, 6.2832); x.fill();
     x.strokeStyle = 'rgba(207,196,251,' + (0.7 + 0.3*fl) + ')'; x.lineWidth = 0.8 + 0.8*fl; x.beginPath(); x.ellipse(c[0], c[1], RH*1.37*s, RH*0.79*s, 0, 0, 6.2832); x.stroke(); },
   // 02
-  ramp(D, O, T, w, h, b){ for (let k = 0; k < 6; k++) D(w*0.08 + k*w*0.17, h/2, 0.5 + k*0.6*(0.9 + 0.1*hash(k, Math.floor(b/2))), 0.15 + k*0.12, 0); },
+  // a dot's size: as large as its patch of water is bright, times the last ring that rolled past it. Light across, beat up; no light, no dot
+  size(D, O, T, w, h){ const L = 46, top = 4, bot = 24, NC = 12, NR = 5, cw = (w - L - 8)/NC, rh = (h - top - bot)/NR, R = Math.min(cw, rh)*0.46;
+    for (let i = 0; i < NC; i++) for (let j = 0; j < NR; j++) { const li = i/(NC - 1), be = (NR - j)/NR; D(L + (i + 0.5)*cw, top + (j + 0.5)*rh, R*li*be, 0.15 + 0.25*li*be, 0); }   // cyan to violet: rose means the hole
+    T('1', L - 8, top + 0.5*rh + 4, 'right'); T('beat', L - 8, top + 2.5*rh + 4, 'right'); T('0.2', L - 8, top + 4.5*rh + 4, 'right');
+    T('0', L + 0.5*cw, h - 6); T('light', L + 6*cw, h - 6); T('1', L + (NC - 0.5)*cw, h - 6); },
   // toward the hole a dot's clock runs slower, √(1 − edge/r), and shows it as colour, as in the piece's display shader: light loses its blue, then itself
   // (× (1, 0.40, 0.66) by 0.75 z², dimmed by 0.55 z³, z = 1 − clock), and the dot dies into a letter of the bracket words (gon = smoothstep(hc, hc + 0.2, 1.4 z))
   clocks(D, O, T, w, h, b, t, fl, x){ const y = h/2 - 8, gap = Math.min(104, (w - 70)/5.2), x0 = 24, CL = [1, 0.75, 0.5, 0.25, 0];
