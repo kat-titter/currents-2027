@@ -61,7 +61,7 @@ const SPRING_HOME = '', POINTER_HOME = 'https://kat-titter.github.io/vanitas-ver
 let SPRING = params.has('spring') ? (params.get('spring') || 'feed/') : SPRING_HOME;
 if (!SPRING && !params.get('img')) fetch(POINTER_HOME + '?t=' + Date.now(), { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed) SPRING = j.feed; }).catch(() => {});   // on either public address: where the spring is now (one pointer, which sink.py rewrites)
 const SMALL = Math.min(innerWidth, innerHeight) < 600 || matchMedia('(pointer: coarse)').matches;
-const SIM = 256, PI_N = SMALL ? 24 : 36, BX = 0.46, BY = 0.345;   // the basin: a rectangle, 4:3 like the dreams
+const SIM = 256, PI_N = SMALL ? 24 : 36, BX = 0.46, BY = 0.345, HOLE = 0.046;   // the basin: a rectangle, 4:3 like the dreams
 let DYE = 1024, BIG = false;                       // the water's own resolution, set from the basin's size on screen
 const TAP = [0.5, 0.5 + 0.27];
 // ?k=<0 to 1>: how far in. 0.25 unless set (LOOK); 0 is plain water: every k line in this file sits behind K > 0.
@@ -998,7 +998,7 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
 // so the copies at an edge of order flicker across it. Every neighbour is almost the same, never quite. No words on the page, not even under a pointer (Kat 2026-11-21: "show dont tell. no hover to reveal paramaters"): the about page names the axes
 const GRID_N = 48, GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0];
 const gridR = (f) => { const x = f*(GRID_RS.length - 1), i = Math.min(GRID_RS.length - 2, Math.floor(x)); return GRID_RS[i] + (GRID_RS[i + 1] - GRID_RS[i])*(x - i); };
-const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618)), z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading; zc: the pull's stretch, eased; climb: the pull as the hand has it */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
+const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618)), z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, slow:0, fall:null, fallHold:false, climbHold:false, home:null, P:null, Z:1, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading, slow: floating up; zc: the pull's stretch, eased; climb: the pull as the hand has it; drag: where it began; depth: falls through this drain; idle: seconds alone; fall: {s, v, x, y}; home: sel's own tile; P: the wall's period on screen; Z: its scale */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
 // ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
 // and every cell's edge is a small bump it sticks on; a stranger beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
 const NAV = !!grid && params.get('nav') === 'lost';
@@ -1069,8 +1069,9 @@ function gridLayout(){                                // as many columns as make
 // (Kat, the same night: "if you fall into one hole, it then takes like the whole sink basin ... almost you have to struggle to find your way out. You could keep falling back through the hole")
 // to leave, pull from the drain out to the rim against its pull; let go short and you slide back in. Esc, two fingers, or half a minute alone float you back up to the wall
 const FALL = 3.6, F1 = 0.46, F2 = 0.54;               // seconds, the whole loop; the singularity lies between F1 and F2 of it
+const drainPx = (S) => HOLE*(BH || 1)*S;            // the drain's radius on the screen for a copy drawn at scale S (the lens bends space, so it leaves out the plug, which only closes the drawn hole)
 function fallLens(F){                                 // where the fall has got to: the lens's strength (Re^2 in page pixels^2; minus, the white hole; Infinity, the singularity), how round the dots are held, how bright the one point
-  const g = grid.g, f = Math.max(0, Math.min(1, F.s/FALL)), h = 0.046*(BH || 1)*g.S*grid.Z, w = view.w, H = view.h;
+  const g = grid.g, f = Math.max(0, Math.min(1, F.s/FALL)), h = drainPx(g.S*grid.Z), w = view.w, H = view.h;
   const far = Math.max(Math.hypot(F.x, F.y), Math.hypot(w - F.x, F.y), Math.hypot(F.x, H - F.y), Math.hypot(w - F.x, H - F.y));
   const a = Math.max(g.cw, g.ch)*grid.Z, top = Math.log(far*Math.sqrt(a/40)/h), lo = -3;   // ln(Re/h): from a speck in the drain to where the copies left on the screen are too small to hold a dot (measured: by then the screen is dark)
   let L = top, m = Infinity;
@@ -1080,7 +1081,7 @@ function fallLens(F){                                 // where the fall has got 
 }
 function gridLens(){                                  // the lens this frame, if any: the fall's; or, going in or pulling out, the drain bending the space round it
   if (grid.fall) return fallLens(grid.fall);
-  const t = grid.home, h = 0.046*(BH || 1)*t.S, m = (h*(1.5*Math.sin(Math.PI*kss(0, 1, grid.z)) + 2.6*grid.zc))**2;
+  const t = grid.home, h = drainPx(t.S), m = (h*(1.5*Math.sin(Math.PI*kss(0, 1, grid.z)) + 2.6*grid.zc))**2;
   return m > 0.05 ? { x:t.cx, y:t.cy, m, round:Math.min(1, Math.sqrt(m)/(0.4*h)), pt:0 } : null;
 }
 function lensSee(l, x, y){                            // the wall point seen at screen x, y through lens l, wrapped back near the copy you are in; the display shader's pre-map in main() does the same per pixel
@@ -1123,12 +1124,12 @@ function gridCursor(x, y){ canvas.style.cursor = grid.fall ? 'none' : grid.climb
 if (grid) {                                           // on the wall a tap goes in; inside, a tap on the drain falls through, a pull from the drain to the rim climbs out (Esc or two fingers too); a press held elsewhere reaches into the water every copy shares
   canvas.style.cursor = 'zoom-in'; let dn = null; const downs = new Map();
   canvas.setAttribute('aria-label', 'Forty-eight basins seen from above, one water and one dream, each beating to a heart a step further from order. Tap one to go in. Inside, tap the drain to fall through it: space folds inside out round you, down to one point, and opens again on the same basin. To climb out, pull from the drain to the rim, or press Escape. Press and hold to reach into the water they share.');
-  const rim = (x, y) => { const c = grid.home, dx = x - c.cx, dy = y - c.cy, L = Math.hypot(dx, dy) || 1; return 0.92*Math.min(view.w/2/Math.max(1e-3, Math.abs(dx/L)), view.h/2/Math.max(1e-3, Math.abs(dy/L))); };   // how far the rim is that way
+  const rim = (x, y) => { const c = { cx:view.w/2, cy:view.h/2 }, dx = x - c.cx, dy = y - c.cy, L = Math.hypot(dx, dy) || 1; return 0.92*Math.min(view.w/2/Math.max(1e-3, Math.abs(dx/L)), view.h/2/Math.max(1e-3, Math.abs(dy/L))); };   // how far the rim is that way
   canvas.addEventListener('pointerdown', (ev) => { grid.idle = 0; downs.set(ev.pointerId, performance.now());
     if (downs.size === 2 && [...downs.values()].every((t) => performance.now() - t < 300)) { gridOut(); dn = null; return; }   // two fingers: out
-    dn = { x:ev.clientX, y:ev.clientY, t:performance.now() }; grid.drag = gridDrain(ev.clientX, ev.clientY) ? { x:ev.clientX, y:ev.clientY, d0:Math.hypot(ev.clientX - grid.home.cx, ev.clientY - grid.home.cy) } : null; });
+    dn = { x:ev.clientX, y:ev.clientY, t:performance.now() }; grid.drag = gridDrain(ev.clientX, ev.clientY) ? { x:ev.clientX, y:ev.clientY, d0:Math.hypot(ev.clientX - view.w/2, ev.clientY - view.h/2) } : null; });   // the pull is measured from the screen's centre, which does not move as the copy lets go of the edges
   canvas.addEventListener('pointermove', (ev) => { grid.idle = 0;
-    const D = grid.drag; if (D && grid.zt && !grid.fall) { const c = grid.home, d = Math.hypot(ev.clientX - c.cx, ev.clientY - c.cy), R = rim(ev.clientX, ev.clientY);
+    const D = grid.drag; if (D && grid.zt && !grid.fall) { const d = Math.hypot(ev.clientX - view.w/2, ev.clientY - view.h/2), R = rim(ev.clientX, ev.clientY);
       if (grid.climb != null || Math.hypot(ev.clientX - D.x, ev.clientY - D.y) > 10) { grid.climb = Math.max(0, Math.min(1, (d - D.d0)/Math.max(20, R - D.d0)));
         if (grid.climb >= 0.98) { dn = null; gridOut(); } } }   // the rim: out
     gridCursor(ev.clientX, ev.clientY); });
@@ -1162,7 +1163,7 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, h.rip); orbUp(u, h.orb); inkUp(u, t);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, qn, Math.max(0, Math.log2(dye.read.w*2*BX/qn)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
-      gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
+      gl.uniform4f(u.uBH, HOLE*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
       if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/qn*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
     draw(null); }
   if (fl && fl.pt > 0.001) { const r = 1.6*d, px = fl.x*d, py = (view.h - fl.y)*d;   // the one point: where every copy has gone
@@ -1201,16 +1202,24 @@ function latStep(){
   const nowL = performance.now(), dtL = Math.min(0.1, (nowL - lat.t)/1000), u = use(P.lattice); lat.t = nowL;
   const un = Math.max(0, Math.min(1, (hand.u - 0.5 + BX)/(2*BX))), vn = Math.max(0, Math.min(1, (hand.v - 0.5 + BY)/(2*BY)));
   bind(u.uL, lat.read.tex); gl.uniform2f(u.uLN, lat.w, lat.h); gl.uniform2f(u.uLT, 2.9 + 1.1*un, 0.02 + 0.48*vn); gl.uniform4f(u.uLH, hand.u - 0.5, hand.v - 0.5, hand.on ? 1 : 0, 0);
-  gl.uniform1f(u.uInit, lat.init); gl.uniform1f(u.uStepNow, kq.steps !== lat.steps ? 1 : 0); gl.uniform1f(u.uSteps, kq.steps); gl.uniform1f(u.uDt, dtL); gl.uniform1f(u.uBHr, 0.046*BH*(1 - plugAmt));
+  gl.uniform1f(u.uInit, lat.init); gl.uniform1f(u.uStepNow, kq.steps !== lat.steps ? 1 : 0); gl.uniform1f(u.uSteps, kq.steps); gl.uniform1f(u.uDt, dtL); gl.uniform1f(u.uBHr, HOLE*BH*(1 - plugAmt));
   draw(lat.write); lat.swap(); lat.init = 0; lat.steps = kq.steps;
 }
-function rTick(dt){ if (grid) { if (THIRST && grid.cr && Math.floor(dayT()) !== grid.dn) gridThirst();
-  const F = grid.fall; if (F && !grid.fallHold) { F.s += dt*F.v;
+function gridTick(dt){                                // the camera's state, once a frame: the fall, in and out, the pull, the time alone
+  const F = grid.fall;
+  if (F && !grid.fallHold) {
+    F.s += dt*F.v;
     const through = F.s >= FALL, backed = F.s <= 0;   // came out the far side (forward, or sped on by Esc), or went back up the way it came
-    if (through || backed) { grid.fall = null; if (through) grid.depth++; if (F.out) gridOut(); else gridCursor(); } }   // through: one more ring round the drain
-  grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/(grid.slow ? 2.6 : 0.9))); if (!grid.zt && !grid.z) grid.slow = 0;   // in and out; floated up, slowly
+    if (through || backed) { grid.fall = null; if (through) grid.depth++; if (F.out) gridOut(); else gridCursor(); }   // through: one more ring round the drain
+  }
+  grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/(grid.slow ? 2.6 : 0.9)));   // in and out; floated up, slowly
+  if (!grid.zt && !grid.z) grid.slow = 0;
   if (!grid.climbHold) grid.zc += (Math.pow(grid.climb ?? 0, 1.5) - grid.zc)*(1 - Math.exp(-dt/(grid.climb != null ? 0.12 : 0.35)));   // the pull lags the hand; let go, and the basin slides back in
-  grid.idle = grid.fall || grid.climbHold || hand.down ? 0 : grid.idle + dt;   // a hand held still is not alone if (grid.zt && grid.idle > 30 && !grid.fall && grid.climb == null) gridOut(true);   // left alone half a minute, the water floats you back up to the wall
+  grid.idle = grid.fall || grid.climbHold || hand.down ? 0 : grid.idle + dt;   // a hand held still is not alone
+  if (grid.zt && grid.idle > 30 && !grid.fall && grid.climb == null) gridOut(true);   // left alone half a minute, the water floats you back up to the wall
+}
+function rTick(dt){ if (grid) { if (THIRST && grid.cr && Math.floor(dayT()) !== grid.dn) gridThirst();
+  gridTick(dt);
   if (NAV) navTick(dt); const p = dayP(); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); if (hBeat(h, dt, h.rip, 0, 0, true)) h.inkT = dryAt(h, p); h.ink += ((h.inkT ?? 0) - (h.ink ?? 0))*(1 - Math.exp(-dt/0.14)); } } if (sync) syncTick(dt); }   // a copy drinks on its beat   // a grid copy's r wanders a hair round its place
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
@@ -1343,7 +1352,7 @@ function render(){
     // 8: the second face surfaces when it will, for a few seconds or longer, never on a timer
     gl.uniform1f(u.uKF, kOn('8') ? KF*(1 - kq.clear)*kss(0.45, 0.95, kNoise(simTime/9 + 3.1)) : 0); gl.uniform1f(u.uKFm, KFACE ? 1 : 0); if (KV > 0) gl.uniform2f(u.uKVf, kq.fold, KV*kq.dr); if (KW > 0) gl.uniform1f(u.uKW, KW); gl.uniform1f(u.uKT, kq.lean); gl.uniform1f(u.uKE, KE);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, QN, Math.max(0, Math.log2(dye.read.w*2*BX/QN)), kq.steps, QD);   // the dots step on the heart: lub and dub
-      gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(kq.nb/32) + 0.5))*Math.sin(6.28318*((kq.nb % 32) + kq.bt/kq.bl)/32)), 0.11*QD);   // the twist breathes once a phrase, deeper in some than others
+      gl.uniform4f(u.uBH, HOLE*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(kq.nb/32) + 0.5))*Math.sin(6.28318*((kq.nb % 32) + kq.bt/kq.bl)/32)), 0.11*QD);   // the twist breathes once a phrase, deeper in some than others
       gl.uniform1f(u.uKStep, simTime - kq.stepAt);
       const nowH = performance.now(), dtH = Math.min(0.1, (nowH - (hg.t || nowH))/1000); hg.t = nowH;   // the hand's pull eases in and out: a little while it hovers, more while it is in the water
       hg.a += ((hand.on ? 0.35 + 0.65*holdAmt : 0) - hg.a)*(1 - Math.exp(-dtH/0.3));

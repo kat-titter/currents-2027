@@ -3,6 +3,8 @@
 // It loads the page in a headless Chrome, lets it pour, puts a hand in, drags, lets go, and fails (exit 1) unless:
 //   the water runs, the look is the default (k 0.25, no line under the basin, the code on the drain's rim), the reservoir pours when no
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
+//   On the grid (?r=grid, the bare address) it checks the fall instead: a tap goes in, a drain tap falls through to depth 1, a short pull
+//   slides back, a pull to the rim climbs out, 30 s alone floats up, two fingers go out.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
@@ -38,8 +40,24 @@ try {
   need(s.water > 0.9, `water ${s.water}, not above 0.9 within 45 s`); need(s.k === 0.25, `k is ${s.k}, not 0.25`);
   need(s.line === 'none', 'the line under the basin is showing'); need(s.rim !== null, 'no line on the drain\'s rim');
   need(s.about && s.about.startsWith('about.html') && !s.about.endsWith('none'), 'no about link');
-  need(/^\[syn\[k\]\]hole/.test(s.title), `title is "${s.title}"`);
+  need(/^\[s\[i\/y\]n\[k\]\[w\]hole/.test(s.title), `title is "${s.title}"`);
   if (/spring=nofeed/.test(url)) need(s.res && s.res.on && s.res.runs > 0, 'no spring, and the reservoir is not pouring');
+  if (await js('!!(window.__basin.hearts && window.__basin.hearts.grid)')) {   // ?r=grid, the default: the fall's flows, by real pointer events on the canvas
+    const P = (t, x, y, id) => js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${x}, clientY:${y}, pointerId:${id || 1}, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
+    const F = () => js('JSON.stringify(window.__basin.fall)').then(JSON.parse), W = await js('innerWidth'), H = await js('innerHeight'), cx = W/2, cy = H/2;
+    const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
+    const pull = async (to) => { await P('pointerdown', cx, cy); for (let i = 1; i <= 15; i++) { await P('pointermove', cx, cy + (to - cy)*i/15); await nap(40); } await P('pointerup', cx, to); };
+    await tap(0.3*W, 0.3*H); await nap(1500); let f = await F(); need(f.in !== null, `a tap on the wall did not go in (${JSON.stringify(f)})`);
+    await tap(cx, cy); await nap(4300); f = await F(); need(f.f === null && f.depth === 1, `a tap on the drain did not fall through to depth 1 (${JSON.stringify(f)})`);
+    await pull(cy + 0.2*H); await nap(1200); f = await F(); need(f.in !== null && f.climb < 0.05, `a short pull did not slide back in (${JSON.stringify(f)})`);
+    await pull(H - 2); await nap(300); f = await F(); need(f.in === null, `a pull to the rim did not climb out (${JSON.stringify(f)})`);
+    await nap(1500); await tap(0.3*W, 0.3*H); await nap(1500); await js('window.__basin.hearts.grid.idle = 29.9, 1'); await nap(500); f = await F(); need(f.in === null, `30 s alone did not float up (${JSON.stringify(f)})`);
+    await nap(3000); await tap(0.3*W, 0.3*H); await nap(1500); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
+    await nap(300); f = await F(); need(f.in === null, `two fingers did not go out (${JSON.stringify(f)})`);
+    const bad = errors.filter((e) => !/\/nofeed\//.test(e)); need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
+    console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: the grid, in, through, back, out, alone, two fingers, no errors');
+    process.exit(fails.length ? 1 : 0);
+  }
   await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
   for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
   const held = await js(STATE); console.log('hand in ', JSON.stringify(held));
