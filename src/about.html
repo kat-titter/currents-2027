@@ -160,8 +160,6 @@
   .live { position:relative; aspect-ratio:4/3; margin:.6em auto 0; width:min(100%, 1180px);   /* no edge: the piece fades into the field of dots */
     -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 48%, rgba(0,0,0,.55) 70%, transparent 98%); mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 48%, rgba(0,0,0,.55) 70%, transparent 98%); }
   .live iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent; }
-  /* the live piece starts at the text's column, right of the labels (Kat 2026-11-22: the words over the dots were "visually cluttered") */
-  @media (min-width:961px) { #link.live-b .live { grid-column:2 / 4; width:100%; margin-left:0; } }
   /* bracket words: a bracket hides a letter; take it out and the word says something else. hover or focus shows both readings */
   .kick .bw { font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; outline-offset:6px; }
   .kick .bw .br { font-style:normal; color:var(--dim); }
