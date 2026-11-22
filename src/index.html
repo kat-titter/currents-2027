@@ -577,20 +577,47 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
     put('display', 'float f = uRM[i]*', 'float f = uRp[i].y*', 'swap');
     put('display', '(1. - smoothstep(5., 6.5, a))', `(1. - smoothstep(${(RL - 1.5).toFixed(1)}, ${RL.toFixed(1)}, a))`, 'swap');
     const TW = 'float tw8 = 0.72 + 0.28*mix(hash(gc + (tick - 1.)*0.137 + 0.5), hash(gc + tick*0.137 + 0.5), tE);';
-    if (RCON === 'grid' || RCON === 'held') {              // the beats drawn: each ring carries its beat's value out from the drain, and a dot is as large as the last ring that passed it said.
+    if (RCON === 'held') {                                 // the beats drawn: each ring carries its beat's value out from the drain, and a dot is as large as the last ring that passed it said.
       put('display', 'uniform vec4 uKH;', `uniform vec4 uOrb[8];             // the heart's last 16 beats, newest first: its value on the logistic map, and how long ago, two to a slot
 float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 e = i % 2 == 0 ? s.xy : s.zw; if (e.y >= back) { vec4 s1 = uOrb[(i + 1)/2]; return mix((i + 1) % 2 == 0 ? s1.x : s1.z, e.x, smoothstep(0., 0.14, e.y - back)); } } return uOrb[7].z; }
 `, 'before');                                         // so a steady heart leaves every dot one size; a two-beat, rings of two sizes; a period of three, three; chaos, no two rings alike
-      put('display', TW, `float tw8 = ${RCON === 'grid' ? '0.45 + 0.55' : '0.15 + 0.85'}*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));`, 'swap');   // in the grid a dot swings between half and full size, so a low beat never blacks a copy out (Kat 2026-11-22)
+      put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));', 'swap');
     }
     if (RCON === 'grid') {                               // thirst: a copy's dots go dry one by one, in patches, like a silkscreen running out of ink; each leaves a faint point of the grid
       put('display', 'uniform vec4 uKH;', 'uniform float uInkN[9], uInkSeed; uniform vec4 uCellE;   // how dry this copy and its eight neighbours are today (row by row, down the screen); where the patches fall; the cell: its half size in basin units, its column and row\n', 'before');
-      // no seams (Kat 2026-11-22: "harsh edges, binary borders in the grid"): each copy fades out before its cell's edge as a halftone print does, its dots smaller and smaller, never cut.
-      // The edge is the nearer of the cell's (corners rounded) and the basin's own; it wanders inward on noise, so no ruled line runs down the wall. Read at the dot's centre: a dot is whole
-      put('display', 'float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));', `vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot's centre on the screen, in basin units
-      vec2 cu = vec2(qs.x, -qs.y)/(2.*uCellE.xy), wq = uCellE.zw + 0.5 + cu, de = abs(qs) - uCellE.xy + 0.05;                           // where in its cell (-0.5 to 0.5, down the screen), and on the wall
-      float mE = min(0.05 - length(max(de, 0.)) - min(max(de.x, de.y), 0.), -sdBox(qs)), pit = 2.*B.x/gs.x;                        // pit: one dot's pitch
-      float gEdge = smoothstep(0., 2.*pit, mE - 0.25*pit - 0.008*vnoise(wq*2.3 + uInkSeed) - 0.5*pit*hash(gc + 4.3));   // about two dots of fade, its line broken dot by dot (Kat 2026-11-22, "too much dark": was four, from half a dot further in, its noise wander shrunk with it, 0.015 to 0.008)
+      // one wall, no borders (Kat 2026-11-22: "no black borders, they should all kind of be into each other and almost share dots in the matrix at the edges"; inside a copy "I can actually see the border").
+      // The dots sit on one lattice laid on the wall (uGS), and every copy is drawn past its cell's edge. Out there its dots thin out among its neighbour's, which thin out the other way: each dot
+      // belongs to exactly one copy (uCW), so nothing is drawn twice, no seam is dark or bright, and no line says where one copy ends. Inside a copy every dot on the screen is its own: no edge at all.
+      put('display', 'uniform vec4 uKH;', `uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
+float kwave(vec2 p){ float w = 0.;                   // the heartbeat as the water carries it: each beat a soft crest rolling out from its drain, a smaller one just behind (lub, dub), through this copy and on through its neighbours
+  for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;
+    float fall = inversesqrt(1. + d/0.25)*(1. - smoothstep(0.4, 0.64, d));
+    for (int i = 0; i < 4; i++) { vec4 e = uWv[4*j + i]; float tau = e.x - d/0.18; if (e.y <= 0. || tau < -0.3 || tau > 0.68) continue;
+      w += e.y*fall*(exp(-tau*tau/0.0121) + (e.z > 0. ? 0.5*exp(-(tau - e.z)*(tau - e.z)/0.0081) : 0.)); } }
+  return w; }
+`, 'before');
+      put('display', 'void main(){', 'float ign(vec2 c){ return fract(52.9829189*fract(dot(c, vec2(0.06711056, 0.00583715)))); }   // an even scatter of thresholds over the lattice, the same for every copy\n', 'before');
+      put('display', 'float r = length(q), aa = 1.5/uS;', `float coreF = 1.;
+  if (uCW.z > 0.) {                                   // whose dot is this? Each dot of the wall's lattice belongs to one copy: wholly its own cell's near the middle, and toward the edge more and more often its neighbour's
+    vec2 gU = floor((q0 + B)/(2.*B)*uGS.xy + uGS.zw), qc = (gU + 0.5 - uGS.zw)/uGS.xy*2.*B - B, e = smoothstep(0., 1., (uCW.xy + uCW.z - abs(qc))/(2.*uCW.z)), hh = vec2(ign(gU), ign(gU.yx + 37.));
+    bool own = (qc.x >= 0. ? hh.x < e.x : 1. - hh.x <= e.x) && (qc.y >= 0. ? hh.y < e.y : 1. - hh.y <= e.y);   // the copy across an edge asks the same question the other way round, so exactly one of them answers yes
+    float hk = ign(gU + 71.); if (!(uCW.w >= 0. ? own || hk < uCW.w : own && hk >= -uCW.w)) { o = vec4(0.); discard; return; }   // going in, the copy you enter takes the others' dots, one by one
+    float rc = max(min(uCW.x, uCW.y) - uCW.z, 0.11); coreF = mix(1. - smoothstep(0.6*rc, rc, length(q0)), 1., max(uCW.w, 0.)); }   // coreF: on the wall the hole bends the dots only near itself, so the lattice lies true where copies meet
+  `, 'before');
+      put('display', 'ql *= 1. - uBH.y*uBH.y/max(bhr*bhr, 1e-6);', 'ql *= 1. - coreF*uBH.y*uBH.y/max(bhr*bhr, 1e-6);', 'swap');
+      put('display', 'float tw = uBH.z*uBH.x*uBH.x/max(bhr*bhr, uBH.x*uBH.x);', 'float tw = coreF*uBH.z*uBH.x*uBH.x/max(bhr*bhr, uBH.x*uBH.x);', 'swap');
+      put('display', 'ql += rn*0.007*push*uRP;', 'ql += rn*0.007*push*uRP*coreF;', 'swap');
+      put('display', 'vec2 gs = vec2(uQD.x, floor(uQD.x*0.75 + 0.5));', 'vec2 gs = uGS.xy;', 'swap');
+      put('display', 'vec2 gp = (ql + B)/(2.*B)*gs, gc = floor(gp)', 'vec2 gp = (ql + B)/(2.*B)*gs + uGS.zw, gc = floor(gp)', 'swap');
+      FS.display = FS.display.split('(gc + 0.5)/gs').join('(gc + 0.5 - uGS.zw)/gs');
+      // the pulse (Kat 2026-11-22: "too big and too sparse", "a ring with a hard edge"; "less hard edges, more seamless"; "more clear that this is that kind of alien heartbeat ... a big peak and a little peak"):
+      // a dot swells as a crest passes it and settles again, read at the dot's own centre on the wall, so a crest has no edge and runs on into the next copy
+      put('display', TW, 'vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot\'s centre on the screen, in basin units\n      float kw = kwave(qs), tw8 = 0.6 + 0.4*(1. - exp(-1.5*kw));', 'swap');
+      put('display', '0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;', '0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime + 0.16*kw;', 'swap');   // and the film's colours shift a step on the crest
+      // a copy still fades toward its own basin's edge as a halftone print does, its dots smaller and smaller, never cut (seen only from inside a copy, at the screen's edge)
+      put('display', 'float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));', `vec2 cu = vec2(qs.x, -qs.y)/(2.*uCellE.xy), wq = uCellE.zw + 0.5 + cu;                           // where in its cell (-0.5 to 0.5, down the screen), and on the wall
+      float mE = -sdBox(qs), pit = 2.*B.x/gs.x;                        // pit: one dot's pitch
+      float gEdge = smoothstep(0., 2.*pit, mE - 0.25*pit - 0.008*vnoise(wq*2.3 + uInkSeed) - 0.5*pit*hash(gc + 4.3));
       rad *= sqrt(gEdge);                                 // a dot's area, so its light, goes down with the fade, as a halftone's does
       `, 'before');
       put('display', '*ring*lb*kiri(', '*ring*gEdge*lb*kiri(', 'swap');
@@ -974,7 +1001,7 @@ function kTick(dt, now){                              // once a frame: the clock
 const RP4 = new Float32Array(4*RN), ORB = new Float32Array(32), CEL = new Float32Array(32);
 function ripUp(u, rip){ for (let i = 0; i < RN; i++) { const e = rip[i]; RP4.set(e ? [simTime - e[0], e[1], e[2], e[3]] : [-1, 0, 0, 0], 4*i); } gl.uniform4fv(u['uRp[0]'], RP4); }
 function orbUp(u, orb){ if (!u['uOrb[0]']) return; for (let i = 0; i < 16; i++) { const e = orb[i]; ORB[2*i] = e ? e[0] : 0.37; ORB[2*i + 1] = e ? simTime - e[1] : 1e4; } gl.uniform4fv(u['uOrb[0]'], ORB); }
-const hNew = (r, seed, o) => Object.assign({ r, seed, bt:0, bl:1.1, lx:0.37, dub:0.16, ect:0, pend:0, post:0, nb:0, steps:0, stepAt:0, dubDone:true, ba:1, rip:[], orb:[], ph:0, pulse:0, f0:0, sus:1, tf:1, r0:r }, o);
+const hNew = (r, seed, o) => Object.assign({ r, seed, wv:null, eps:0, bt:0, bl:1.1, lx:0.37, dub:0.16, ect:0, pend:0, post:0, nb:0, steps:0, stepAt:0, dubDone:true, ba:1, rip:[], orb:[], ph:0, pulse:0, f0:0, sus:1, tf:1, r0:r }, o);
 const hHz = (h) => (h.f0 ? h.f0*(1 + 0.3*Math.min(1, drainAmt/0.6)) : 0.9 + 0.4*Math.min(1, drainAmt/0.6))*(1 + 0.045*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32))*(1 + 0.3*kq.tq)*(1 - 0.18*kq.under)*h.tf;
 function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not the piece's own: the same beat, its own r; true on the frame it beats
 // past r = 4 (the chaos column wanders to 4.006) x can leave 0..1 and run off to minus infinity, and the heart stops for good: so it is nudged back in, as the about page's heart is
@@ -986,7 +1013,8 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
     const oa = 6.28318*kh(h.nb*0.37 + 0.1 + h.seed), or = 0.022*Math.sqrt(kh(h.nb*0.71 + 0.3 + h.seed)), ox = or*Math.cos(oa), oy = or*Math.sin(oa);
     rip.push([simTime, dub ? h.ba : 0.8*h.ba, x0 + ox, y0 + oy]);
     if (dub && !h.ect) rip.push([simTime + h.dub*h.bl, 0.45*h.ba, x0 + ox*0.8, y0 + oy*0.8]);
-    h.orb.unshift([h.lx, simTime]); h.orb.length = Math.min(h.orb.length, 16); }
+    h.orb.unshift([h.lx, simTime]); h.orb.length = Math.min(h.orb.length, 16);
+    if (h.wv) { h.wv.unshift([simTime, 0.45 + 0.55*Math.min(1.3, h.ba), h.ect ? -1 : 2*h.dub*h.bl]); h.wv.length = Math.min(h.wv.length, 4); } }   // the beat as the wall draws it: a weak beat still shows; a stranger has no second sound
   if (!h.dubDone && h.bt >= h.dub*h.bl) { h.steps++; h.stepAt = simTime; h.dubDone = true; }
   while (rip.length && (simTime - rip[0][0] > RLIFE || rip.length > NR)) rip.shift();
   h.ph = 6.28318*h.bt/h.bl; h.pulse = kheartJ(h.bt/h.bl, h.dub);
@@ -998,7 +1026,7 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
 // so the copies at an edge of order flicker across it. Every neighbour is almost the same, never quite. No words on the page, not even under a pointer (Kat 2026-11-21: "show dont tell. no hover to reveal paramaters"): the about page names the axes
 const GRID_N = 48, GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0];
 const gridR = (f) => { const x = f*(GRID_RS.length - 1), i = Math.min(GRID_RS.length - 2, Math.floor(x)); return GRID_RS[i] + (GRID_RS[i + 1] - GRID_RS[i])*(x - i); };
-const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618)), z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, slow:0, fall:null, fallHold:false, climbHold:false, home:null, P:null, Z:1, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading, slow: floating up; zc: the pull's stretch, eased; climb: the pull as the hand has it; drag: where it began; depth: falls through this drain; idle: seconds alone; fall: {s, v, x, y}; home: sel's own tile; P: the wall's period on screen; Z: its scale */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
+const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618, { wv:[], bt:1.1*kh(i + 0.6), lx:0.2 + 0.6*kh(i*1.31 + 0.2) })),   /* every heart starts at its own place in its beat */ z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, slow:0, fall:null, fallHold:false, climbHold:false, home:null, P:null, Z:1, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading, slow: floating up; zc: the pull's stretch, eased; climb: the pull as the hand has it; drag: where it began; depth: falls through this drain; idle: seconds alone; fall: {s, v, x, y}; home: sel's own tile; P: the wall's period on screen; Z: its scale */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
 // ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
 // and every cell's edge is a small bump it sticks on; a stranger beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
 const NAV = !!grid && params.get('nav') === 'lost';
@@ -1051,7 +1079,7 @@ function navTick(dt){
 function gridAssign(c, rows){                         // which copy steps which setting depends on the page's shape: r runs along its longer side
   const long = c >= rows, na = long ? c : rows, nb = long ? rows : c;
   grid.hearts.forEach((h, i) => { const a = long ? i % c : Math.floor(i/c), b = long ? Math.floor(i/c) : i % c;
-    h.r0 = gridR(na > 1 ? a/(na - 1) : 0.5); h.tf = 1 + 0.06*(nb > 1 ? b/(nb - 1) - 0.5 : 0); });
+    h.r0 = gridR(na > 1 ? a/(na - 1) : 0.5); h.tf = (1 + 0.06*(nb > 1 ? b/(nb - 1) - 0.5 : 0))*(1 + 0.05*(kh(i*0.77 + 0.4) - 0.5)); });   // and each its own pace, a hair off its row's
   grid.cr = c; gridThirst();
 }
 function gridThirst(){                                // today's land decides who drinks first (thirstRanks, in the thirst block above)
@@ -1062,16 +1090,16 @@ function gridThirst(){                                // today's land decides wh
 }
 function gridLayout(){                                // as many columns as make each basin largest, packed tight; then the camera, in or out of one of them
   const w = view.w, h = view.h; let g = null;
-  for (const c of [1, 2, 3, 4, 6, 8, 12, 16, 24, 48]) { const r = GRID_N/c, cw = w/c, ch = h/r, S = Math.min(cw/(2*BX), ch/(2*BY)); if (!g || S > g.S) g = { c, r, cw, ch, S }; }
-  g.S *= 1.16;                                        // the water fades before its rim, so each copy is drawn a little larger than its cell and cut at the cell's edge: copies butt like prints, a hairline apart
+  for (const c of [1, 2, 3, 4, 6, 8, 12, 16, 24, 48]) { const r = GRID_N/c, cw = w/c, ch = h/r, m = GRID_M*Math.min(cw, ch)/2, S = Math.max((cw/2 + m)/(BX - 0.045), (ch/2 + m)/(BY - 0.045)); if (!g || S < g.S) g = { c, r, cw, ch, S, m }; }
+  // no borders: each copy covers its cell and m beyond it on every side, where its dots and its neighbour's interleave (gridDraw, uCW). The columns that crop the basin least win
   if (g.c !== grid.cr) gridAssign(g.c, g.r);
   g.full = 1.02*Math.max(w/(2*BX), h/(2*BY));         // inside, a copy fills the screen
   const wrap = (v, n) => ((v % n) + n) % n, at = [];   // the wall is a torus: past each edge lie the copies of the far edge (off the screen until ?nav=lost moves them, or a fall bends them in)
   grid.hearts.forEach((_, i) => { const u = NAV ? wrap(i % g.c + grid.ox, g.c) : i % g.c, v = NAV ? wrap(Math.floor(i/g.c) + grid.oy, g.r) : Math.floor(i/g.c);
     for (const du of [0, -g.c, g.c]) for (const dv of [0, -g.r, g.r]) at.push([i, (u + du + 0.5)*g.cw, (v + dv + 0.5)*g.ch, !du && !dv]); });
-  const e = Math.max(0, kss(0, 1, grid.z) - 0.45*Math.pow(grid.zc, 1.4)), Z = Math.pow(g.full/g.S, e), s = at.find((a) => a[0] === grid.sel), px = s[1] + (w/2 - s[1])*e, py = s[2] + (h/2 - s[2])*e;   // climbing, the copy lets go of the screen's edges
+  const e = grid.e = Math.max(0, kss(0, 1, grid.z) - 0.45*Math.pow(grid.zc, 1.4)), Z = Math.pow(g.full/g.S, e), s = at.find((a) => a[0] === grid.sel), px = s[1] + (w/2 - s[1])*e, py = s[2] + (h/2 - s[2])*e;   // climbing, the copy lets go of the screen's edges
   grid.g = g; grid.Z = Z;
-  grid.tiles = at.map(([i, x, y, own]) => { const cx = px + (x - s[1])*Z, cy = py + (y - s[2])*Z, hw = g.cw*Z/2, hh = g.ch*Z/2; return { hi:i, own, cx, cy, S:g.S*Z, hw, hh, x0:cx - hw, x1:cx + hw, y0:cy - hh, y1:cy + hh }; });   // own: a copy's own place, not one of its torus repeats
+  grid.tiles = at.map(([i, x, y, own]) => { const cx = px + (x - s[1])*Z, cy = py + (y - s[2])*Z, hw = g.cw*Z/2, hh = g.ch*Z/2; return { hi:i, own, cx, cy, S:g.S*Z, hw, hh, m:g.m*Z, u:x/g.cw - 0.5, v:y/g.ch - 0.5, x0:cx - hw, x1:cx + hw, y0:cy - hh, y1:cy + hh }; });   // own: a copy's own place, not one of its torus repeats
   grid.home = grid.tiles.find((t) => t.own && t.hi === grid.sel); grid.P = [w*Z, h*Z];   // P: the wall's period on the screen
 }
 // the fall (Kat 2026-11-22, on the first one: "still feeling a little bit basic and almost like you're flying. I want to feel like space is kind of folding inside out around you until you're like wrapped up
@@ -1105,7 +1133,7 @@ function lensSee(l, x, y){                            // the wall point seen at 
   const wx = l.x + dx*k - c.cx, wy = l.y + dy*k - c.cy; return [c.cx + wx - PX*Math.round(wx/PX), c.cy + wy - PY*Math.round(wy/PY)];
 }
 function lensBox(l, t){                              // where on the screen the lens can show copy t: inside the ring (every far copy's inner picture lies there), and the outer picture of each of its places near the screen
-  const P = grid.P, hw = (t.x1 - t.x0)/2, hh = (t.y1 - t.y0)/2, R = Math.sqrt(Math.abs(l.m)), b = R > 0.5 ? [l.x - R, l.y - R, l.x + R, l.y + R] : [1e9, 1e9, -1e9, -1e9];
+  const P = grid.P, hw = (t.x1 - t.x0)/2 + t.m, hh = (t.y1 - t.y0)/2 + t.m, R = Math.sqrt(Math.abs(l.m)), b = R > 0.5 ? [l.x - R, l.y - R, l.x + R, l.y + R] : [1e9, 1e9, -1e9, -1e9];
   for (const du of [0, -1, 1]) for (const dv of [0, -1, 1]) { const cx = t.cx + du*P[0], cy = t.cy + dv*P[1];
     if (Math.max(Math.abs(cx - view.w/2) - hw, Math.abs(cy - view.h/2) - hh) > Math.max(view.w, view.h)) continue;   // far off: its outer picture is farther still
     for (let k = 0; k < 32; k++) { const e = k >> 3, s = (k & 7)/7*2 - 1, x = cx + (e === 0 ? -hw : e === 1 ? hw : s*hw), y = cy + (e === 2 ? -hh : e === 3 ? hh : s*hh), dx = x - l.x, dy = y - l.y, B = Math.hypot(dx, dy) || 1e-3;   // its edge, 8 points a side
@@ -1160,26 +1188,36 @@ function inkUp(u, t){                                 // a copy's cell and how d
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) INKN[(dy + 1)*3 + dx + 1] = grid.hearts[w(y + dy, rows)*c + w(x + dx, c)].ink || 0;
   gl.uniform1fv(u['uInkN[0]'], INKN); gl.uniform1f(u.uInkSeed, grid.inkSeed || 0); gl.uniform4f(u.uCellE, t.hw/t.S, t.hh/t.S, x, y);
 }
-function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each in its own cell of the page, with its own heart; its dots as fine as stay crisp (about 5.5 screen pixels a cell)
-  const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(3/255, 3/255, 4/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);   // the seams stay ink (the screen, not the last water target)
-  const fl = gridLens(), g = grid.g, Z = grid.Z;
-  if (fl) { const k = fl.round; gl.clearColor((3 - 2.7*k)/255, (3 - 2.7*k)/255, (4 - 3.6*k)/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); }   // bent, where no copy reaches is the copies' own black, not the seams' ink: no grey disc where they have all gone
+const WV = new Float32Array(144), NORIP = [];
+function wvUp(u, t){                                  // the last four beats of a copy's heart and of its eight neighbours' (the wall is a torus), row by row down the screen
+  const c = grid.cr, rows = GRID_N/c, x = t.hi % c, y = Math.floor(t.hi/c), w = (v, n) => ((v % n) + n) % n; let k = 0;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const wv = grid.hearts[w(y + dy, rows)*c + w(x + dx, c)].wv;
+    for (let i = 0; i < 4; i++, k += 4) { const e = wv[i]; WV[k] = e ? simTime - e[0] : -1; WV[k + 1] = e ? e[1] : 0; WV[k + 2] = e ? e[2] : -1; WV[k + 3] = 0; } }
+  gl.uniform4fv(u['uWv[0]'], WV);
+}
+function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each over its cell and a margin beyond it, with its own heart; in the margin a copy keeps only the dots that are its own, on one lattice of dots about 5.5 screen pixels apart
+  const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);
+  const fl = gridLens(), g = grid.g, Z = grid.Z, kin = kss(0.25, 0.85, grid.e)*(grid.fall && fl ? 1 - fl.round : 1);   // kin: how far in you are: 1, the copy you are in is the whole screen; a fall bends the others back into view
   if (fl) { gl.uniform4f(u.uLens, fl.x*d, (view.h - fl.y)*d, fl.m*d*d, 1); gl.uniform1f(u.uRound, fl.round); }   // bent: each copy drawn once over the whole screen, wherever the lens shows it
   const tiles = fl ? grid.tiles.filter((t) => t.own) : grid.tiles;
   if (!fl || (Number.isFinite(fl.m) && !fl.gone)) for (const t of tiles) {   // at the singularity, no copy at all
-    if (!fl && (t.x1 < 0 || t.x0 > view.w || t.y1 < 0 || t.y0 > view.h)) continue;
+    const sel = t.own && t.hi === grid.sel, whole = sel && kin > 0, M = t.m;
+    if (!sel && kin >= 1) continue;
+    if (!fl && !whole && (t.x1 + M < 0 || t.x0 - M > view.w || t.y1 + M < 0 || t.y0 - M > view.h)) continue;
     const box = fl ? lensBox(fl, t) : null; if (fl && !box) continue;
-    const h = grid.hearts[t.hi], qn = 4*Math.round(Math.max(24, Math.min(QN, 2*BX*t.S*d/5.5))/4);
-    if (fl) { const x0 = Math.max(0, Math.floor(box[0]*d)), y0 = Math.max(0, Math.floor((view.h - box[3])*d)); gl.scissor(x0, y0, Math.min(canvas.width, Math.ceil(box[2]*d)) - x0, Math.min(canvas.height, Math.ceil((view.h - box[1])*d)) - y0); gl.uniform4f(u.uWrap, view.w*Z*d, view.h*Z*d, (g.cw*Z/2 - 1/d)/t.S, (g.ch*Z/2 - 1/d)/t.S); }   // cut a device pixel in from its cell's edge, as the scissor cuts it unbent
-    else { const x0 = Math.max(0, Math.floor(t.x0*d)), y0 = Math.max(0, Math.floor((view.h - t.y1)*d));
-      const sw = Math.min(canvas.width, Math.ceil(t.x1*d)) - x0 - 2, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0)*d)) - y0 - 2; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
-      gl.scissor(x0 + 1, y0 + 1, sw, sh); }
+    const h = grid.hearts[t.hi], pit = Math.max(5.5, 2*BX*t.S*d/QN), Nx = Math.max(2, Math.round(2*t.hw*d/pit)), Ny = Math.max(2, Math.round(2*t.hh*d/pit)), gsx = Nx*BX*t.S/t.hw, gsy = Ny*BY*t.S/t.hh;   // a whole number of dots to a cell, each way: the lattice runs on unbroken from copy to copy
+    if (fl) { const x0 = Math.max(0, Math.floor(box[0]*d)), y0 = Math.max(0, Math.floor((view.h - box[3])*d)); gl.scissor(x0, y0, Math.min(canvas.width, Math.ceil(box[2]*d)) - x0, Math.min(canvas.height, Math.ceil((view.h - box[1])*d)) - y0); gl.uniform4f(u.uWrap, view.w*Z*d, view.h*Z*d, (t.hw + M)/t.S, (t.hh + M)/t.S); }
+    else if (whole) gl.scissor(0, 0, canvas.width, canvas.height);
+    else { const x0 = Math.max(0, Math.floor((t.x0 - M)*d)), y0 = Math.max(0, Math.floor((view.h - t.y1 - M)*d));
+      const sw = Math.min(canvas.width, Math.ceil((t.x1 + M)*d)) - x0, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0 + M)*d)) - y0; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
+      gl.scissor(x0, y0, sw, sh); }
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
+    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2, Ny*(0.5 - t.v) - gsy/2);
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
-    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, h.rip); orbUp(u, h.orb); inkUp(u, t);
-    if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, qn, Math.max(0, Math.log2(dye.read.w*2*BX/qn)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
+    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, NORIP); wvUp(u, t); inkUp(u, t);   // the wall's beats are kwave's crests: the one basin's ripple rings are not drawn here
+    if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, gsx, Math.max(0, Math.log2(dye.read.w*2*BX/gsx)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
       gl.uniform4f(u.uBH, HOLE*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
-      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/qn*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
+      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/gsx*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
     draw(null); }
   if (fl && fl.pt > 0.001) { const r = 1.6*d, px = fl.x*d, py = (view.h - fl.y)*d;   // the one point: where every copy has gone
     gl.scissor(Math.floor(px - r - 2), Math.floor(py - r - 2), Math.ceil(2*r + 4), Math.ceil(2*r + 4)); gl.uniform4f(u.uPt, px, py, r, fl.pt); draw(null); gl.uniform4f(u.uPt, 0, 0, 0, 0); }
@@ -1233,9 +1271,27 @@ function gridTick(dt){                                // the camera's state, onc
   grid.idle = grid.fall || grid.climbHold || hand.down ? 0 : grid.idle + dt;   // a hand held still is not alone
   if (grid.zt && grid.idle > 30 && !grid.fall && grid.climb == null) gridOut(true);   // left alone half a minute, the water floats you back up to the wall
 }
+// the hearts feel each other (Kat 2026-11-22: "every individual hole is like a different heartbeat, and like sometimes they're in sync and sometimes it's out of tune, like Edge of Chaos"):
+// a beat pulls each of its four neighbours' next beat nearer, more the later that neighbour is in its own beat (pulse-coupled oscillators, after Peskin, Mirollo and Strogatz, as ?r=sync).
+// How strongly is a slow weather over the wall (eps): where it is high a patch of hearts falls into step, where it ebbs they slip apart, each back to its own r and pace. Never on a timer
+const GRID_M = 0.3, GRID_EPS = 0.5, NB4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+function gridHearts(dt){
+  const p = dayP(), c = grid.cr, rows = c ? GRID_N/c : 0;
+  grid.hearts.forEach((h, i) => { const x = c ? i % c : 0, y = c ? Math.floor(i/c) : 0;
+    h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1);   // a grid copy's r wanders a hair round its place
+    h.eps = GRID_EPS*kss(0.42, 0.62, 0.5*kNoise(0.37*x + 0.21*y + simTime/29) + 0.5*kNoise(0.41*y - 0.17*x + simTime/37 + 5.3));
+    if (hBeat(h, dt, h.rip, 0, 0, true)) { h.inkT = dryAt(h, p);   // a copy drinks on its beat
+      if (c) for (const [dx, dy] of NB4) { const n = grid.hearts[((y + dy + rows) % rows)*c + (x + dx + c) % c], f = n.bt/n.bl; if (f > 0.2 && f < 1) n.bt = Math.min(1, f + n.eps*f*f)*n.bl; } }
+    h.ink += ((h.inkT ?? 0) - (h.ink ?? 0))*(1 - Math.exp(-dt/0.14)); });
+}
+function gridSync(){                                  // how many neighbours are in step right now: the share of side-by-side pairs within a tenth of a beat of each other (0.2 by chance)
+  const c = grid.cr, rows = GRID_N/c, f = grid.hearts.map((h) => h.bt/h.bl); let n = 0;
+  f.forEach((a, i) => { const x = i % c, y = Math.floor(i/c); for (const j of [y*c + (x + 1) % c, ((y + 1) % rows)*c + x]) { const d = Math.abs(a - f[j]); if (Math.min(d, 1 - d) < 0.1) n++; } });
+  return n/(2*GRID_N);
+}
 function rTick(dt){ if (grid) { if (THIRST && grid.cr && Math.floor(dayT()) !== grid.dn) gridThirst();
   gridTick(dt);
-  if (NAV) navTick(dt); const p = dayP(); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); if (hBeat(h, dt, h.rip, 0, 0, true)) h.inkT = dryAt(h, p); h.ink += ((h.inkT ?? 0) - (h.ink ?? 0))*(1 - Math.exp(-dt/0.14)); } } if (sync) syncTick(dt); }   // a copy drinks on its beat   // a grid copy's r wanders a hair round its place
+  if (NAV) navTick(dt); gridHearts(dt); } if (sync) syncTick(dt); }   // a copy drinks on its beat   // a grid copy's r wanders a hair round its place
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
   kq.ls.vx = kq.ls.vy = 0;
@@ -1411,7 +1467,9 @@ window.__basin = { get t(){ return simTime; }, get thirst(){ return grid ? { day
   get res(){ return RES ? { on:res.on, runs:res.runs ? res.runs.length : 0, order:res.order.join(' '), run:res.order[res.i], frame:res.j } : null; } };
 if (RCON) Object.defineProperty(window.__basin, 'hearts', { get: () => ({ grid, sync, lat }) });
 if (grid) Object.defineProperties(window.__basin, { tap:{ value:(x, y) => gridTap(x, y) }, fallHold:{ value:(f) => { grid.fallHold = f !== undefined; if (grid.fall && f !== undefined) grid.fall.s = f*FALL; } },
-  idle:{ value:(sec) => { grid.idle = sec; } },   // for the checks: as if left alone this long
+  idle:{ value:(sec) => { grid.idle = sec; } }, sync:{ get: () => gridSync() },
+  beats:{ value:(secs, dt = 1/60) => { const out = []; for (let s = 0, k = 0; s < secs; s += dt, k++) { simTime += dt; gridHearts(dt); if (k % 30 === 0) out.push(+gridSync().toFixed(2)); } return out; } },   // for the checks: the hearts alone, run ahead; how in step they were, twice a second
+   // for the checks: as if left alone this long
   climbHold:{ value:(p) => { grid.climbHold = p !== undefined; if (p !== undefined) grid.zc = Math.pow(p, 1.5); } },
   fall:{ get: () => { const at = { in:grid.zt ? grid.sel : null, z:+grid.z.toFixed(2), depth:grid.depth, climb:+grid.zc.toFixed(2) }; if (!grid.fall) return { f:null, ...at }; const l = fallLens(grid.fall); return { f:+l.f.toFixed(3), v:grid.fall.v, re2:Number.isFinite(l.m) ? Math.round(l.m) : 'inf', pt:+l.pt.toFixed(2), ...at }; } } });   // for the documents: tap, hold the fall at a point, read where it is   // ?r=<concept>: the other hearts, for the documents and the checks
 const nextFrame = params.has('snap') ? (f) => setTimeout(() => f(performance.now()), 16) : requestAnimationFrame;   // ?snap runs on timers, so stills render even off screen
