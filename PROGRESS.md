@@ -67,7 +67,7 @@ The live site serves the same `index.json`. The code would still let a woken spr
 
 ### Follow-ups for the piece (index.html, not touched here)
 
-- The thirst's dawn is fixed at 13:00 UTC (`:960`): 6 am in Santa Fe in winter, 7 am in June (MDT). The page says "six each morning, santa fe time", true now.
+- The thirst's dawn is 6 am in Santa Fe all year (index.html `dawnDay`, America/Denver, daylight time included; was a fixed 13:00 UTC until 2026-11-22). The page says "six each morning, santa fe time".
 - In the grid, the `lost = mm:ss` ring (`kRimDraw`) circles the screen's centre at the single basin's drain size, between copies.
 
 ### Check
