@@ -600,12 +600,14 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       // The dots sit on one lattice laid on the wall (uGS), and every copy is drawn past its cell's edge. Out there its dots thin out among its neighbour's, which thin out the other way: each dot
       // belongs to exactly one copy (uCW), so nothing is drawn twice, no seam is dark or bright, and no line says where one copy ends. Inside a copy every dot on the screen is its own: no edge at all.
       put('display', 'uniform vec4 uKH;', `uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
-float kwave(vec2 p){ float w = 0.;                   // the heartbeat as the water carries it: each beat a soft crest rolling out from its drain, a smaller one just behind (lub, dub), through this copy and on through its neighbours
-  for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;
-    float fall = inversesqrt(1. + d/0.25)*(1. - smoothstep(0.4, 0.64, d));
-    for (int i = 0; i < 4; i++) { vec4 e = uWv[4*j + i]; float tau = e.x - d/0.18; if (e.y <= 0. || tau < -0.3 || tau > 0.68) continue;
-      w += e.y*fall*(exp(-tau*tau/0.0121) + (e.z > 0. ? 0.5*exp(-(tau - e.z)*(tau - e.z)/0.0081) : 0.)); } }
-  return w; }
+vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.8*B.x/uGS.x;   // pw: the rim is about a dot and a half wide, whatever the scale
+    // the heartbeat as a speaker gives it (Kat 2026-11-22: "it used to feel more like a speaker with the borders and the ring being emitted"): round each drain a cone, its rim a thin ring of
+  for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;   // light (Rs, the surround: a border drawn in light, not in black, so the copies stay one field). On a beat the whole cone moves at once, the rim flares, and a crest leaves the rim:
+    float gone = max(0., d - Rs), far = clamp(gone/0.3, 0., 1.), sl = 0.07 + 0.05*far, sd = 0.06 + 0.04*far, s = 0.;                         // crisp where it is thrown, softer the further it rolls, on through the neighbours; a smaller crest just behind (lub, dub)
+    for (int i = 0; i < 4; i++) { vec4 e = uWv[4*j + i]; float tau = e.x - gone/0.18; if (e.y <= 0. || tau < -0.3 || tau > 0.68) continue;
+      s += e.y*(exp(-tau*tau/(sl*sl)) + (e.z > 0. ? 0.5*exp(-(tau - e.z)*(tau - e.z)/(sd*sd)) : 0.)); }
+    w += inversesqrt(1. + d/0.25)*(1. - smoothstep(0.4, 0.64, d))*mix(0.45, 1., smoothstep(Rs - 0.03, Rs, d))*s; kr += exp(-(d - Rs)*(d - Rs)/(pw*pw))*(0.45 + 0.9*s); }
+  return vec2(w + kr, kr); }   // y: the rim alone, which also shows where the water is dark
 `, 'before');
       put('display', 'void main(){', 'float ign(vec2 c){ return fract(52.9829189*fract(dot(c, vec2(0.06711056, 0.00583715)))); }   // an even scatter of thresholds over the lattice, the same for every copy\n', 'before');
       put('display', 'float r = length(q), aa = 1.5/uS;', `float coreF = 1.;
@@ -623,7 +625,7 @@ float kwave(vec2 p){ float w = 0.;                   // the heartbeat as the wat
       FS.display = FS.display.split('(gc + 0.5)/gs').join('(gc + 0.5 - uGS.zw)/gs');
       // the pulse (Kat 2026-11-22: "too big and too sparse", "a ring with a hard edge"; "less hard edges, more seamless"; "more clear that this is that kind of alien heartbeat ... a big peak and a little peak"):
       // a dot swells as a crest passes it and settles again, read at the dot's own centre on the wall, so a crest has no edge and runs on into the next copy
-      put('display', TW, 'vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot\'s centre on the screen, in basin units\n      float kw = kwave(qs), tw8 = 0.6 + 0.4*(1. - exp(-1.5*kw));', 'swap');
+      put('display', TW, 'vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot\'s centre on the screen, in basin units\n      vec2 kwv = kwave(qs); float kw = kwv.x, kr = kwv.y, tw8 = 0.6 + 0.4*(1. - exp(-1.5*kw));', 'swap');
       put('display', '0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;', '0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime + 0.16*kw;', 'swap');   // and the film's colours shift a step on the crest
       // a copy still fades toward its own basin's edge as a halftone print does, its dots smaller and smaller, never cut (seen only from inside a copy, at the screen's edge)
       put('display', 'float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));', `vec2 cu = vec2(qs.x, -qs.y)/(2.*uCellE.xy), wq = uCellE.zw + 0.5 + cu;                           // where in its cell (-0.5 to 0.5, down the screen), and on the wall
@@ -639,7 +641,8 @@ float kwave(vec2 p){ float w = 0.;                   // the heartbeat as the wat
       float inkL = mix(mix(uInkN[4], uInkN[4 + sx.x], fa.x), mix(uInkN[4 + 3*sx.y], uInkN[4 + sx.x + 3*sx.y], fa.x), fa.y);
       float kthr = 0.42*hash(gc + 9.7) + 0.58*vnoise(wq*3.1 + uInkSeed + 7.3), kdry = smoothstep(kthr - 0.015, kthr, inkL*1.02); dq *= 1. - 0.96*kdry;
       `, 'before');
-      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float r0 = 0.085*(0.85 + 0.3*tw8)*gEdge;', 'swap');   // the faint grid fades with the rest
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float r0 = (0.085*(0.85 + 0.3*tw8) + 0.09*kr)*gEdge;', 'swap');
+      put('display', 'dq = max(dq, uBH.w*mix(BONE, film, 0.5)*', 'dq = max(dq, uBH.w*(1. + 2.5*kr)*mix(BONE, film, 0.5)*', 'swap');   // on the rim the faint grid's dots are larger and brighter, so the ring reads over dark water too   // the faint grid fades with the rest
       put('display', '+ uGX.z);', '+ uGX.z + 0.9*kdry);', 'swap');                      // a dry dot turns into a letter of the bracket words, faint: when the water is gone, the meaning shows
       put('display', 'gon *= (1. - smoothstep(0., 0.3, bz))*(1. - uRound);', 'gon *= (1. - smoothstep(0., 0.3, bz))*(1. - uRound)*step(hash(gc + 2.9), gEdge);', 'swap');   // toward the edge fewer letters, never a cut one
       put('display', 'dq = mix(dq, gq, gon); }', 'dq = mix(dq, gq*(1. - 0.5*kdry), gon); }', 'swap');
@@ -1382,7 +1385,7 @@ function blow(){
   if (K > 0 && kq.nb !== bubNb) { bubNb = kq.nb; if (Math.random() < 0.4*kq.ba) nextBub = Math.min(nextBub, t + 0.06 + 0.3*Math.random()); }   // ?k: on some beats, more in a strong phrase, a vent answers a moment later
   const mk = (x, y, R, born, life) => ({ x, y, R, r:0, born, life, pop:0, seed:Math.random(), rise:(0.5 + 0.5*Math.random())*(1.6 + 14*R), vx:0, vy:0 });   // rise: how long it takes to surface, 0.9 to 3.3 s, the big ones slower
   if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a bigger one; often a glob of two or three
-    const R = 0.012 + 0.11*Math.pow(Math.random(), 2.4), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
+    const R = 0.010 + 0.072*Math.pow(Math.random(), 2.4), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
     const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
     const life = 4 + 34*R + 3*Math.random(), n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;   // a small one lives about 3 s, the biggest about 9
     bubs.push(mk(x, y, R, t, life));
@@ -1390,7 +1393,7 @@ function blow(){
       bubs.push(mk(x + Math.cos(a2)*(R + r2)*0.8, y + Math.sin(a2)*(R + r2)*0.8, r2, t + 0.3 + 0.9*Math.random(), life*(0.5 + 0.5*Math.random()))); }
     nextBub = t + 0.7 + 1.6*Math.random(); }
   if (dt < 0 && BUBBLES && t < kq.unpop && bubs.length < NB && water > 0.5) {   // ?k, backwards: a bubble un-pops. Goo gathers into a skin, the dome shrinks and sinks
-    const R = 0.015 + 0.09*Math.pow(Math.random(), 2), life = 2.5 + 30*R + 3*Math.random();
+    const R = 0.012 + 0.06*Math.pow(Math.random(), 2), life = 2.5 + 30*R + 3*Math.random();
     bubs.push(Object.assign(mk((Math.random()*2-1)*(BX-R)*0.8, (Math.random()*2-1)*(BY-R)*0.8, R, t - POP - life*(0.6 + 0.35*Math.random()), life), { pop:t - POP + 0.02 }));
     kq.unpop = t - 0.6 - 1.2*Math.random(); }
   if (dt >= 0) kq.unpop = t;
