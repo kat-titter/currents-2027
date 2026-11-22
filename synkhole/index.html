@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta property="og:title" content="[s[i/y][k][w]hole, CURRENTS 2027">
-<meta property="og:description" content="[s[i/y][k][w]hole, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
+<meta property="og:title" content="[s[i/y]n[k][w]hole, CURRENTS 2027">
+<meta property="og:description" content="[s[i/y]n[k][w]hole, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>[s[i/y][k][w]hole, CURRENTS 2027</title>
+<title>[s[i/y]n[k][w]hole, CURRENTS 2027</title>
 <link rel="icon" href="data:,">
-<meta name="description" content="[s[i/y][k][w]hole, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
+<meta name="description" content="[s[i/y]n[k][w]hole, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
 <style>
   :root { --bone:#e4dfd2; --pearl:linear-gradient(90deg, #bfe6ee, #cfc9f2, #f2c9dd); --ink:#030304; --dim:#8a8d93;
     --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
@@ -40,14 +40,14 @@
 </head>
 <body>
 <canvas id="c" aria-label="A basin seen from above. Water runs from the tap to the drain, carrying a dream. Press to reach in; the space bar is the plug."></canvas>
-<h1 id="title">[s[i/y][k][w]hole</h1>
+<h1 id="title">[s[i/y]n[k][w]hole</h1>
 <div id="dry"></div>
 <pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span></pre>
 <a id="about" href="about.html">about</a>
 <script>
 (() => {
 'use strict';
-// [s[i/y][k][w]hole (sync == sink): a basin whose water is a machine dreaming. A spring (code/sink.py, on a GPU) writes a new prompt, dreams it, and walks the
+// [s[i/y]n[k][w]hole (sync == sink): a basin whose water is a machine dreaming. A spring (code/sink.py, on a GPU) writes a new prompt, dreams it, and walks the
 // latent space to the next, frame by frame; every frame pours in at the tap and runs to the drain. When no spring answers, stored dreams pour from the reservoir.
 // Reach in, and the water under your hand goes where your hand goes, for a moment; then it slips through your fingers, down the drain.
 // The water engine began as veritas (verse/sync.html, the web basin of Vanitas Veritas, a separate piece that keeps its own page and its gold).
@@ -482,7 +482,12 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
     put('display', 'uniform vec4 uKH;', 'uniform sampler2D uGA; uniform vec4 uGC[48], uGX;   // glyphs: the atlas; the code line, one slot per character; its length, the atlas mip level, how drained, the step of the rows\n', 'before');
     put('display', 'uniform vec4 uKH;', 'uniform float uKStep;                 // seconds since the heart last stepped: a dot eases to its new size, never snaps\n', 'before');
     put('display', 'uniform vec4 uKH;', 'uniform vec4 uQD, uBH, uHG;      // quanta: cells across, the mip level of one cell, the clock of the dots, how much; the hole: its edge, its ring of focus, its twist, how faint the empty grid; the hand: where, its pull, its reach\n', 'before');
-    put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1.;
+    // nacre (Kat 2026-11-21: the bubble read "too shiny ... cheap video game", "mattify it or even make it iridescent"): a pearl has no hotspot, its light comes from inside, in thin layers.
+    // With the dots on, a bubble loses its catch-light and its smooth rim light (the only marks on the page that were not dots); its dots go matte and wear the film in rings
+    put('display', '+ 0.4*smoothstep(0.35, 0., abs(t-0.7))', '+ 0.4*(1. - uQD.w)*smoothstep(0.35, 0., abs(t-0.7))', 'swap');
+    put('display', 'if (t < 1.) ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t);', 'if (t < 1.) { ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t); film = max(film, uQD.w*k*(1. - t*t)); }', 'swap');   // a popping bubble is nacre too, as it melts
+    put('display', '(c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L', '(c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L*(1. - 0.85*uQD.w)', 'swap');
+    put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1., bubF = clamp(film, 0., 1.), bubR = clamp(rimL, 0., 1.), bubM = clamp(2.5*men, 0., 1.);
     if (uHG.z > 0.) { vec2 hd = ql - uHG.xy; float h2 = dot(hd, hd);   // the hand has a little gravity of its own: the grid bends toward it, and near it the clocks run slow
       ql -= hd*uHG.z*uHG.z/(h2 + uHG.w*uHG.w);
       bhClock *= mix(1., smoothstep(0., 3.5*uHG.w, sqrt(h2)), clamp(uHG.z/0.03, 0., 1.)*0.85); }
@@ -499,6 +504,11 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       vec3 cqc = clamp(textureLod(uDye, C - B + (gc + 0.5)/gs*2.*B, uQD.y).rgb, 0., 1.); float lq = lum(cqc);
       b = mix(b, cqc*(0.6 + 0.6*lum(b)/max(lq, 0.02)), 0.65);   // each dot one colour, the cell's own, so its edge is sharp; the water's light still plays on it
       float fw = clamp(length(fwidth(gp)), 1e-3, 2.);
+      vec2 jx = dFdx(gp), jy = dFdy(gp); float jd = jx.x*jy.y - jy.x*jx.y;
+      vec2 dpc = abs(jd) > 1e-8 ? vec2(-jy.y*gf.x + jy.x*gf.y, jx.y*gf.x - jx.x*gf.y)/jd : vec2(0.);   // the screen offset from this pixel to its dot's centre
+      float bFc = clamp(bubF + dFdx(bubF)*dpc.x + dFdy(bubF)*dpc.y, 0., 1.), bRc = clamp(bubR + dFdx(bubR)*dpc.x + dFdy(bubR)*dpc.y, 0., 1.), bMc = clamp(bubM + dFdx(bubM)*dpc.x + dFdy(bubM)*dpc.y, 0., 1.);   // the bubble read once per dot, at its centre: a dot is whole, never cut by a bubble's edge (Kat 2026-11-21: "jagged pizel edge")
+      float bz = max(max(bFc, 0.6*bRc), 0.7*bMc);
+      fw = mix(fw, min(fw, 0.24), bz);                     // over a bubble a dot keeps a hard edge however the dome squeezes the grid: soft light among dots reads as gloss
       float tdiv = exp2(floor(min(3., -1.3*log2(max(bhClock, 0.05)))));   // one song: the dots step on the heart, half of them on every lub and dub, half on the lub alone; near the hole half time, then quarter, then eighth
       float tD = tdiv*(hash(gc + 3.1) < 0.5 ? 1. : 2.), tick = floor(uQD.z/tD) + 9.*floor(hash(gc)*7.);
       float tE = mod(uQD.z, tD) < 0.5 ? smoothstep(0., 0.14, uKStep) : 1.;   // a dot whose step just came grows or shrinks to its new size over 0.14 s, done before the dub
@@ -507,21 +517,25 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
       float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
       float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
-      vec3 film = kiri(x + 0.55*gu);
+      vec3 film = kiri(x + 0.55*gu*(1. - bz) + 2.4*bFc + 1.2*bRc);                                            // over a bubble the film's bands close into rings, thinner toward its edge, as on nacre
       vec3 core = mix(BONE*lb*1.15 + b*0.35, b*film*1.6, smoothstep(0.15, 1.0, gu));                 // pearl: bone at the heart of each dot, the film's colours toward its edge
-      float ring = exp(-pow((g0 - rad*1.45 - 0.035)/0.04, 2.));                                       // and a thin halo round it, the film's colours shifted a step
-      vec3 dq = 1.75*dotm*core + 0.16*b*exp(-g0*g0/(2.4*rad*rad + 1e-4)) + 0.34*ring*lb*kiri(x + 0.5 + 1.6*g0);
+      float nac = bz;                                                                                  // the bubble, its rim and the ring where the water curves down to it
+      core = mix(core, film*(0.20*lb + 0.38*lq + 0.05), nac); lb *= 1. - 0.35*nac;               // nacre: in a bubble a dot loses its bone heart; its colour is the film's, one flat colour (a gradient across it made a lit bead), its light the cell's own, matte
+      float ring = exp(-pow((g0 - min(rad*1.45 + 0.035, 0.44))/0.04, 2.));                                       // and a thin halo round it, the film's colours shifted a step
+      vec3 dq = 1.75*dotm*core + 0.34*(1. - 0.7*nac)*ring*lb*kiri(x + 0.5 + 1.6*g0);   // every mark a dot: no soft glow (Kat 2026-11-21, a bubble's "jagged pizel edge": the glow was cut square at each cell's edge, and a bubble magnified the squares)
       float r0 = 0.085*(0.85 + 0.3*tw8);                                                           // and where the water is dark the grid stays: every cell a faint dot, so the bend of space shows with no dream in it
       dq = max(dq, uBH.w*mix(BONE, film, 0.5)*smoothstep(r0 + 0.5*fw, r0 - 0.5*fw, g0));
       float hc = 0.7*hash(gc + 0.37), gon = smoothstep(hc, hc + 0.2, max(1.4*(1. - bhClock), step(0.0001, uBH.x)*smoothstep(0.34, 0.09, bhr)) + uGX.z);   // where time runs slow, and as the water goes, a dot dies into the code it was dreamed from: cell by cell, not all at once
+      gon *= 1. - smoothstep(0., 0.3, bz);                 // a bubble holds no code: squeezed by its dome, the letters smeared into grey sheen
       if (gon > 0.001 && uGX.x > 0.) {
         float n = uGX.x, ix = mod(gc.x + floor(hash(vec2(gc.y, uGX.w) + 0.71)*n), n);   // each row reads the line from its own place, re-rolled now and then; bent with the grid, the code curves round the hole
         int i = int(ix); float ch = uGC[i/4][i - 4*(i/4)];
         float ga = textureLod(uGA, (vec2(mod(ch, 16.), 5. - floor(ch/16.)) + gf + 0.5)/vec2(16., 6.), uGX.y).g;
         vec3 gq = mix(BONE, film, 0.5)*ga*max(0.12 + 1.35*lq, 0.30 + 0.25*(1. - bhClock));   // the code gives its own light, a little more the slower its clock
         dq = mix(dq, gq, gon); }
+      dq *= 1. - 0.85*smoothstep(0.2, 0.8, bMc);         // a bubble's rim, where its dome squeezes the dots one way and stretches them the other into arcs of light (a glass rim), falls into the water's shadow instead
       float z = 1. - bhClock; dq *= mix(vec3(1.), vec3(1.0, 0.40, 0.66), 0.75*z*z)*(1. - 0.55*z*z*z);   // light climbing out of the hole loses its blue, then itself
-      b = mix(b, mix(dq, b*0.8, smoothstep(0.30, 0.75, fw)), uQD.w); }   // where the lens packs the dots finer than a pixel, they blur into the light they carry
+      b = mix(b, mix(dq, b*0.8/(1. + 4.*lum(b))*(1. - 0.8*max(nac, bMc)), smoothstep(0.30, 0.75, fw)), uQD.w); }   // where the lens packs the dots finer than a pixel, they blur into the light they carry, its bright end held down so a smear never outshines the dots (a bright smooth smear read as chrome); round a bubble, barely
     if (uBH.x > 0.) { float a = atan(q.y, q.x);           // the edge of the dark, and one thin ring of light at it, brighter on the side that turns toward you
       b *= smoothstep(uBH.x*0.90, uBH.x*1.06, r);
       b += pearl(a/6.28318 + 0.04*uTime)*(0.50*exp(-pow((r - uBH.x*1.10)/(uBH.x*0.030), 2.)) + 0.16*exp(-pow((r - uBH.x*1.19)/(uBH.x*0.018), 2.)))*(0.35 + 0.65*pow(0.5 + 0.5*cos(a - 2.4), 2.)); }
@@ -941,7 +955,7 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
 // ?r=grid (the piece's default, Kat 2026-11-21: "grid best, but denser, less text"; "the evolutionary warhol angle"; "insistence ... repetition until beautiful. here, uncanny is slight change in x and y"):
 // one heart, repeated 48 times over one water and one dream, as a lineage. Along the long side each copy is a step further along r, through 1, 2, 4 and 8 beats, today's 3.71, the window of 3, into chaos;
 // along the short side each beats a hair faster than the one before (6% end to end), so a line of identical rhythms drifts out of step, as in phase music. Every copy's r also wanders a hair on its own,
-// so the copies at an edge of order flicker across it. Every neighbour is almost the same, never quite. No words on the page: a copy's r shows, faint, only under a pointer
+// so the copies at an edge of order flicker across it. Every neighbour is almost the same, never quite. No words on the page, not even under a pointer (Kat 2026-11-21: "show dont tell. no hover to reveal paramaters"): the about page names the axes
 const GRID_N = 48, GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0];
 const gridR = (f) => { const x = f*(GRID_RS.length - 1), i = Math.min(GRID_RS.length - 2, Math.floor(x)); return GRID_RS[i] + (GRID_RS[i + 1] - GRID_RS[i])*(x - i); };
 const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618)), z:0, zt:0, sel:0, hover:-1, tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
@@ -997,18 +1011,9 @@ if (grid) {                                           // a tap goes into a copy 
   canvas.addEventListener('pointerdown', (ev) => { dn = { x:ev.clientX, y:ev.clientY, t:performance.now() }; });
   canvas.addEventListener('pointerup', (ev) => { const d = dn; dn = null; if (d && performance.now() - d.t < 300 && Math.hypot(ev.clientX - d.x, ev.clientY - d.y) < 10) gridTap(ev.clientX, ev.clientY); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') gridTap(); });
-  const s = grid.label = document.createElement('span'); s.setAttribute('aria-hidden', 'true');   // the one word on the page, and only under a pointer: the copy's r and pace
-  Object.assign(s.style, { position:'fixed', left:'0', top:'0', font:'10px/1 var(--mono)', letterSpacing:'.04em', color:'var(--bone)', opacity:'0', pointerEvents:'none', whiteSpace:'nowrap', textShadow:'0 0 4px var(--ink)', transition:'opacity .4s' });
-  document.body.append(s);
-}
-function gridLabel(){
-  const s = grid.label, i = grid.hover, t = grid.tiles.find((u) => u.hi === i && hand.x >= u.x0 && hand.x <= u.x1 && hand.y >= u.y0 && hand.y <= u.y1), on = hand.on && i >= 0 && t;
-  s.style.opacity = on ? '0.55' : '0'; if (!on) return;
-  const h = grid.hearts[i], txt = `r = ${h.r0.toFixed(2)}  ${(0.9*h.tf).toFixed(3)} Hz`; if (s.textContent !== txt) s.textContent = txt;
-  s.style.transform = `translate(${(Math.max(0, t.x0) + 7).toFixed(1)}px, ${(Math.min(view.h, t.y1) - 17).toFixed(1)}px)`;   // in the copy's own cell, lower left
 }
 function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each in its own cell of the page, with its own heart; its dots as fine as stay crisp (about 5.5 screen pixels a cell)
-  const d = view.dpr; gridLayout(); gridLabel(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(3/255, 3/255, 4/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);   // the seams stay ink (the screen, not the last water target)
+  const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(3/255, 3/255, 4/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);   // the seams stay ink (the screen, not the last water target)
   grid.tiles.forEach((t, i) => {
     if (t.x1 < 0 || t.x0 > view.w || t.y1 < 0 || t.y0 > view.h) return;
     const h = grid.hearts[t.hi], x0 = Math.max(0, Math.floor(t.x0*d)), y0 = Math.max(0, Math.floor((view.h - t.y1)*d)), qn = 4*Math.round(Math.max(24, Math.min(QN, 2*BX*t.S*d/5.5))/4);
