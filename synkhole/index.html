@@ -574,6 +574,9 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float kthr = 0.5*hash(gc + 9.7) + 0.5*vnoise(gc*0.12 + uInkSeed), kdry = smoothstep(kthr - 0.015, kthr, uInk*1.02); dq *= 1. - 0.96*kdry;\n      ', 'before');
       put('display', '+ uGX.z);', '+ uGX.z + 0.9*kdry);', 'swap');                      // a dry dot turns into a letter of the bracket words, faint: when the water is gone, the meaning shows
       put('display', 'dq = mix(dq, gq, gon); }', 'dq = mix(dq, gq*(1. - 0.5*kdry), gon); }', 'swap');
+      put('display', 'uKE*(0.05 + 0.08*vnoise', 'uKE*0.4*(0.05 + 0.08*vnoise', 'swap');   // a bigger light in every copy (Kat 2026-11-21: "the light region should be bigger"): the uneven edge fade is narrower
+      put('display', 'float bowl = mix(0.32,1.,smoothstep(0.,-0.07,sd))', 'float bowl = mix(0.7,1.,smoothstep(0.,-0.04,sd))', 'swap');   // the bowl's rim barely darker
+      put('display', 'col *= 1.-0.75*dot(sc,sc);', 'col *= 1.-0.1*dot(sc,sc);', 'swap');   // and no screen-wide vignette: the outer copies are as bright as the middle ones, as prints are
     }
     if (RCON === 'field') FS.lattice = `
 uniform highp sampler2D uL; uniform vec2 uLN, uLT; uniform vec4 uLH; uniform float uInit, uStepNow, uSteps, uDt, uBHr;
@@ -963,12 +966,12 @@ const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.
 // and every cell's edge is a small bump it sticks on; a ghost beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
 const NAV = !!grid && params.get('nav') === 'lost';
 // thirst (Kat 2026-11-21, "thirsty"; "do both!"): the 48 hearts drink from one water through the day. The day starts at 06:00 in Santa Fe (13:00 UTC) for everyone, so strangers share one level.
-// The thirstiest copies (the chaotic ones, and a little the faster ones) start drying at dawn; the steady ones dry last, by night. Inside a drying copy the dots go dark one by one, each on that copy's beat:
+// Thirst follows a yin-yang over the grid more than any one axis (Kat 2026-11-21: "big line down the middle ... less binary. Some yin yang is okay, but there should be balance and flow"): chaos drinks more, the curl of two lobes decides as much, and a little chance; ranked so the day drains evenly. Each copy dries over half the day. Inside a drying copy the dots go dark one by one, each on that copy's beat:
 // it drinks as it beats. A visit of a few minutes sees dots wink out; a full drain takes the day. ?thirst=<speed> (1 unless set; 600: a day in 2.4 minutes; 0: never thirsty)
 const THIRST = grid ? (params.has('thirst') ? Math.max(0, parseFloat(params.get('thirst')) || 0) : 1) : 0, DAY = 864e5, DAWN = 13*36e5;
-const thirst0 = { p:(((Date.now() - DAWN) % DAY) + DAY) % DAY/DAY, at:performance.now() };
+const thirst0 = { p:params.has('day') ? Math.max(0, Math.min(0.999, parseFloat(params.get('day')) || 0)) : (((Date.now() - DAWN) % DAY) + DAY) % DAY/DAY, at:performance.now() };   // ?day=<0 to 1>: start at that point of the day (0 dawn, 0.5 midday), for the documents
 const dayP = () => (thirst0.p + (performance.now() - thirst0.at)*THIRST/DAY) % 1;   // how far through today's water, 0 at dawn
-const dryAt = (h, p) => THIRST ? kss((1 - 0.35)*(1 - h.thirst), (1 - 0.35)*(1 - h.thirst) + 0.35, p) : 0;   // each copy dries over a third of the day, the thirstiest first
+const dryAt = (h, p) => THIRST ? kss((1 - 0.55)*(1 - h.thirst), (1 - 0.55)*(1 - h.thirst) + 0.55, p) : 0;   // each copy dries over half the day, the thirstiest first, so neighbours are half dry together: a gradient, never a cut
 function navTick(dt){
   const g = grid, cw = view.w/Math.max(1, g.cr), ch = view.h/Math.max(1, GRID_N/Math.max(1, g.cr));
   if (g.zt || g.z > 0) { g.vx *= Math.exp(-dt/0.15); g.vy *= Math.exp(-dt/0.15); }   // inside one universe, the field holds still
@@ -985,7 +988,10 @@ function gridAssign(c, rows){                         // which copy steps which 
   const long = c >= rows, na = long ? c : rows, nb = long ? rows : c;
   grid.hearts.forEach((h, i) => { const a = long ? i % c : Math.floor(i/c), b = long ? Math.floor(i/c) : i % c;
     h.r0 = gridR(na > 1 ? a/(na - 1) : 0.5); h.tf = 1 + 0.06*(nb > 1 ? b/(nb - 1) - 0.5 : 0);
-    h.thirst = 0.85*kss(3.45, 4.0, h.r0) + 0.15*(h.tf - 0.97)/0.06; h.ink = h.inkT = dryAt(h, dayP()); });   // how thirsty: chaos drinks most, a faster pace a little more
+    const u = na > 1 ? 2*a/(na - 1) - 1 : 0, v = nb > 1 ? 2*b/(nb - 1) - 1 : 0, rho = Math.hypot(u, v), th = Math.atan2(v, u);
+    h.yy = 0.5 + 0.5*Math.sin(th + 3.4*rho);                                                      // a yin-yang over the grid: two lobes that curl round each other
+    h.thirst = 0.25*kss(3.45, 4.0, h.r0) + 0.60*h.yy + 0.15*(((Math.sin(i*127.1 + 3.7)*43758.5453) % 1 + 1) % 1); });
+  const order = [...grid.hearts].sort((x, y) => x.thirst - y.thirst); order.forEach((h, k) => { h.thirst = k/Math.max(1, order.length - 1); h.ink = h.inkT = dryAt(h, dayP()); });   // ranked, so the day drains evenly
   grid.cr = c;
 }
 function gridLayout(){                                // as many columns as make each basin largest, packed tight; then the camera, moving into one of them
