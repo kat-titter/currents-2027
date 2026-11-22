@@ -19,7 +19,7 @@ It grows out of Kat's [Vanitas Veritas](https://kat-titter.github.io/veritas/) (
 
 The piece is also an experiment: how much of a work of art can AI make, and how much must a person still bring?
 
-- **Made by machines:** the water (Stable Diffusion 1.5 with LCM-LoRA, walking toward eight pictures Kat chose in Midjourney; Real-ESRGAN for detail), and, with Claude (Anthropic) through [Claude Code](https://claude.com/claude-code), the code and the first drafts of the texts, over many sessions.
+- **Made by machines:** the water (Stable Diffusion 1.5 with LCM-LoRA, walking toward eight pictures Kat chose by hand; Real-ESRGAN for detail), and, with Claude (Anthropic) through [Claude Code](https://claude.com/claude-code), the code and the first drafts of the texts, over many sessions.
 - **Made by Kat:** the taste, the message, the story at the sink, and every keep or cut. She was the human in the loop the whole way.
 
 The [about page](https://kat-titter.github.io/currents-2027/synkhole/about.html) marks each step of the making as AI, AI-assisted or not AI.
