@@ -1400,6 +1400,7 @@ window.__basin = { get t(){ return simTime; }, get thirst(){ return grid ? { day
   get res(){ return RES ? { on:res.on, runs:res.runs ? res.runs.length : 0, order:res.order.join(' '), run:res.order[res.i], frame:res.j } : null; } };
 if (RCON) Object.defineProperty(window.__basin, 'hearts', { get: () => ({ grid, sync, lat }) });
 if (grid) Object.defineProperties(window.__basin, { tap:{ value:(x, y) => gridTap(x, y) }, fallHold:{ value:(f) => { grid.fallHold = f !== undefined; if (grid.fall && f !== undefined) grid.fall.s = f*FALL; } },
+  idle:{ value:(sec) => { grid.idle = sec; } },   // for the checks: as if left alone this long
   climbHold:{ value:(p) => { grid.climbHold = p !== undefined; if (p !== undefined) grid.zc = Math.pow(p, 1.5); } },
   fall:{ get: () => { const at = { in:grid.zt ? grid.sel : null, z:+grid.z.toFixed(2), depth:grid.depth, climb:+grid.zc.toFixed(2) }; if (!grid.fall) return { f:null, ...at }; const l = fallLens(grid.fall); return { f:+l.f.toFixed(3), v:grid.fall.v, re2:Number.isFinite(l.m) ? Math.round(l.m) : 'inf', pt:+l.pt.toFixed(2), ...at }; } } });   // for the documents: tap, hold the fall at a point, read where it is   // ?r=<concept>: the other hearts, for the documents and the checks
 const nextFrame = params.has('snap') ? (f) => setTimeout(() => f(performance.now()), 16) : requestAnimationFrame;   // ?snap runs on timers, so stills render even off screen

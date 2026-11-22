@@ -9,6 +9,7 @@
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
 //      node src/check.mjs "http://127.0.0.1:8806/?spring=nofeed/"     no spring: the reservoir must pour
+//      node src/check.mjs "http://127.0.0.1:8806/?r=off"         the one basin: the hand in the water and the rim's lost time
 //   CHECK_PORT=<port> picks another Chrome; a second argument writes a PNG of the page after the hand has left.
 import fs from 'node:fs';
 const PORT = +process.env.CHECK_PORT || 9396, [url, png] = process.argv.slice(2), nap = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -46,15 +47,21 @@ try {
   if (isGrid) {   // ?r=grid, the default: the fall's flows, by real pointer events on the canvas
     const P = (t, x, y, id) => js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${x}, clientY:${y}, pointerId:${id || 1}, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
     const F = () => js('JSON.stringify(window.__basin.fall)').then(JSON.parse), W = await js('innerWidth'), H = await js('innerHeight'), cx = W/2, cy = H/2;
+    const until = async (test, ms) => { const end = Date.now() + ms; let f = await F(); while (!test(f) && Date.now() < end) { await nap(100); f = await F(); } return f; };   // poll the page's own state, never its timings
     const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
-    const pull = async (to) => { await P('pointerdown', cx, cy); for (let i = 1; i <= 15; i++) { await P('pointermove', cx, cy + (to - cy)*i/15); await nap(40); } await P('pointerup', cx, to); };
-    await tap(0.3*W, 0.3*H); await nap(1500); let f = await F(); need(f.in !== null, `a tap on the wall did not go in (${JSON.stringify(f)})`);
-    await tap(cx, cy); await nap(4300); f = await F(); need(f.f === null && f.depth === 1, `a tap on the drain did not fall through to depth 1 (${JSON.stringify(f)})`);
-    await pull(cy + 0.2*H); await nap(1200); f = await F(); need(f.in !== null && f.climb < 0.05, `a short pull did not slide back in (${JSON.stringify(f)})`);
-    await pull(H - 2); await nap(300); f = await F(); need(f.in === null, `a pull to the rim did not climb out (${JSON.stringify(f)})`);
-    await nap(1500); await tap(0.3*W, 0.3*H); await nap(1500); await js('window.__basin.hearts.grid.idle = 29.9, 1'); await nap(500); f = await F(); need(f.in === null, `30 s alone did not float up (${JSON.stringify(f)})`);
-    await nap(3000); await tap(0.3*W, 0.3*H); await nap(1500); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
-    await nap(300); f = await F(); need(f.in === null, `two fingers did not go out (${JSON.stringify(f)})`);
+    const goIn = async () => { await until((f) => f.z === 0 && f.in === null, 8000); await tap(0.3*W, 0.3*H); return until((f) => f.in !== null && f.z === 1, 8000); };
+    const drag = async (x0, y0, x1, y1) => { await P('pointerdown', x0, y0); for (let i = 1; i <= 15; i++) { await P('pointermove', x0 + (x1 - x0)*i/15, y0 + (y1 - y0)*i/15); await nap(40); } };
+    let f = await goIn(); need(f.in !== null, `a tap on the wall did not go in (${JSON.stringify(f)})`);
+    await tap(cx, cy); f = await until((f) => f.f !== null, 2000); need(f.f !== null, `a tap on the drain did not start a fall (${JSON.stringify(f)})`);
+    f = await until((f) => f.f === null, 20000); need(f.depth === 1 && f.in !== null, `the fall did not come back to the same basin, one ring deeper (${JSON.stringify(f)})`);
+    await drag(cx, cy, cx, cy + 0.2*H); f = await until((f) => f.climb > 0.1, 3000); need(f.climb > 0.1, `a pull from the drain did not grip (${JSON.stringify(f)})`);
+    await P('pointerup', cx, cy + 0.2*H); f = await until((f) => f.climb === 0, 5000); need(f.in !== null && f.climb === 0, `a short pull did not slide back in (${JSON.stringify(f)})`);
+    await drag(cx, cy, cx, H - 2); f = await until((f) => f.in === null, 3000); await P('pointerup', cx, H - 2); need(f.in === null, `a pull to the rim did not climb out (${JSON.stringify(f)})`);
+    await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(600); const held = await js(STATE); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
+    need(held.grip > 0.3 && f.in !== null, `a hold away from the drain did not grip the water and stay in (grip ${held.grip}, ${JSON.stringify(f)})`);
+    await js('window.__basin.idle(1e3), 1'); f = await until((f) => f.in === null, 3000); need(f.in === null, `left alone, it did not float up (${JSON.stringify(f)})`);
+    await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
+    f = await until((f) => f.in === null, 3000); need(f.in === null, `two fingers did not go out (${JSON.stringify(f)})`);
   } else {                                                         // one basin: a hand in the water, then the rim tells its time
     await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
     for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
@@ -68,6 +75,6 @@ try {
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
   const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, out, alone, two fingers; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
 } finally { ws.close(); }
 process.exit(fails.length ? 1 : 0);
