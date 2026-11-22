@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Build [s[i/y][k][w]hole from src/ (its source) into synkhole/ (the built pages) of this repo, served at HOME.
+# Build [s[i/y]n[k][w]hole from src/ (its source) into synkhole/ (the built pages) of this repo, served at HOME.
 # The site's root index.html only sends a visitor on to synkhole/. src/ is never published (the refill workflow leaves it out).
 # It only writes files. It never commits and never pushes: publishing is Kat's, by hand.
 #   python3 src/deploy.py                 every page
@@ -46,14 +46,14 @@ FORWARD = """<!doctype html>
 <meta http-equiv="refresh" content="0; url=synkhole/">
 <style>body{margin:0;background:#030304} a{color:#8a8d93;font:12px ui-monospace,Menlo,monospace;padding:20px;display:block}</style>
 </head>
-<body><a href="synkhole/">[s[i/y][k][w]hole</a></body>
+<body><a href="synkhole/">[s[i/y]n[k][w]hole</a></body>
 </html>
 """
 README = f"""# currents-2027
 
 Kat Titterton's work for CURRENTS 2027, Santa Fe.
 
-- [s[i/y][k][w]hole: {HOME}
+- [s[i/y]n[k][w]hole: {HOME}
 - about the piece: {HOME}about.html
 
 By Kat Titterton (macrofluidic). An evolution of Vanitas Veritas, an earlier sink, which keeps its own address: https://kat-titter.github.io/veritas/
