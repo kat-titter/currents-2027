@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta property="og:title" content="[s[i/y][k][w]hole: about the piece">
-<meta property="og:description" content="[s[i/y][k][w]hole, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming, drawn as dots of light round a drain that bends time. Every day it runs out.">
+<meta property="og:description" content="[s[i/y][k][w]hole, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: one heart printed 48 times over a basin of water a machine dreamed, each copy a step from steady toward chaos, drawn as dots of light round drains that bend time. Every day it runs dry.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kat-titter.github.io/currents-2027/synkhole/about.html">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>[s[i/y][k][w]hole: about the piece</title>
-<meta name="description" content="[s[i/y][k][w]hole, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: one heart printed 48 times over a basin of water a machine dreams, each copy a step from steady toward chaos, drawn as dots of light round drains that bend time. Every day it runs out.">
+<meta name="description" content="[s[i/y][k][w]hole, by Katherine Titterton, for CURRENTS 2027 in Santa Fe: one heart printed 48 times over a basin of water a machine dreamed, each copy a step from steady toward chaos, drawn as dots of light round drains that bend time. Every day it runs dry.">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,10 @@
 <!-- The page about [s[i/y][k][w]hole, redrawn 2026-11-19 to look like the piece now looks: the same dots of light on black, the same pearl film,
      the same black hole. Kat: "more negative space. thinner, sparser text and design ... cyrptic, shamanistic, computational, serif font" and
      "about page design should resonate design and style with the piece itself - colors, shapes, density".
-     The ground is a field of dots drawn at the screen's own pixels; the pictures are drawn as dots too, from synkhole/doc/. Reduced motion and ?still hold everything still. -->
+     The ground is a field of dots drawn at the screen's own pixels; the pictures are drawn as dots too, from synkhole/doc/. Reduced motion and ?still hold everything still.
+     2026-11-21, a truth pass for the grid (Kat: "honest, accurate, transparent with the methods ... true with capital T's"): every claim checked against index.html,
+     the table in PROGRESS.md. The spring has slept since 17 nov, so the page says the water is stored; thirst runs on the clock, not on hands. -->
+
 <style>
   :root { --ink:#030304; --bone:#e4dfd2; --text:#ddd8cb; --dim:#a3a6ac; --cy:#59e6ff; --vi:#9e7aff; --ro:#ff73b8;
     --serif:"Cormorant Garamond", "Iowan Old Style", Georgia, serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -168,6 +171,7 @@
   .gloss summary::-webkit-details-marker { display:none; }
   .gloss summary:hover, .gloss summary:focus-visible, .gloss[open] summary { color:#cfc4fb; }
   .gloss p { margin:1.4em 0 1.2em; font:300 12px/1.6 var(--mono); color:var(--dim); }
+  .gloss p code { font-size:12px; }   /* the dry copies' line, at the page's smallest size, never under it */
   .gloss dl { margin:0; }
   .gloss div { display:grid; grid-template-columns:minmax(0, 8.5em) minmax(0, 1fr); column-gap:18px; padding:9px 0; border-top:1px solid rgba(228,223,210,.08); }
   .gloss dt { font:300 italic 22px/1.25 var(--serif); color:var(--bone); } .gloss dt .br { font-style:normal; color:var(--dim); }
@@ -213,6 +217,7 @@
   figure.side canvas { display:block; width:100%; height:auto; aspect-ratio:1 / .96; }
   figure.side figcaption { margin-top:8px; }
   figure.gfig { margin:1.6em 0 2em; } figure.gfig canvas { display:block; width:100%; height:84px; }
+  figure.gfig.axes canvas { height:150px; }
   .hand canvas { display:block; width:100%; height:190px; cursor:crosshair; touch-action:pan-y; border-radius:21px; }
   .hand canvas:focus-visible { outline:1px solid rgba(207,196,251,.6); outline-offset:6px; }
   .nums { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:21px; margin:1.8em 0 2.2em; }
@@ -265,7 +270,7 @@
   .score { display:grid; grid-template-columns:max-content minmax(0, 1fr); column-gap:13px; margin:1.8em 0 2.4em; }
   .score ol { margin:20px 0 0; display:grid; grid-auto-rows:22px; }
   .score li { font:400 12px/22px var(--mono); letter-spacing:.04em; color:var(--dim); text-align:right; white-space:nowrap; }
-  .score canvas.g { width:100%; height:174px; }
+  .score canvas.g { width:100%; height:152px; }
   .score figcaption { grid-column:1 / -1; }
   .prints { display:grid; grid-template-columns:max-content repeat(5, minmax(0, 1fr)); column-gap:13px; row-gap:21px; align-items:start; }
   .prints .rn { grid-column:1; margin:0; padding-top:10px; text-align:right; font:400 12px/1.55 var(--mono); letter-spacing:.04em; color:var(--bone); }
@@ -323,7 +328,7 @@
 <main>
 <section class="hero" id="top">
   <h1>[s[i/y][<span class="k">k</span>][w]hole</h1>
-  <p class="lede">inside this basin, a machine dreams the water.<br>every day, it runs dry.</p>
+  <p class="lede">inside this basin, the water is a machine's dream.<br>every day, it runs dry.</p>
   <p class="mono sync">sync == sink</p>
   <p class="cue mono">katherine titterton</p>
 </section>
@@ -340,40 +345,40 @@
   <figure class="side" data-r><canvas class="g" data-g="basin" role="img" aria-label="the piece from three quarters, to scale: a block 30 by 25 inches, its rim at 34 inches over a 30 inch plinth, the screen set in its top with the water and the hole"></canvas><figcaption class="mono">rim at 34 in, plinth to 30</figcaption></figure>
   <p class="say" data-r>the most beautiful things usually have something nasty about them. here, it is the drain: the [s[i/y][k][w]hole, where time goes missing.</p>
   <p data-r>one heart, printed 48 times over the same water. copy by copy, a single number steps it from steady, through doubling, into chaos.</p>
-  <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; here both run out, and you climb back up.</p>
-  <p data-r>once each morning of the festival, it fills. every hand in this room spends it.</p>
-  <p class="quiet" data-r>ai: stable diffusion 1.5 with lcm-lora dreams the water live on its own computer, toward pictures i chose by hand in midjourney.</p>
+  <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; this water runs out every day, and you climb back up.</p>
+  <p data-r>at six each morning, santa fe time, it fills. the wildest hearts drink first and are dry by late afternoon; the steadiest last, just before dawn. watched or not.</p>
+  <p class="quiet" data-r>ai: stable diffusion 1.5 with lcm-lora dreamed this water on my laptop, leaning toward pictures i chose by hand in midjourney. what pours now was stored on 17 nov 2026.</p>
 </section>
 
 <section id="work" data-n="02">
   <h2 class="kick"><span class="mono">02</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">s</i><span class="br">]</span>ink</span><span class="alt mono"><span class="one">work</span><span class="two">sink / ink</span></span></h2>
   <p class="say" data-r>under the glass, a vanitas<sup class="fn">1</sup> pours: skulls, cut flowers, soap bubbles, a still life that refuses to stay still.</p>
-  <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. of these, bubbles pass fastest.<sup class="fn">1a</sup><aside class="note"><b>1a</b>homo bulla, the old prints say: a person is a bubble. lately the word floats over a whole industry too. here they swell slowly, shine, and pop.</aside></aside>
+  <aside class="note" data-r><b>1</b>vanitas: latin for emptiness. painters in the 1600s set out skulls, cut flowers and soap bubbles to say that everything passes. of these, bubbles pass fastest.<sup class="fn">1a</sup><aside class="note"><b>1a</b>homo bulla, the old prints say: a person is a bubble. lately the word floats over a whole industry too. here they swell slowly and pop, nacre rather than glass: no shine, each dot whole and one flat colour of the soap film, cyan, violet or rose, in rings across the dome, the rim sunk in the water's shadow.</aside></aside>
   <div class="nums wide" data-r>
-    <div><b>2.5 s</b><span>between frames</span></div>
+    <div><b>5 s</b><span>between stored frames</span></div>
     <div><b>48</b><span>copies of one heart</span></div>
-    <div><b>size = light<canvas class="g" data-g="ramp" aria-hidden="true"></canvas></b><span>one dot per patch of water</span></div>
+    <div><b>size = light × beat<canvas class="g" data-g="ramp" aria-hidden="true"></canvas></b><span>one dot per patch of water</span></div>
   </div>
-  <p data-r>slow for a computer, about right for a tide pool. light arrives as dots, each one as large as its patch of water is bright.</p>
-  <p data-r>at the center of each copy sits a black hole. it bends the grid round itself, and near its edge every dot's clock runs slow, then stops.<sup class="fn">2</sup></p>
-  <figure class="gfig wide" data-r><canvas class="g" data-g="clocks" role="img" aria-label="five clocks of dots in a row toward the hole: whole time, half, a quarter, an eighth, stopped"></canvas></figure>
-  <aside class="note" data-r><b>2</b>near a black hole, a clock watched from far away runs slow, then stops at the edge; light climbing out loses its blue. here the dots do both: slower near the drain, and rose.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
-  <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = dream()</figcaption></figure>
-  <p data-r>tap a copy and you fall into it; tap again to climb out. press and hold, and you reach into the water they all share: for about a second it follows your hand, then slips through your fingers.</p>
-  <figure class="hand wide" data-r><canvas tabindex="0" role="img" aria-label="a small basin of dots to reach into: move a pointer or a finger over it, or the arrow keys; the water follows about a second behind, then lets go"></canvas><figcaption class="mono">follow(hand, 1 s); slip();</figcaption></figure>
+  <p data-r>slow for a computer, about right for a tide pool. light arrives as dots, each as large as its patch of water is bright, and as the last heartbeat that rolled past it.</p>
+  <p data-r>at the centre of each copy sits a black hole. it bends the grid round itself and drags it in a slow twist. near its edge a dot's clock runs slow, and its light goes rose, then dim, then turns into a letter.<sup class="fn">2</sup></p>
+  <figure class="gfig wide" data-r><canvas class="g" data-g="clocks" role="img" aria-label="five dots in a row toward the hole, their clocks at 1, 0.75, 0.5, 0.25 and 0: bone, then rose, then dim, and at the edge a letter"></canvas><figcaption class="mono">clock = √(1 − edge/r)</figcaption></figure>
+  <aside class="note" data-r><b>2</b>near a black hole, a clock watched from far away runs slow, then stops at the edge; light climbing out loses its blue. here the dots keep that clock and show it as colour.<sup class="fn">2a</sup><aside class="note"><b>2a</b>rose, not red. this water has no warm colours left. its gold went grey.</aside></aside>
+  <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = reservoir.pour()  # stored dreams: the spring is asleep</figcaption></figure>
+  <p data-r>tap a copy and you fall into it; tap again to climb out. press and hold, and you reach into the water they all share: the same patch moves in all 48. it follows your hand, then slips through your fingers, and the dots lean toward your hand as toward a small hole.</p>
+  <figure class="hand wide" data-r><canvas tabindex="0" role="img" aria-label="a small basin of dots to reach into: move a pointer or a finger over it, or the arrow keys; the water follows about a second behind, then lets go"></canvas><figcaption class="mono">grip = exp(−held/1.7 s)</figcaption></figure>
 </section>
 
 <section id="dry" data-n="03">
   <h2 class="kick"><span class="mono">03</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">t</i><span class="br">]</span>hirst</span><span class="alt mono"><span class="one">thirsty</span><span class="two">thirst / hirst</span></span></h2>
   <p class="say" data-r>i freedive on one breath. so does this basin.<sup class="fn">3</sup></p>
   <aside class="note" data-r><b>3</b>dives last as long as the air you carry down. days here last as long as the morning's water.<sup class="fn">3a</sup><aside class="note"><b>3a</b>thirsty: late in a long night, strangers take turns at one sink. nobody asks whose water it is.</aside></aside>
-  <p data-r>one allocation of dreaming per morning, ten mornings in all. untouched, it costs nothing. every hand opens the tap, and strangers spend the day's water together. once spent, it drains to black in under a minute and stays dry until morning.</p>
-  <figure class="gfig wide" data-r><canvas class="g" data-g="days" role="img" aria-label="ten small basins of dots, one for each morning, 11 to 20 june: spent ones dry, one draining, the rest full"></canvas><figcaption class="mono">for (day = 11; day &lt;= 20; day++) fill();</figcaption></figure>
-  <figure class="anim wide" data-param="water" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin drains, slow then fast, from full to dry, waits, and fills again"></canvas>
-    <div class="axis mono"><span class="nm">water</span><span class="track"><i class="tick" style="left:0%">1.00</i><i class="tick" style="left:84%">0.16</i><i class="tick end" style="left:100%">None</i><input class="drag" type="range" min="0" max="1" step="0.01" value="0" aria-label="water, from 1.00 to None"><b class="mark"></b></span><span class="val">1.00</span></div></figure>
-  <p data-r>come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
-  <p class="mirror" aria-hidden="true">come late and you'll know who spent it. dry, the screen is black glass, and the face in it is yours.</p>
-  <p class="quiet" data-r>proposed. only the drain is built so far.</p>
+  <p data-r>one water a day for all 48. the day turns at six in the morning in santa fe, the same moment for everyone who opens the piece, wherever they are. chaos drinks most, a quicker pace a little more. each copy drinks on its own beat, a dot at a time, in patches, like a silkscreen running out of ink.</p>
+  <figure class="gfig wide" data-r><canvas class="g" data-g="days" role="img" aria-label="the 48 copies at six times of day, 6 am to 2 am, each as dry as the piece's own formula makes it: at dawn all full, the chaotic end dry first, the steady end last"></canvas><figcaption class="mono">thirst = 0.85*chaos + 0.15*pace</figcaption></figure>
+  <figure class="anim wide" data-param="dry" data-src="doc/water.webp" data-r><canvas role="img" aria-label="one copy goes dry dot by dot, in patches; each dry dot leaves a faint point of the grid; then it fills again at dawn"></canvas>
+    <div class="axis mono"><span class="nm">dry</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick" style="left:50%">0.5</i><i class="tick end" style="left:100%">1</i><input class="drag" type="range" min="0" max="1" step="0.01" value="0" aria-label="dry, from 0 to 1"><b class="mark"></b></span><span class="val">0.00</span></div></figure>
+  <p data-r>a dry dot leaves a faint point of the grid and a faint letter of the bracket words. when the water is gone, the words show. come late and the wild copies are already spelling. dry, the screen is black glass, and the face in it is yours.</p>
+  <p class="mirror" aria-hidden="true">come late and the wild copies are already spelling. dry, the screen is black glass, and the face in it is yours.</p>
+  <p class="quiet" data-r>hands do not spend it. time does.</p>
   <div class="nums two wide" data-r>
     <div><b>700,000 l</b><span>clean freshwater training gpt-3 could directly evaporate</span></div>
     <div><b>4.2 to 6.6 billion m³</b><span>water global ai demand is projected to withdraw in 2027</span></div>
@@ -387,12 +392,15 @@
   <ol class="steps" data-r>
     <li><span class="n">01</span><div><h3>taste</h3><span class="ai on">ai, by hand</span></div><p>eight pictures from midjourney. every dream leans toward one, like a plant toward a window.</p></li>
     <li><span class="n">02</span><div><h3>prompt</h3><span class="ai">not ai</span></div><p>44 subjects, 28 moods, 18 lights: more than a million prompts. <code>vanitas [subject, subject, subject], mood, light</code></p></li>
-    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora. 3 of 10 steps follow the prompt, so subjects only half surface.<sup class="fn">4</sup></p></li>
+    <li><span class="n">03</span><div><h3>dream</h3><span class="ai on">ai</span></div><p>stable diffusion 1.5 with lcm-lora, on my laptop. 3 or 4 of 10 steps follow the prompt, so subjects only half surface.<sup class="fn">4</sup></p></li>
     <li><span class="n">04</span><div><h3>walk</h3><span class="ai on">ai</span></div><p>from one dream to the next, frame by frame, through the space the dreams come from.</p></li>
     <li><span class="n">05</span><div><h3>detail</h3><span class="ai on">ai</span></div><p>real-esrgan, four times larger.</p></li>
-    <li><span class="n">06</span><div><h3>water</h3><span class="ai">not ai</span></div><p>fluid simulation: water, glass, bubbles, sheen.</p></li>
-    <li><span class="n">07</span><div><h3>light</h3><span class="ai">not ai</span></div><p>water drawn as dots, pearl at the edges, bent round the drain.</p></li>
-    <li><span class="n">08</span><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
+    <li><span class="n">06</span><div><h3>store</h3><span class="ai">not ai</span></div><p>60 frames of one walk, kept 17 nov 2026, poured 5 s apart in a fresh order each visit. <code>water = reservoir.pour()</code></p></li>
+    <li><span class="n">07</span><div><h3>water</h3><span class="ai">not ai</span></div><p>fluid simulation in your browser: water, glass, bubbles, sheen.</p></li>
+    <li><span class="n">08</span><div><h3>light</h3><span class="ai">not ai</span></div><p>water drawn as dots, pearl at the edges, bent round the drain.</p></li>
+    <li><span class="n">09</span><div><h3>print</h3><span class="ai">not ai</span></div><p>48 copies of one heart, its beats spaced by the logistic map. r runs 2.9 to 4.0 along the long side; the pace, 6% along the short.</p></li>
+    <li><span class="n">10</span><div><h3>thirst</h3><span class="ai">not ai</span></div><p>one water a day, on the clock. chaos drinks first.</p></li>
+    <li><span class="n">11</span><div><h3>code</h3><span class="ai on">ai-assisted</span></div><p>written with claude code.</p></li>
   </ol>
   <aside class="note" data-r><b>4</b>corpus mundi, the body of everything. this water's dreamer was made from the pictures of the web and the words people wrote under them: everything, read at once, remembered nowhere.<sup class="fn">4a</sup><aside class="note"><b>4a</b>corpus: a body, and a body of text. mundi: of the world. here it drinks the record and pours it back as water.</aside></aside>
   <div class="row wide" data-r>
@@ -411,9 +419,9 @@
     <li><span class="n">1</span><div><h3>inside the hole, the basin again</h3></div><p>round the drain the picture repeats, smaller and turned, without end.</p></li>
     <li><span class="n">2</span><div><h3>time stutters</h3></div><p>for stretches the water runs backwards, stalls and skips; the picture lags its own current.</p></li>
     <li><span class="n">3</span><div><h3>clarity, only on the way out</h3></div><p>while a hand is in, the water goes soft; as it leaves, one breath of clear.</p></li>
-    <li><span class="n">4</span><div><h3>it counts what you lost</h3></div><p>once a hand leaves, the rim says how long it stayed: <code>lost = 00:07</code><sup class="fn">6</sup></p></li>
+    <li><span class="n">4</span><div><h3>it counts what you lost</h3></div><p>once a hand leaves, a ring of small type says how long it stayed: <code>lost = 00:07</code><sup class="fn">6</sup></p></li>
     <li><span class="n">5</span><div><h3>almost a face</h3></div><p>two hollows above the hole, and the hole is its mouth. you won't be sure you saw it.</p></li>
-    <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring, their clocks slowing to a stop.<sup class="fn">7</sup></p></li>
+    <li><span class="n">6</span><div><h3>light bends round the hole</h3></div><p>nearby dots are pulled into a ring; inside it, the basin again, upside down.<sup class="fn">7</sup></p></li>
   </ol>
   <figure class="anim wide" data-param="k" data-src="doc/hole_k0.webp" data-src2="doc/hole_k1.webp" data-r><canvas role="img" aria-label="k sweeps from 0 to 1, where the basin is seen again inside the hole, and settles at 0.25"></canvas>
     <div class="axis mono"><span class="nm">k</span><span class="track"><i class="tick" style="left:0%">0</i><i class="tick here" style="left:25%">0.25</i><i class="tick was" style="left:50%">0.5</i><i class="tick end" style="left:100%">1</i><input class="drag" type="range" min="0" max="1" step="0.01" value="0.25" aria-label="k, from 0 to 1"><b class="mark"></b></span><span class="val">0.25</span></div></figure>
@@ -426,15 +434,18 @@
 <section id="tune" data-n="06">
   <h2 class="kick"><span class="mono">06</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">l</i><span class="br">]</span>edge</span><span class="alt mono"><span class="one">tuning</span><span class="two">ledge / edge</span></span></h2>
   <p class="say" data-r>choosing the numbers was the painting.</p>
-  <p data-r>trillions of cells, each alive on its own, keep one body's time.<sup class="fn">8</sup> so does everything in this basin: dots, rings, bubbles, glyphs and the hole's slow twist all step on one heart.</p>
+  <p data-r>trillions of cells, each alive on its own, keep one body's time.<sup class="fn">8</sup> so does each copy: its dots, rings, glyphs, thirst and the hole's slow twist all step on that copy's heart. the bubbles keep the water's own.</p>
   <aside class="note" data-r><b>8</b>after siddhartha mukherjee's the song of the cell: a body as a citizenship of cells, each one alive, all of them cooperating.</aside>
-  <figure class="score wide" data-r><ol aria-hidden="true"><li>heart</li><li>dots</li><li>dots ½</li><li>dots ¼, glyphs</li><li>dots ⅛</li><li>twist</li><li>bubbles</li></ol><canvas class="g" data-g="score" role="img" aria-label="a score of one 32-beat phrase: the heart's beats swell, hold and ebb; the dots step twice a beat, near the hole once a beat, every second beat and every fourth; the glyphs every second beat; the twist breathes once a phrase; bubbles pop on some beats. A playhead moves with this page's heart."></canvas><figcaption class="mono">for (part of basin) heart.on(part.step);</figcaption></figure>
-  <p data-r>near the hole a dot's clock slows to half time, a quarter, an eighth: time dilation, written as note values. crests roll through each ring at 1.5 times its speed, three to two, the ratio of a fifth. a phrase is 32 beats, as a dj counts one, and every fourth phrase goes quiet.</p>
-  <p data-r>warhol pulled 50 marilyns from one photograph in 1962, and the ink never landed the same way twice.<sup class="fn">9</sup> his trick was insistence, the way techno insists: repeat a thing until it turns beautiful. the piece insists on one heart, 48 times over one water. across, r climbs from a steady beat into chaos, a lineage; down, the pace quickens 6%, so twin rhythms drift out of step, as in phase music. the uncanny lives between neighbours: one small step, and the system behaves like someone else.</p>
-  <p data-r>below, the same insistence taken apart, one number to a row, with today's heart down the middle.</p>
+  <figure class="score wide" data-r><ol aria-hidden="true"><li>heart</li><li>rings</li><li>glyphs</li><li>twist</li><li>thirst</li><li>bubbles</li></ol><canvas class="g" data-g="score" role="img" aria-label="a score of one 32-beat phrase: the heart's beats swell, hold and ebb; each beat drops a ring, each dub a smaller one; the glyphs re-read every second beat; the twist breathes once a phrase; a drying copy loses dots on its beats; bubbles pop on some beats of the water's heart. A playhead moves with this page's heart."></canvas><figcaption class="mono">for (part of copy) heart.on(part.step);</figcaption></figure>
+  <p data-r>each beat drops a ring at the drain that carries the beat's value outward, and a dot takes the size the last ring said. a steady heart leaves every dot one size; a heart that doubles, rings of two sizes; chaos, no two rings alike. crests roll through each ring at 1.5 times its speed, three to two, the ratio of a fifth. a phrase is 32 beats, as a dj counts one, and every fourth phrase goes quiet.</p>
+  <figure class="gfig wide" data-r><canvas class="g" data-g="rings" role="img" aria-label="four copies of dots, each with rings sized by its heart's last beats: at r = 2.9 every ring one size, at 3.2 two sizes alternating, at 3.83 three, at 4.0 no two alike"></canvas><figcaption class="mono">ring.size = x</figcaption></figure>
+  <p data-r>warhol pulled 50 marilyns from one photograph in 1962, and the ink never landed the same way twice.<sup class="fn">9</sup> his trick was insistence, the way techno insists: repeat a thing until it turns beautiful. the piece insists on one heart, 48 times over one water. along the long side, r climbs from a steady beat into chaos, a lineage; along the short side, the pace quickens 6%, so twin rhythms drift out of step, as in phase music. each copy's r also wanders a hair, so copies at an edge of order flicker across it. the uncanny lives between neighbours: one small step, and the system behaves like someone else.</p>
+  <p data-r>the piece names nothing on the screen. its two axes, here:</p>
+  <figure class="gfig axes wide" data-r><canvas class="g" data-g="axes" role="img" aria-label="the 48 copies as eight columns by six rows. Across the long side r steps 2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0, and each copy's heart loops every 1, 2, 4 and 8 beats, then never, then every 3 in the window at 3.83, then never. Down the short side the pace runs from 3% slower to 3% faster, 0.873 to 0.927 beats a second at rest."></canvas><figcaption class="mono">r = gridR(long);  pace = 1 + 0.06*(short − 0.5)</figcaption></figure>
+  <p data-r>below, the same insistence taken apart, one number to a row; down the middle, the numbers the piece runs, with r at 3.71.</p>
   <aside class="note" data-r><b>9</b>marilyn diptych: one publicity photograph, screen-printed 50 times, colour on the left panel, black and white on the right.</aside>
   <figure class="prints-fig wide" data-r><div class="prints" id="prints"></div><p class="mono vread" id="vread" aria-live="polite"></p><figcaption class="mono">under each print, its heart: the monitor, then a dot per beat, higher when the gap ran long</figcaption></figure>
-  <p data-r>of all these numbers, one decides whether the heart sounds alive. each gap between beats comes from the one before, by the logistic map. below r = 3.57 the beat settles into a loop, two beats long, then four, then eight. past 3.57 the loop never closes. at 3.71 two hearts started a hair apart fall out of step within about 12 beats, and each still sounds like a heart. the piece lays this line across its width, in eight steps from 2.9 to 4.0.</p>
+  <p data-r>of all these numbers, one decides whether the heart sounds alive. each gap between beats comes from the one before, by the logistic map. below r = 3 the beat settles to one steady gap; past it the loop doubles, two beats long, then four, then eight. past 3.57 the loop never closes. at 3.71 two hearts started a thousandth apart fall out of step within about 12 beats, and each still sounds like a heart. the piece lays this line along its long side, from 2.9 to 4.0, through 3.71 and the window of three at 3.83.</p>
   <figure class="edge wide" data-r>
     <div class="bif"><span><canvas role="img" aria-label="the logistic map from r = 3 to 4, drawn as dots: one line splits into two, four, eight, then dissolves into chaos past 3.57, with a window of three near 3.83. The heart's own values light up where each print in the groove row beats."></canvas><i class="lo">repeats</i><i class="hi">chaos</i></span></div>
     <div class="axis mono"><span class="nm">r</span><span class="track"><i class="tick" style="left:0%">3</i><i class="tick" style="left:20%">3.2</i><i class="tick" style="left:50%">3.5</i><i class="tick here" style="left:71%">3.71</i><i class="tick" style="left:83%">3.83</i><i class="tick end" style="left:100%">4</i><input class="drag" type="range" min="3" max="4" step="0.01" value="3.71" aria-label="r, from 3 to 4: retunes this page's heart"><b class="mark" style="left:71%"></b></span><span class="val">3.71</span></div>
@@ -477,9 +488,10 @@
     <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">web basin</span></li>
     <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">drain to black</span></li>
     <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">[s[i/y][k][w]hole</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">48 copies</span></li>
+    <li><span class="mk on" role="img" aria-label="built"></span><span class="lb">thirst</span></li>
     <li class="now"><i class="when">nov 2026</i><span class="pt"></span><span class="lb">now</span></li>
     <li><span class="mk off" role="img" aria-label="proposed"></span><span class="lb">basin on its plinth</span></li>
-    <li><span class="mk off" role="img" aria-label="proposed"></span><span class="lb">daily budget</span></li>
     <li><i class="when">jun 2027</i><span class="pt"></span><span class="lb">festival</span></li>
   </ol>
 </section>
@@ -488,7 +500,7 @@
   <h2 class="kick"><span class="mono">09</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">c</i><span class="br">]</span>lock</span><span class="alt mono"><span class="one">live</span><span class="two">clock / lock</span></span></h2>
   <p class="say" data-r>this is <a data-piece="home" href="index.html">the piece in a browser</a>, not a recording.</p>
   <div class="live full" data-r><iframe data-piece="frame" loading="lazy" title="the piece, live: one heart printed 48 times, each copy a basin of dots of light round its drain, a step further from steady than the last. tap a copy to go in, tap again to come out; press and hold to reach into the water."></iframe></div>
-  <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. within 40 seconds the page notices and pours stored dreams instead. tap in. tap out. hold.</p>
+  <p class="quiet" data-r>my spring is a laptop, and like any living thing it sleeps. it has slept since 17 nov 2026, so the page pours what it stored that day: 60 frames of one walk, 5 s apart, in a fresh order every visit. wake the spring and it takes the tap back. tap in. tap out. hold.</p>
 </section>
 
 <section class="foot">
@@ -504,7 +516,7 @@
   </ul>
   <details class="gloss" id="gloss">
     <summary aria-label="glossary of the bracket words">[ ]</summary>
-    <p>a bracket hides a letter. take it out and the word says something else. when the basin runs dry, its dots spell these.</p>
+    <p>a bracket hides a letter. take it out and the word says something else. a dry copy's dots spell <code>[s]ink [d]rain s[pace] [k]now [c]lock [h]old pe[a]rl [w]hole</code>.</p>
     <dl>
       <div><dt><span class="br">[</span>s<span class="br">[</span>i/y<span class="br">][</span><i class="h">k</i><span class="br">][</span>w<span class="br">]</span>hole</dt><dd>sin or syn, sink or sync, k, hole or whole. one bracket opens and never closes.</dd></div>
       <div><dt>sync == sink</dt><dd>to keep time with something, and to go under with it.</dd></div>
@@ -725,8 +737,7 @@ function drawFig(fig, t){
     let s = 1;
     if (t !== null) {
       const pour = Math.min(1, Math.max(0, (t - S.born - 1.1*q[5])/0.55)); if (pour <= 0) continue;   // poured in from the middle outward
-      const clock = Math.sqrt(Math.max(0.04, Math.min(1, q[5]*3)));          // near the middle the clocks run slow, as round the hole
-      const tick = Math.floor(HS/(Math.pow(2, Math.floor(Math.min(3, -1.3*Math.log2(clock))))*(q[6] < 0.5 ? 1 : 2))) + 9*Math.floor(q[7]*7);
+      const tick = Math.floor(HS/2) + 9*Math.floor(q[7]*7);                 // a dot steps once a beat, as a ring passes it in the piece
       s = pour*pour*(3 - 2*pour)*(0.8 + 0.2*hash(tick, q[6]*97));
     }
     x.fillStyle = q[3]; x.beginPath(); x.arc(q[0], q[1], q[2]*s, 0, 6.2832); x.fill();
@@ -742,8 +753,11 @@ if (!STILL) {
 }
 // animated pictures with one axis: water drains slow then fast, sits dry, and fills; k sweeps up and settles where the piece runs
 const ANIMS = new Set();
+const WORDS = '[s]ink  [d]rain  s[pace]  [k]now  [c]lock  [h]old  pe[a]rl  [w]hole  ';   // the piece's GX_WORDS: what a dry copy spells
+const vnoise = (x, y) => { const i = Math.floor(x), j = Math.floor(y), f = x - i, g = y - j, u = f*f*(3 - 2*f), w = g*g*(3 - 2*g);
+  return (hash(i, j)*(1 - u) + hash(i + 1, j)*u)*(1 - w) + (hash(i, j + 1)*(1 - u) + hash(i + 1, j + 1)*u)*w; };
 const PARAM = {
-  water:(t) => { const c = t % 10; if (c < 1.2) return 1; if (c < 6.5) { const f = (c - 1.2)/5.3; return Math.max(0, 1 - f*f*f); } if (c < 8.4) return 0; return Math.min(1, (c - 8.4)/1.6); },
+  dry:(t) => { const c = t % 12; if (c < 1.2) return 0; if (c < 8.2) return kss(1.2, 8.2, c); if (c < 10.4) return 1; return 1 - kss(10.4, 12, c); },   // a copy's day: wet at dawn, dry over a third of the day, dry until dawn, full again
   k:(t) => { const c = t % 11; if (c < 4) { const f = c/4; return f*f*(3 - 2*f); } if (c < 5) return 1; if (c < 8) { const f = (c - 5)/3; return 1 - 0.75*f*f*(3 - 2*f); } return 0.25; },
 };
 function animFig(fig){
@@ -757,24 +771,28 @@ function animFig(fig){
     const read = (im) => { const s = document.createElement('canvas'); s.width = cols; s.height = rows; const sx = s.getContext('2d'); sx.drawImage(im, 0, 0, cols, rows); return sx.getImageData(0, 0, cols, rows).data; };
     const A = read(ims[0]), B2 = ims[1] ? read(ims[1]) : A, hw = w/2, hh = h/2, far = Math.hypot(hw, hh), cells = [];
     for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const k = (j*cols + i)*4, x = ox + i*p, y = oy + j*p;
-      cells.push([x, y, [A[k], A[k + 1], A[k + 2]], [B2[k], B2[k + 1], B2[k + 2]], Math.hypot(x - hw, y - hh)/far, i/cols*0.9 + j/rows*0.5]); }
+      cells.push([x, y, [A[k], A[k + 1], A[k + 2]], [B2[k], B2[k + 1], B2[k + 2]], Math.hypot(x - hw, y - hh)/far, i/cols*0.9 + j/rows*0.5, hash(i + 9.7, j + 9.7), vnoise(i*0.12, j*0.12 + 4.3), i, Math.floor(hash(j, 0.71)*WORDS.length)]); }
     fig._anim = { cells, w, h, d, p }; ANIMS.add(fig); drawAnim(fig, STILL ? null : performance.now()/1000);
-    const inp = fig.querySelector('.drag'); if (inp && !inp._on) { inp._on = true; inp.addEventListener('input', () => { fig._hold = fig.dataset.param === 'water' ? 1 - +inp.value : +inp.value; fig._holdT = performance.now(); drawAnim(fig, STILL ? null : performance.now()/1000); }); }
+    const inp = fig.querySelector('.drag'); if (inp && !inp._on) { inp._on = true; inp.addEventListener('input', () => { fig._hold = +inp.value; fig._holdT = performance.now(); drawAnim(fig, STILL ? null : performance.now()/1000); }); }
   });
 }
 function drawAnim(fig, t){
   const S = fig._anim; if (!S) return; const prm = fig.dataset.param, held = fig._hold != null && (t === null || performance.now() - fig._holdT < 6000);   // a hand on the axis holds the value; let go and the picture runs on
-  const v = held ? fig._hold : t === null ? (prm === 'k' ? 0.25 : 1) : PARAM[prm](t);
+  const v = held ? fig._hold : t === null ? (prm === 'k' ? 0.25 : 0.45) : PARAM[prm](t);
   const mark = fig.querySelector('.mark'), val = fig.querySelector('.val'), inp = fig.querySelector('.drag');
-  if (inp && !held && document.activeElement !== inp) inp.value = (prm === 'water' ? 1 - v : v).toFixed(2);
-  if (mark) mark.style.left = ((prm === 'water' ? 1 - v : v)*100).toFixed(2) + '%';
-  if (val) val.textContent = prm === 'water' && v <= 0.001 ? 'None' : v.toFixed(2);
+  if (inp && !held && document.activeElement !== inp) inp.value = v.toFixed(2);
+  if (mark) mark.style.left = (v*100).toFixed(2) + '%';
+  if (val) val.textContent = v.toFixed(2);
   const x = fig.querySelector('canvas').getContext('2d'); x.setTransform(S.d, 0, 0, S.d, 0, 0); x.clearRect(0, 0, S.w, S.h);
-  const front = prm === 'water' ? Math.pow(1 - v, 0.6)*1.15 : 0;
+  if (prm === 'dry') { x.font = `300 ${Math.round(S.p*1.15)}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; x.textAlign = 'center'; x.textBaseline = 'middle'; }
   for (const q of S.cells) {
     const c = prm === 'k' ? mixc(q[2], q[3], v) : q[2], l = (0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2])/255;
     let r = S.p*0.5*(0.08 + 0.88*Math.sqrt(l));
-    if (prm === 'water') { const e = Math.min(1, Math.max(0, (q[4] - front + 0.08)/0.14)); r *= e*e*(3 - 2*e)*(0.35 + 0.65*Math.pow(v, 0.4)); }   // the drain eats it from the middle out
+    if (prm === 'dry') {                              // thirst, as in the piece: each dot goes dry past its own threshold, half chance and half a patch, like a silkscreen running out of ink
+      const thr = 0.5*q[6] + 0.5*q[7], kd = kss(thr - 0.015, thr, v*1.02); r *= 1 - 0.96*kd;
+      if (kd > 0.5) { const ch = WORDS[(q[8] + q[9]) % WORDS.length];   // a dry dot leaves a faint point of the grid, or a faint letter of the bracket words
+        if (ch !== ' ') { x.fillStyle = 'rgba(207,196,251,0.34)'; x.fillText(ch, q[0], q[1]); } else { x.fillStyle = 'rgba(228,223,210,0.2)'; x.beginPath(); x.arc(q[0], q[1], S.p*0.12, 0, 6.2832); x.fill(); }
+        continue; } }
     if (r < 0.55) { x.fillStyle = 'rgba(228,223,210,0.2)'; x.beginPath(); x.arc(q[0], q[1], S.p*0.12, 0, 6.2832); x.fill(); continue; }   // where the water has gone, the grid stays
     x.fillStyle = rgb(mixc(c, film(q[5] + 0.6*l), 0.42), 0.95); x.beginPath(); x.arc(q[0], q[1], r, 0, 6.2832); x.fill();
     if (r > 1.1) { x.fillStyle = rgb(mixc(c, BONE, 0.55), 1); x.beginPath(); x.arc(q[0], q[1], r*0.56, 0, 6.2832); x.fill(); }
@@ -795,7 +813,8 @@ if (!STILL && 'IntersectionObserver' in window) {
 const ROSE = [255, 115, 184], GL = new Set();
 const each = (w, h, p, fn) => { const ox = (w % p)/2 + p/2, oy = (h % p)/2 + p/2; for (let y = oy; y < h; y += p) for (let x = ox; x < w; x += p) fn(x, y); };
 const lens = (r, E) => (r + Math.sqrt(r*r + 4*E*E))/2;                              // where a point lens moves a dot at distance r (the outer image)
-const slow = (clock) => Math.pow(2, Math.floor(Math.min(3, -1.3*Math.log2(Math.max(clock, 0.05)))));   // half time, quarter, eighth, as round the drain
+const GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0], GRID_ORB = [];      // as in the piece (index.html GRID_RS): r along the long side; each r's beats, made once
+const RINGS = { n:-1, xs:[2.9, 3.2, 3.83, 4.0].map((r) => { let x = 0.37; for (let i = 0; i < 400; i++) x = r*x*(1 - x); const o = []; for (let i = 0; i < 12; i++) { x = r*x*(1 - x); o.unshift(x); } return { r, x, o }; }) };   // each heart's last beats, newest first
 function beatAge(){ for (let i = RIP.length - 1; i >= 0; i--) if (RIP[i][1] >= 1) return HT - RIP[i][0]; return 9; }
 const GLY = {
   // 01: the piece, to scale (30 x 25 in, rim at 34 in, plinth to 30; the screen a 4:3 opening in its top, from floor_plan.html)
@@ -811,44 +830,75 @@ const GLY = {
       const th = lens(r, 1.4); if (th < RH*1.1) continue;
       const a = Math.atan2(by, bx) + (STILL ? 0 : t*0.35*Math.pow(RH/th, 1.5)), X2 = hx + Math.cos(a)*th, Y2 = hy + Math.sin(a)*th;
       if (X2 < 6.4 || X2 > 23.8 || Y2 < 5.9 || Y2 > 19.1) continue;
-      const clock = Math.sqrt(Math.max(0, 1 - RH/th)), tk = Math.floor(b/slow(clock)), v = 0.5 + 0.5*Math.sin(X*0.5 + t*0.2)*Math.cos(Y*0.6 - t*0.15);
+      const clock = Math.sqrt(Math.max(0, 1 - RH/th)), tk = Math.floor(b/2), v = 0.5 + 0.5*Math.sin(X*0.5 + t*0.2)*Math.cos(Y*0.6 - t*0.15);
       const q = P(X2, Y2, 34); D(q[0], q[1], (0.5 + 1.1*v)*(0.75 + 0.25*hash(X*7 + tk, Y*5)), X/30 + Y/50, 1 - clock); }
     const c = P(hx, hy, 34); x.fillStyle = '#030304'; x.beginPath(); x.ellipse(c[0], c[1], RH*1.2247*s, RH*0.7071*s, 0, 0, 6.2832); x.fill();
     x.strokeStyle = 'rgba(207,196,251,' + (0.7 + 0.3*fl) + ')'; x.lineWidth = 0.8 + 0.8*fl; x.beginPath(); x.ellipse(c[0], c[1], RH*1.37*s, RH*0.79*s, 0, 0, 6.2832); x.stroke(); },
   // 02
   ramp(D, O, T, w, h, b){ for (let k = 0; k < 6; k++) D(w*0.08 + k*w*0.17, h/2, 0.5 + k*0.6*(0.9 + 0.1*hash(k, Math.floor(b/2))), 0.15 + k*0.12, 0); },
-  clocks(D, O, T, w, h, b){ const y = h/2 - 8, gap = Math.min(104, (w - 70)/5.2), x0 = 24;   // toward the hole every clock runs slower: whole, half, quarter, eighth, stopped
-    for (let k = 0; k < 5; k++) { const cx = x0 + k*gap, tk = k < 4 ? Math.floor(b/Math.pow(2, k)) : 0;
-      for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) D(cx + i*7, y + j*7, 2.2*(0.45 + 0.55*hash(tk + i*3 + j*11, k)), 0.25 + k*0.12, k/4);
-      T(['1', '1/2', '1/4', '1/8', '0'][k], cx, h - 6); }
+  // toward the hole a dot's clock runs slower, √(1 − edge/r), and shows it as colour, as in the piece's display shader: light loses its blue, then itself
+  // (× (1, 0.40, 0.66) by 0.75 z², dimmed by 0.55 z³, z = 1 − clock), and the dot dies into a letter of the bracket words (gon = smoothstep(hc, hc + 0.2, 1.4 z))
+  clocks(D, O, T, w, h, b, t, fl, x){ const y = h/2 - 8, gap = Math.min(104, (w - 70)/5.2), x0 = 24, CL = [1, 0.75, 0.5, 0.25, 0];
+    x.font = '300 8px "IBM Plex Mono", ui-monospace, Menlo, monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (let k = 0; k < 5; k++) { const cx = x0 + k*gap, z = 1 - CL[k];
+      for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+        const cell = (j + 1)*3 + i + 1, base = mixc(BONE, film(0.25 + k*0.12), 0.5), dim = 1 - 0.55*z*z*z, rz = 0.75*z*z;
+        const c = [base[0]*dim, base[1]*(1 - 0.60*rz)*dim, base[2]*(1 - 0.34*rz)*dim], hc = 0.7*hash(cell + 0.37, k), gon = kss(hc, hc + 0.2, 1.4*z);
+        if (gon > 0.5) { x.fillStyle = rgb(c, 0.9); x.fillText('[k]now[c]l'[(cell + 3*k) % 9], cx + i*9, y + j*9); continue; }
+        const r = 2.2*(0.45 + 0.55*hash(Math.floor(b/2) + cell, k));
+        x.fillStyle = rgb(c, 0.55 + 0.45*Math.min(1, r/2)); x.beginPath(); x.arc(cx + i*9, y + j*9, r, 0, 6.2832); x.fill(); }
+      T(String(CL[k]), cx, h - 6); }
     O(x0 + 5*gap - gap*0.15, y, 11); },
-  days(D, O, T, w, h, b){ const n = 10, gap = w/n, R = Math.min(gap*0.38, 22), y = R + 6;   // ten mornings: spent, spending, waiting
-    const cur = STILL ? 3 : Math.floor(b/8) % 12, ph = STILL ? 0.55 : (b % 8)/8;
-    for (let k = 0; k < n; k++) { const cx = (k + 0.5)*gap, v = k < cur ? 0 : k > cur ? 1 : 1 - ph, front = Math.pow(1 - v, 0.6)*1.15;
-      each(2*R, 2*R, 4.4, (x, yy) => { const dx = x - R, dy = yy - R, d = Math.hypot(dx, dy)/R; if (d > 1) return;
-        const e = Math.min(1, Math.max(0, (d - front + 0.08)/0.14)), r = 1.7*(0.55 + 0.45*hash(x + k*31, yy + Math.floor(b/2)))*e*e*(3 - 2*e)*(0.35 + 0.65*Math.pow(v, 0.4));
-        D(cx + dx, y + dy, r < 0.5 ? 0.45 : r, k/n*0.7 + d*0.2, r < 0.5 ? 0.3 : 0); });
-      T(String(11 + k), cx, h - 4); } },
+  // 03: the day of thirst, from the piece's own formula: the copies laid out 8 by 6 as on a wide screen, r along the long side (GRID_RS), the pace 6% along the short;
+  // thirst = 0.85 smoothstep(3.45, 4, r) + 0.15 pace; a copy dries over a third of the day, from 0.65 (1 − thirst) of the way through it. The day starts at 6 am in Santa Fe
+  days(D, O, T, w, h, b){ const HRS = [0, 4, 8, 12, 16, 20], LB = ['6 am', '10 am', '2 pm', '6 pm', '10 pm', '2 am'], n = HRS.length, gap = w/n;
+    const s = Math.min((gap - 12)/8, (h - 22)/6), r0 = s*0.36;
+    for (let k = 0; k < n; k++) { const ox = k*gap + (gap - 8*s)/2 + s/2, p = HRS[k]/24;
+      for (let a = 0; a < 8; a++) for (let c = 0; c < 6; c++) {
+        const pace = c/5, th = 0.85*kss(3.45, 4, GRID_RS[a]) + 0.15*pace, st = 0.65*(1 - th), wet = 1 - kss(st, st + 0.35, p);
+        const X = ox + a*s, Y = 3 + s/2 + c*s;
+        if (wet < 0.04) D(X, Y, 0.45, 0.3, 0); else D(X, Y, Math.max(0.5, r0*(0.35 + 0.65*Math.sqrt(wet))*(0.9 + 0.1*hash(a + k, c + Math.floor(b/2)))), 0.15 + a/8*0.6, 0); }
+      T(LB[k], k*gap + gap/2, h - 4); } },
+  // 06: the grid's two axes, as index.html gridAssign lays them on a wide screen: r along the long side (GRID_RS, each copy's heart looping every 1, 2, 4, 8 beats,
+  // never, 3, never), the pace along the short (tf = 1 + 0.06 (b/(nb − 1) − 0.5)). Each copy a 3 x 3 cluster whose dots take its heart's last nine beats: a steady
+  // copy's dots all one size, a looping one repeats, a chaotic one never does. A new beat on each of this page's beats, the faster rows a little ahead
+  axes(D, O, T, w, h, b){ const L = 44, top = 4, cw = (w - L - 4)/8, chh = (h - top - 40)/6, s = Math.min(cw, chh), nb = Math.floor(b/2), PER = ['1', '2', '4', '8', '∞', '3', '∞', '∞'];
+    if (!GRID_ORB.length) GRID_RS.forEach((r) => { let x = 0.37; for (let i = 0; i < 400; i++) x = r*x*(1 - x); const o = []; for (let i = 0; i < 64; i++) { x = r*x*(1 - x); o.push(x); } GRID_ORB.push(o); });
+    for (let a = 0; a < 8; a++) { const cx = L + (a + 0.5)*cw;
+      for (let c = 0; c < 6; c++) { const cy = top + (c + 0.5)*chh, lead = Math.floor(nb*(0.97 + 0.012*c));
+        for (let k = 0; k < 9; k++) { const v = GRID_ORB[a][(lead + k) % 64], sz = 0.15 + 0.85*kss(0.2, 0.95, v);
+          D(cx + ((k % 3) - 1)*s*0.35, cy + (Math.floor(k/3) - 1)*s*0.26, Math.max(0.35, s*0.13*sz), 0.15 + a/8*0.6, 0); } }
+      T(String(GRID_RS[a]), cx, h - 22); T(PER[a], cx, h - 6); }
+    T('slow', L - 6, top + chh*0.5 + 4, 'right'); T('fast', L - 6, top + chh*5.5 + 4, 'right'); T('r', L - 6, h - 22, 'right'); T('loop', L - 6, h - 6, 'right'); },
+  // 06: the period drawn. Each beat drops a ring at the drain carrying the beat's value x; a dot takes the size the last ring to pass it said (index.html korb):
+  // 0.15 + 0.85 smoothstep(0.2, 0.95, x). Four hearts from the piece's line of r; a new ring on each of this page's beats
+  rings(D, O, T, w, h, b){ const n = RINGS.xs.length, gap = w/n, R = Math.min(gap*0.42, (h - 20)/2), cy = R + 2, nb = Math.floor(b/2);
+    if (nb !== RINGS.n) { if (RINGS.n >= 0) for (const q of RINGS.xs) { q.x = q.r*q.x*(1 - q.x); q.o.unshift(q.x); q.o.length = 12; } RINGS.n = nb; }
+    const RW = R/5.2;
+    RINGS.xs.forEach((q, k) => { const cx = (k + 0.5)*gap;
+      each(2*R, 2*R, 4.4, (x, y) => { const dx = x - R, dy = y - R, d = Math.hypot(dx, dy); if (d > R || d < RW*0.7) return;
+        const v = q.o[Math.min(11, Math.floor((d - RW*0.7)/RW))], sz = 0.15 + 0.85*kss(0.2, 0.95, v);
+        D(cx + dx, cy + dy, 2.1*sz, 0.15 + k*0.18 + 0.2*d/R, 0); });
+      O(cx, cy, RW*0.55); T('r = ' + q.r, cx, h - 4); }); },
   // 03
-  // 06: one phrase of the score, every part on the one heart. Rows: the heart (each beat's strength swells, holds and ebbs over the phrase, a downbeat every 8, every
-  // fourth phrase quiet, as in the piece), the far dots (on lub and dub), the dots near the hole at half, quarter and eighth time (rose, as a slow clock is), the glyphs
-  // (every second beat, so they keep the quarter-time dots' count), the twist (one breath a phrase), the bubbles (pops on some beats, more where the phrase is strong).
+  // 06: one phrase of the score, every part of a copy on its heart. Rows: the heart (each beat's strength swells, holds and ebbs over the phrase, a downbeat every 8, every
+  // fourth phrase quiet, as in the piece), the rings (one on each lub, a smaller one on each dub), the glyphs (each row of letters re-read every second beat), the twist
+  // (one breath a phrase), thirst (a drying copy loses dots on its beats), the bubbles (pops on some beats of the water's own heart, more where the phrase is strong).
   // The playhead is this page's heart: retune r in the figure below and the playhead keeps the new groove.
   score(D, O, T, w, h, b, t, fl, x){
     const top = 20, RW = 22, n = 32, cw = (w - 8)/n, k = Math.min(1, cw/16), nb = STILL ? 11 : HB.nb, now = nb % n, pn = Math.floor(nb/n), ph = STILL ? 0.3 : Math.min(1, HB.t/HB.len);
     const quiet = pn % 4 === 3 ? 0.35 : 1, ba = (c) => (0.3 + 0.7*kss(0, 8, c)*(1 - 0.8*kss(22, 32, c)))*quiet*(c % 8 === 0 ? 1.25 : 1);
     const X = (c) => 4 + (c + 0.5)*cw, Yr = (r) => top + r*RW + RW/2, F = (px, py) => { x.fillStyle = 'rgba(228,223,210,.13)'; x.beginPath(); x.arc(px, py, 0.6, 0, 6.2832); x.fill(); };
-    x.fillStyle = 'rgba(207,196,251,' + (0.05 + 0.06*(1 - ph)) + ')'; x.fillRect(X(now) - cw/2, top, cw, 7*RW);   // the playhead
+    x.fillStyle = 'rgba(207,196,251,' + (0.05 + 0.06*(1 - ph)) + ')'; x.fillRect(X(now) - cw/2, top, cw, 6*RW);   // the playhead
     for (const c of [0, 7, 15, 23, 31]) T(String(c + 1), X(c), 12);
     for (let c = 0; c < n; c++) {
       const L = c === now ? 1.5 - 0.4*ph : 1, tone = 0.12 + 0.55*c/n;
       D(X(c), Yr(0), (0.8 + 3.4*ba(c))*k*L, tone, 0);                                                 // heart
-      D(X(c) - 0.2*cw, Yr(1), 1.25*k*L, tone + 0.1, 0); D(X(c) + 0.2*cw, Yr(1), 1.25*k*L, tone + 0.1, 0);   // dots: on lub and dub
-      D(X(c), Yr(2), 1.6*k*L, tone + 0.2, 0.3);                                                       // near the hole: half time, once a beat
-      if (c % 2 === 0) D(X(c), Yr(3), 1.9*k*L, tone + 0.3, 0.55); else F(X(c), Yr(3));                // quarter time, and the glyphs
-      if (c % 4 === 0) D(X(c), Yr(4), 2.2*k*L, tone + 0.4, 0.85); else F(X(c), Yr(4));                // eighth time, at the edge
-      D(X(c), Yr(5), (0.7 + 1.5*(0.5 + 0.5*Math.sin(6.28318*c/n)))*k*(c === now ? 1.25 : 1), tone + 0.5, 0);   // the twist breathes once a phrase
-      if (kh(c*1.7 + pn*3.1) < 0.45*ba(c)) D(X(c), Yr(6), 2*k*L, tone + 0.6, 0); else F(X(c), Yr(6));     // bubbles pop
+      D(X(c) - 0.2*cw, Yr(1), 1.6*k*L, tone + 0.1, 0); D(X(c) + 0.2*cw, Yr(1), 1.0*k*L, tone + 0.1, 0);   // rings: on lub, and a smaller one on dub
+      if (c % 2 === 0) D(X(c), Yr(2), 1.7*k*L, tone + 0.2, 0); else F(X(c), Yr(2));                   // the glyphs re-read every second beat
+      D(X(c), Yr(3), (0.7 + 1.5*(0.5 + 0.5*Math.sin(6.28318*c/n)))*k*(c === now ? 1.25 : 1), tone + 0.3, 0);   // the twist breathes once a phrase
+      if (hash(c + 0.3, pn) < 0.5) D(X(c), Yr(4), 1.5*k*L, tone + 0.4, 0); else F(X(c), Yr(4));       // thirst: a dot goes dry on a beat
+      if (kh(c*1.7 + pn*3.1) < 0.45*ba(c)) D(X(c), Yr(5), 2*k*L, tone + 0.5, 0); else F(X(c), Yr(5));     // bubbles pop
     } },
   // 08: the room from above
   plan(D, O, T, w, h, b, t, fl, x){   // to scale, from above (inches, as floor_plan.html): an 8 x 8 ft space at best, 6 x 6 ft at least, the plinth 6 in off the back wall, the outlet on the wall
@@ -857,7 +907,7 @@ const GLY = {
     run(0, 0, 96, 0, 2, 1.2, 0.2); run(96, 0, 96, 96, 3, 0.8, 0.4); run(96, 96, 0, 96, 3, 0.8, 0.5); run(0, 96, 0, 0, 3, 0.8, 0.6);   // at best; the back wall drawn denser
     run(12, 0, 12, 72, 3, 0.6, 0.6, 1); run(12, 72, 84, 72, 3, 0.6, 0.7, 1); run(84, 72, 84, 0, 3, 0.6, 0.8, 1);                     // at least
     for (let Y = 7.5; Y < 31; Y += 2.5) for (let X = 34.5; X < 63; X += 2.5) { const inScreen = X > 39.2 && X < 56.8 && Y > 11.9 && Y < 25.1, q = P(X, Y); if (!inScreen) D(q[0], q[1], 0.75, 0.35, 0); }   // the plinth
-    for (let Y = 12.8; Y < 25; Y += 1.6) for (let X = 40; X < 56.5; X += 1.6) { const r = Math.hypot(X - 48, Y - 18.5); if (r < 1.8) continue; const q = P(X, Y), clock = Math.sqrt(Math.max(0, 1 - 1.4/r)); D(q[0], q[1], 0.9*(0.6 + 0.4*hash(X*3 + Math.floor(b/slow(clock)), Y)), X/96 + 0.2, 1 - clock); }   // the screen in its top
+    for (let Y = 12.8; Y < 25; Y += 1.6) for (let X = 40; X < 56.5; X += 1.6) { const r = Math.hypot(X - 48, Y - 18.5); if (r < 1.8) continue; const q = P(X, Y), clock = Math.sqrt(Math.max(0, 1 - 1.4/r)); D(q[0], q[1], 0.9*(0.6 + 0.4*hash(X*3 + Math.floor(b/2), Y)), X/96 + 0.2, 1 - clock); }   // the screen in its top
     const c = P(48, 18.5); O(c[0], c[1], 1.4*s);
     run(63, 5, 72, 5, 1.6, 0.55, 0.9); run(72, 5, 72, 0.6, 1.6, 0.55, 0.9); const o = P(72, 0); D(o[0], o[1], 2.4, 0.05, 0);       // the cable and the outlet
     for (let k = 0; k < 22; k++) { const a = k/22*6.2832, q = P(48 + Math.cos(a)*9.5, 47.6 + Math.sin(a)*4.6); D(q[0], q[1], 0.8, 0.6, 0); } const v = P(48, 45.6); D(v[0], v[1], 2.6, 0.7, 0);   // a visitor
@@ -884,7 +934,7 @@ const AXES = [
   { k:'r', nm:'groove', un:'r', vals:[3.2, 3.5, 3.71, 3.83, 4], say:['two beats, long and short, forever', 'four beats, then the same four again', 'never repeats; one beat in 16 gets a third', 'a three-beat loop comes back out of the chaos, a ghost beat on one of the three', 'anything goes: a third beat on one beat in 5, a long pause on one in 7'] },
   { k:'hz', nm:'heart', un:'Hz at rest', vals:[0.45, 0.65, 0.9, 1.3, 2.6], was:3, say:['27 beats a minute: the rings far apart', '39 beats a minute', '54 beats a minute at rest, 78 as the basin drains', '78 beats a minute: the resting rate until 20 nov 2026', '156 beats a minute: a throb, not a ripple'] },
   { k:'v', nm:'ripple', un:'widths/s', vals:[0.04, 0.08, 0.13, 0.2, 0.4], was:3, say:['rings die halfway to the rim', 'rings reach the rim as they fade', 'crests roll through each ring at 0.195, three to two', 'the speed until 20 nov 2026', 'a ring reaches the rim in about a second'] },
-  { k:'g', nm:'touch', un:'± %', vals:[0, 0.1, 0.2, 0.4, 0.8], fmt:(v) => String(Math.round(v*100)), say:['ignores a hand', 'a nudge, barely felt', 'a press lifts it 20%, a held hand slows it 20%, letting go lifts it 10%', 'startles hard, then sinks', 'startles, then all but stops under a held hand'] },
+  { k:'g', nm:'touch', un:'± %', vals:[0, 0.1, 0.2, 0.4, 0.8], fmt:(v) => String(Math.round(v*100)), say:['ignores a hand', 'a nudge, barely felt', 'a press lifts it 20%, a held hand slows it 20%, letting go lifts it 15%', 'startles hard, then sinks', 'startles, then all but stops under a held hand'] },
   { k:'e', nm:'hole', un:'edge, widths', vals:[0.012, 0.025, 0.046, 0.08, 0.14], say:['a pinprick', 'the grid barely bends', 'edge 0.046, light focused at 0.082', 'the dark takes the middle', 'the hole eats the water'] },
 ];
 const fmtV = (a, v) => a.fmt ? a.fmt(v) : String(v);
@@ -925,7 +975,7 @@ function drawPrint(tl){
     const qq = Math.pow(Math.pow(Math.abs(X - hx)/(w/2), 4) + Math.pow(Math.abs(Y - hy)/(bh/2), 4), 0.25), e0 = Math.min(1, Math.max(0, (1 - qq)/0.3)), edge = e0*e0*(3 - 2*e0); if (edge < 0.03) continue;   // no edge: the print thins out into the dark
     const bx = X - hx, by = Y - hy, b = Math.hypot(bx, by) || 0.01, th = lens(b, E); if (th < RH*1.06) continue;
     const mag = Math.min(2.2, Math.sqrt(th/b)), clock = Math.sqrt(Math.max(0, 1 - RH/th)), z = 1 - clock;
-    const tk = Math.floor(s.steps/(slow(clock)*(hash(i, j) < 0.5 ? 1 : 2))) + 9*Math.floor(hash(j, i)*7);   // on the heart; near the hole half time, quarter, eighth
+    const tk = Math.floor(s.steps/2) + 9*Math.floor(hash(j, i)*7);   // on the heart, once a beat, as a ring passes in the piece; the slow clock shows as colour
     const ang = tw*RH*RH/Math.max(th*th, RH*RH) + (STILL ? 0 : T*0.35*Math.pow(RH/th, 1.5)), ca = Math.cos(ang), sa = Math.sin(ang), ux = bx/b*th, uy = by/b*th;
     let px = hx + ux*ca - uy*sa, py = hy + ux*sa + uy*ca;
     const qx = (px - hx)/w, qy = (py - hy)/w; let cr = 0, pu = 0;                          // the ripples, in basin widths, as index.html kRip
@@ -1029,7 +1079,7 @@ function drawHand(now){ if (!HD.w) return; const w = HD.w, h = HD.h, x = HAND.ge
   const p = w < 500 ? 9 : 10, R = Math.min(70, h*0.42), b = now === null ? 12 : HS;
   each(w, h, p, (X, Y) => { const dx = HD.lx - X, dy = HD.ly - Y, d2 = dx*dx + dy*dy, f = HD.s*Math.exp(-d2/(2*R*R)), q = Math.pow(Math.pow(Math.abs(X - w/2)/(w/2), 4) + Math.pow(Math.abs(Y - h/2)/(h/2), 4), 0.25), e0 = Math.min(1, Math.max(0, (1 - q)/0.5)), edge = e0*e0*(3 - 2*e0);   // no edge: the little basin thins out into the dark
     if (edge <= 0.02) return; const px = X + dx*0.38*f, py = Y + dy*0.38*f, clock = Math.sqrt(Math.max(0.05, 1 - f)), v = 0.5 + 0.5*Math.sin(X*0.021 + t*0.21)*Math.sin(Y*0.034 - t*0.17);
-    const r = p*(0.09 + 0.2*v + 0.16*f)*(0.78 + 0.22*hash(X + Math.floor(b/slow(clock)), Y))*edge; if (r < 0.3) return;
+    const r = p*(0.09 + 0.2*v + 0.16*f)*(0.78 + 0.22*hash(X + Math.floor(b/2), Y))*edge; if (r < 0.3) return;
     let c = mixc(BONE, film(X/w*0.7 + Y/h*0.3 + 0.4*v), 0.5); c = mixc(c, ROSE, Math.min(1, 0.75*(1 - clock)));
     x.fillStyle = rgb(c, 0.5 + 0.45*Math.min(1, r/2)); x.beginPath(); x.arc(px, py, r, 0, 6.2832); x.fill(); });
   x.strokeStyle = 'rgba(228,223,210,.55)'; x.lineWidth = 1; x.beginPath(); x.arc(tx, ty, 11, 0, 6.2832); x.stroke(); }   // the hand itself, a thin ring
