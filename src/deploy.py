@@ -4,20 +4,37 @@
 # It only writes files. It never commits and never pushes: publishing is Kat's, by hand.
 #   python3 src/deploy.py                 every page
 #   python3 src/deploy.py index.html      the piece only (about.html left as it is, e.g. while the about page is being edited)
+#   python3 src/deploy.py --icon > /tmp/icon.svg && sips -s format png -z 180 180 /tmp/icon.svg --out synkhole/apple-touch-icon.png
+#                                         redraws the home-screen icon after the icon changes (sips is macOS's)
 # Writes synkhole/index.html (the piece), synkhole/about.html (the page about the piece), and at the root index.html (sends a visitor
 # on to synkhole/), README.md and .nojekyll.
 # Binaries live once, in the built folder, never in src/: the about page's pictures in synkhole/doc/ (here only checked: every picture
 # about.html names is there), the reservoir in synkhole/reservoir/ (stored dreams for when the spring sleeps, made by src/reservoir.py
 # or by the refill; here only checked: whole, and 6 MB at most; no reservoir, nothing written: without it the basin is dry), and a link
 # preview picture, synkhole/og.jpg (1200 x 630, the piece itself with its title), whose tags are added when it is there. The tab icon is
-# no file: its SVG sits inline in each page's <head>; synkhole/apple-touch-icon.png is that SVG drawn at 180 px, full bleed.
+# no file: icon() below draws its SVG, inline in each page's <head>; synkhole/apple-touch-icon.png is that SVG at 180 px, full bleed.
 # Vanitas Veritas is a separate piece with its own script (verse/deploy_verse.py) and its own address; nothing here writes to it.
-import json, pathlib, re, sys
+import json, math, pathlib, re, sys
 
 HERE = pathlib.Path(__file__).resolve().parent                # src/: the source
 DEST = HERE.parent                                             # the repo, which is the site (Kat, 2026-11-17: "Yes, currents-2027")
 SITE = DEST / 'synkhole'                                       # the piece inside it
 HOME = 'https://kat-titter.github.io/currents-2027/synkhole/'  # the piece's public address: change it here and in the veritas forwarding pages
+
+FILM = ('#59e6ff', '#9e7aff', '#ff73b8')      # the water's film, cyan to violet to rose (kiri() in index.html); no gold
+PEARL = ('#bfe6ee', '#cfc9f2', '#f2c9dd')     # the hole's thin ring (--pearl in index.html)
+def film(t):                                  # a colour along the film, t from 0 (cyan) to 1 (rose)
+    a, b, u = (FILM[0], FILM[1], 2*t) if t < .5 else (FILM[1], FILM[2], 2*t - 1)
+    return '#' + ''.join(f'{round(int(a[k:k+2], 16)*(1 - u) + int(b[k:k+2], 16)*u):02x}' for k in (1, 3, 5))
+def icon(bleed=False):                        # the tab icon: the hole, its pearl ring, twelve dots round it in the film, on ink
+    dots = ''.join(f"<circle cx='{32 + 24*math.cos(a):.1f}' cy='{32 + 24*math.sin(a):.1f}' r='4' fill='{film(abs(1 - 2*((i/12 + .375) % 1)))}'/>"
+                   for i in range(12) for a in [-math.pi/2 + i*math.pi/6])
+    ring = "<linearGradient id='p' x1='0' y1='0' x2='1' y2='1'>" + ''.join(f"<stop offset='{o}' stop-color='{c}'/>" for o, c in zip(('0', '.5', '1'), PEARL))
+    corner = '' if bleed else " rx='14'"      # full bleed for the home screen, whose corners iOS rounds itself
+    return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs>{ring}</linearGradient></defs><rect width='64' height='64'{corner} fill='#030304'/>"
+            f"{dots}<circle cx='32' cy='32' r='14.1' fill='url(#p)'/><circle cx='32' cy='32' r='11.9' fill='#000'/></svg>")
+ICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,' + icon().replace('#', '%23').replace('<', '%3C').replace('>', '%3E') + '">\n'
+        f'<link rel="apple-touch-icon" href="{HOME}apple-touch-icon.png">\n')   # that SVG at 180 px, drawn by the --icon recipe at the top
 
 def reservoir():                                          # the stored dreams: checked, never built here
     res = SITE / 'reservoir'
@@ -27,13 +44,14 @@ def reservoir():                                          # the stored dreams: c
     if missing or total > 6_000_000: sys.exit(f'reservoir: {len(missing)} listed frames missing, {total} bytes (6,000,000 at most); nothing written')
     return f'reservoir: {len(runs)} dreams, {sum(len(r) for r in runs)} frames, {total} bytes'
 
-def preview(html, name):                                  # what a shared link unfurls with
+def preview(html, name):                                  # what a shared link unfurls with, and the tab's icon
     title = re.search(r'<title>(.*?)</title>', html).group(1); desc = re.search(r'<meta name="description" content="([^"]*)">', html)
     tags = (f'<meta property="og:title" content="{title}">\n' + (f'<meta property="og:description" content="{desc.group(1)}">\n' if desc else '')
             + f'<meta property="og:type" content="website">\n<meta property="og:url" content="{HOME}{"" if name == "index.html" else name}">\n')
     if (SITE / 'og.jpg').exists():
         tags += (f'<meta property="og:image" content="{HOME}og.jpg">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
                  f'<meta name="twitter:image" content="{HOME}og.jpg">\n<meta name="twitter:card" content="summary_large_image">\n')
+    tags += ICON
     if '<meta charset="utf-8">\n' not in html: sys.exit(f'{name}: no <meta charset="utf-8"> line to put the preview tags after; nothing written')
     return html.replace('<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + tags, 1)
 
@@ -41,23 +59,14 @@ FORWARD = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta property="og:title" content="[s[i/y]n[k][w]hole, CURRENTS 2027">
-<meta property="og:type" content="website">
-<meta property="og:image" content="{HOME}og.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="{HOME}og.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CURRENTS 2027, Kat Titterton</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23bfe6ee'/%3E%3Cstop offset='.5' stop-color='%23cfc9f2'/%3E%3Cstop offset='1' stop-color='%23f2c9dd'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%23030304'/%3E%3Ccircle cx='32.0' cy='8.0' r='4' fill='%237cb0ff'/%3E%3Ccircle cx='44.0' cy='11.2' r='4' fill='%2364d4ff'/%3E%3Ccircle cx='52.8' cy='20.0' r='4' fill='%2364d4ff'/%3E%3Ccircle cx='56.0' cy='32.0' r='4' fill='%237cb0ff'/%3E%3Ccircle cx='52.8' cy='44.0' r='4' fill='%23928cff'/%3E%3Ccircle cx='44.0' cy='52.8' r='4' fill='%23ae79f3'/%3E%3Ccircle cx='32.0' cy='56.0' r='4' fill='%23ce76dc'/%3E%3Ccircle cx='20.0' cy='52.8' r='4' fill='%23ef74c4'/%3E%3Ccircle cx='11.2' cy='44.0' r='4' fill='%23ef74c4'/%3E%3Ccircle cx='8.0' cy='32.0' r='4' fill='%23ce76dc'/%3E%3Ccircle cx='11.2' cy='20.0' r='4' fill='%23ae79f3'/%3E%3Ccircle cx='20.0' cy='11.2' r='4' fill='%23938cff'/%3E%3Ccircle cx='32' cy='32' r='14.1' fill='url(%23p)'/%3E%3Ccircle cx='32' cy='32' r='11.9' fill='%23000'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="synkhole/apple-touch-icon.png">
 <meta http-equiv="refresh" content="0; url=synkhole/">
 <style>body{margin:0;background:#030304} a{color:#8a8d93;font:12px ui-monospace,Menlo,monospace;padding:20px;display:block}</style>
 </head>
 <body><a href="synkhole/">[s[i/y]n[k][w]hole</a></body>
 </html>
-""".replace('{HOME}', HOME)   # the root's shared link unfurls with the piece's card
+"""
 README = f"""# currents-2027
 
 Kat Titterton's work for CURRENTS 2027, Santa Fe.
@@ -73,6 +82,7 @@ By Kat Titterton (macrofluidic). An evolution of Vanitas Veritas, an earlier sin
 - `src/archive/`: three versions of the piece from 17 Nov and the script that built them, retired.
 """
 
+if '--icon' in sys.argv: print(icon(bleed=True)); sys.exit()
 NAMES = [a for a in sys.argv[1:] if a in ('index.html', 'about.html')] or ['index.html', 'about.html']
 if 'about.html' in NAMES and not (HERE / 'about.html').exists(): sys.exit('src/about.html is missing and the piece links to it; nothing written')
 SITE.mkdir(parents=True, exist_ok=True)
@@ -83,7 +93,7 @@ if stale: sys.exit(f'about.html still points at {", ".join(stale)}: the old addr
 lost = sorted({p for p in re.findall(r'\bdoc/[\w.-]+\.webp', pages.get('about.html', '')) if not (SITE / p).exists()})   # pictures live in synkhole/doc/ only
 if lost: sys.exit(f'about.html names {len(lost)} pictures missing from {SITE / "doc"}: {", ".join(lost)}; nothing written')
 for name, html in pages.items(): (SITE / name).write_text(preview(html, name))
-(DEST / 'index.html').write_text(FORWARD)
+(DEST / 'index.html').write_text(preview(FORWARD, 'index.html'))   # the root unfurls as the piece
 (DEST / '.nojekyll').write_text('')
 (DEST / 'README.md').write_text(README)
 print('wrote', ', '.join('synkhole/' + n for n in pages) + ', and index.html, README.md at the root of', DEST)
