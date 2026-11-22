@@ -41,6 +41,13 @@ FORWARD = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta property="og:title" content="[s[i/y]n[k][w]hole, CURRENTS 2027">
+<meta property="og:type" content="website">
+<meta property="og:image" content="{HOME}og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{HOME}og.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CURRENTS 2027, Kat Titterton</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23bfe6ee'/%3E%3Cstop offset='.5' stop-color='%23cfc9f2'/%3E%3Cstop offset='1' stop-color='%23f2c9dd'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%23030304'/%3E%3Ccircle cx='32.0' cy='8.0' r='4' fill='%237cb0ff'/%3E%3Ccircle cx='44.0' cy='11.2' r='4' fill='%2364d4ff'/%3E%3Ccircle cx='52.8' cy='20.0' r='4' fill='%2364d4ff'/%3E%3Ccircle cx='56.0' cy='32.0' r='4' fill='%237cb0ff'/%3E%3Ccircle cx='52.8' cy='44.0' r='4' fill='%23928cff'/%3E%3Ccircle cx='44.0' cy='52.8' r='4' fill='%23ae79f3'/%3E%3Ccircle cx='32.0' cy='56.0' r='4' fill='%23ce76dc'/%3E%3Ccircle cx='20.0' cy='52.8' r='4' fill='%23ef74c4'/%3E%3Ccircle cx='11.2' cy='44.0' r='4' fill='%23ef74c4'/%3E%3Ccircle cx='8.0' cy='32.0' r='4' fill='%23ce76dc'/%3E%3Ccircle cx='11.2' cy='20.0' r='4' fill='%23ae79f3'/%3E%3Ccircle cx='20.0' cy='11.2' r='4' fill='%23938cff'/%3E%3Ccircle cx='32' cy='32' r='14.1' fill='url(%23p)'/%3E%3Ccircle cx='32' cy='32' r='11.9' fill='%23000'/%3E%3C/svg%3E">
@@ -50,7 +57,7 @@ FORWARD = """<!doctype html>
 </head>
 <body><a href="synkhole/">[s[i/y]n[k][w]hole</a></body>
 </html>
-"""
+""".replace('{HOME}', HOME)   # the root's shared link unfurls with the piece's card
 README = f"""# currents-2027
 
 Kat Titterton's work for CURRENTS 2027, Santa Fe.
