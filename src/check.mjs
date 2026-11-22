@@ -42,7 +42,8 @@ try {
   need(s.about && s.about.startsWith('about.html') && !s.about.endsWith('none'), 'no about link');
   need(/^\[s\[i\/y\]n\[k\]\[w\]hole/.test(s.title), `title is "${s.title}"`);
   if (/spring=nofeed/.test(url)) need(s.res && s.res.on && s.res.runs > 0, 'no spring, and the reservoir is not pouring');
-  if (await js('!!(window.__basin.hearts && window.__basin.hearts.grid)')) {   // ?r=grid, the default: the fall's flows, by real pointer events on the canvas
+  const isGrid = await js('!!(window.__basin.hearts && window.__basin.hearts.grid)');
+  if (isGrid) {   // ?r=grid, the default: the fall's flows, by real pointer events on the canvas
     const P = (t, x, y, id) => js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${x}, clientY:${y}, pointerId:${id || 1}, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
     const F = () => js('JSON.stringify(window.__basin.fall)').then(JSON.parse), W = await js('innerWidth'), H = await js('innerHeight'), cx = W/2, cy = H/2;
     const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
@@ -54,21 +55,19 @@ try {
     await nap(1500); await tap(0.3*W, 0.3*H); await nap(1500); await js('window.__basin.hearts.grid.idle = 29.9, 1'); await nap(500); f = await F(); need(f.in === null, `30 s alone did not float up (${JSON.stringify(f)})`);
     await nap(3000); await tap(0.3*W, 0.3*H); await nap(1500); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
     await nap(300); f = await F(); need(f.in === null, `two fingers did not go out (${JSON.stringify(f)})`);
-    const bad = errors.filter((e) => !/\/nofeed\//.test(e)); need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-    console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: the grid, in, through, back, out, alone, two fingers, no errors');
-    process.exit(fails.length ? 1 : 0);
+  } else {                                                         // one basin: a hand in the water, then the rim tells its time
+    await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
+    for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
+    const held = await js(STATE); console.log('hand in ', JSON.stringify(held));
+    need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`);
+    await nap(1200); await js(HAND('pointerup', 0.50, 0.54)); await nap(1500);
+    const out = await js(STATE); console.log('hand out', JSON.stringify(out));
+    need(/^lost = \d\d:\d\d$/.test(out.lost) && out.rim === out.lost, `the rim does not tell the hand's time ("${out.rim}")`); need(out.clear > 0.5, `no clear breath (${out.clear})`);
+    need(out.rimOpacity > 0.4, `the rim's line is not showing in the clear breath (${out.rimOpacity})`);
   }
-  await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
-  for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
-  const held = await js(STATE); console.log('hand in ', JSON.stringify(held));
-  need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`);
-  await nap(1200); await js(HAND('pointerup', 0.50, 0.54)); await nap(1500);
-  const out = await js(STATE); console.log('hand out', JSON.stringify(out));
-  need(/^lost = \d\d:\d\d$/.test(out.lost) && out.rim === out.lost, `the rim does not tell the hand's time ("${out.rim}")`); need(out.clear > 0.5, `no clear breath (${out.clear})`);
-  need(out.rimOpacity > 0.4, `the rim's line is not showing in the clear breath (${out.rimOpacity})`);
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
   const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: water, the default look, the hand, the rim, no errors');
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, out, alone, two fingers; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
 } finally { ws.close(); }
 process.exit(fails.length ? 1 : 0);
