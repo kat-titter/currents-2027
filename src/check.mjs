@@ -3,10 +3,13 @@
 // It loads the page in a headless Chrome, lets it pour, puts a hand in, drags, lets go, and fails (exit 1) unless:
 //   the water runs, the look is the default (k 0.25, no line under the basin, the code on the drain's rim), the reservoir pours when no
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
+//   On the grid (?r=grid, the bare address) it checks the fall instead: a tap goes in, a drain tap falls through to depth 1, a short pull
+//   slides back, a pull to the rim climbs out, a hold grips and the rim tells its time, past 30 s alone (set by __basin.idle(s)) it floats up, two fingers go out.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
 //      node src/check.mjs "http://127.0.0.1:8806/?spring=nofeed/"     no spring: the reservoir must pour
+//      node src/check.mjs "http://127.0.0.1:8806/?r=off"         the one basin: the hand in the water and the rim's lost time
 //   CHECK_PORT=<port> picks another Chrome; a second argument writes a PNG of the page after the hand has left.
 import fs from 'node:fs';
 const PORT = +process.env.CHECK_PORT || 9396, [url, png] = process.argv.slice(2), nap = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -38,19 +41,42 @@ try {
   need(s.water > 0.9, `water ${s.water}, not above 0.9 within 45 s`); need(s.k === 0.25, `k is ${s.k}, not 0.25`);
   need(s.line === 'none', 'the line under the basin is showing'); need(s.rim !== null, 'no line on the drain\'s rim');
   need(s.about && s.about.startsWith('about.html') && !s.about.endsWith('none'), 'no about link');
-  need(/^\[syn\[k\]\]hole/.test(s.title), `title is "${s.title}"`);
+  need(/^\[s\[i\/y\]n\[k\]\[w\]hole/.test(s.title), `title is "${s.title}"`);
   if (/spring=nofeed/.test(url)) need(s.res && s.res.on && s.res.runs > 0, 'no spring, and the reservoir is not pouring');
-  await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
-  for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
-  const held = await js(STATE); console.log('hand in ', JSON.stringify(held));
-  need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`);
-  await nap(1200); await js(HAND('pointerup', 0.50, 0.54)); await nap(1500);
-  const out = await js(STATE); console.log('hand out', JSON.stringify(out));
-  need(/^lost = \d\d:\d\d$/.test(out.lost) && out.rim === out.lost, `the rim does not tell the hand's time ("${out.rim}")`); need(out.clear > 0.5, `no clear breath (${out.clear})`);
-  need(out.rimOpacity > 0.4, `the rim's line is not showing in the clear breath (${out.rimOpacity})`);
+  const handIn = (held) => { console.log('hand in ', JSON.stringify(held)); need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`); };
+  const handOut = (out) => { console.log('hand out', JSON.stringify(out));   // both modes: the hand's time told on the rim, in a clear breath
+    need(/^lost = \d\d:\d\d$/.test(out.lost) && out.rim === out.lost, `the rim does not tell the hand's time ("${out.rim}")`); need(out.clear > 0.5, `no clear breath (${out.clear})`);
+    need(out.rimOpacity > 0.4, `the rim's line is not showing in the clear breath (${out.rimOpacity})`); };
+  const isGrid = await js('!!(window.__basin.hearts && window.__basin.hearts.grid)');
+  if (isGrid) {   // ?r=grid, the default: the fall's flows, by real pointer events on the canvas
+    const P = (t, x, y, id) => js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${x}, clientY:${y}, pointerId:${id || 1}, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
+    const F = () => js('JSON.stringify(window.__basin.fall)').then(JSON.parse), W = await js('innerWidth'), H = await js('innerHeight'), cx = W/2, cy = H/2;
+    const until = async (test, ms) => { const end = Date.now() + ms; let f = await F(); while (!test(f) && Date.now() < end) { await nap(100); f = await F(); } return f; };   // poll the page's own state, never its timings
+    const expect = async (test, ms, what) => { const f = await until(test, ms); need(test(f), `${what} (${JSON.stringify(f)})`); return f; };   // poll, and fail out loud on a timeout
+    const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
+    const goIn = async () => { await expect((f) => f.z === 0 && f.in === null, 8000, 'never back on the wall'); await tap(0.3*W, 0.3*H); return expect((f) => f.in !== null && f.z === 1, 8000, 'a tap on the wall did not go in'); };
+    const drag = async (x0, y0, x1, y1) => { await P('pointerdown', x0, y0); for (let i = 1; i <= 15; i++) { await P('pointermove', x0 + (x1 - x0)*i/15, y0 + (y1 - y0)*i/15); await nap(40); } };
+    let f = await goIn();
+    await tap(cx, cy); await expect((f) => f.f !== null, 2000, 'a tap on the drain did not start a fall');
+    await expect((f) => f.f === null && f.depth === 1 && f.in !== null, 20000, 'the fall did not come back to the same basin, one ring deeper');
+    await drag(cx, cy, cx, cy + 0.2*H); await expect((f) => f.climb > 0.1, 3000, 'a pull from the drain did not grip');
+    await P('pointerup', cx, cy + 0.2*H); await expect((f) => f.in !== null && f.climb === 0, 5000, 'a short pull did not slide back in');
+    await drag(cx, cy, cx, H - 2); await expect((f) => f.in === null, 3000, 'a pull to the rim did not climb out'); await P('pointerup', cx, H - 2);
+    await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(1200); handIn(await js(STATE)); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
+    need(f.in !== null, `a hold away from the drain did not stay in (${JSON.stringify(f)})`); await nap(1500); handOut(await js(STATE));
+    await js('window.__basin.idle(30.1), 1'); await expect((f) => f.in === null, 3000, 'past 30 s alone, it did not float up');
+    await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
+    await expect((f) => f.in === null, 3000, 'two fingers did not go out');
+  } else {                                                         // one basin: a hand in the water, then the rim tells its time
+    await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
+    for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
+    handIn(await js(STATE));
+    await nap(1200); await js(HAND('pointerup', 0.50, 0.54)); await nap(1500);
+    handOut(await js(STATE));
+  }
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
   const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: water, the default look, the hand, the rim, no errors');
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
 } finally { ws.close(); }
 process.exit(fails.length ? 1 : 0);
