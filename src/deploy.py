@@ -5,7 +5,7 @@
 #   python3 src/deploy.py                 every page
 #   python3 src/deploy.py index.html      the piece only (about.html left as it is, e.g. while the about page is being edited)
 # Writes synkhole/index.html (the piece), synkhole/about.html (the page about the piece), and at the root index.html (sends a visitor
-# on to synkhole/), README.md and .nojekyll.
+# on to synkhole/) and .nojekyll. README.md is written by hand; this only checks that it still names HOME.
 # Binaries live once, in the built folder, never in src/: the about page's pictures in synkhole/doc/ (here only checked: every picture
 # about.html names is there), the reservoir in synkhole/reservoir/ (stored dreams for when the spring sleeps, made by src/reservoir.py
 # or by the refill; here only checked: whole, and 6 MB at most; no reservoir, nothing written: without it the basin is dry), and a link
@@ -49,7 +49,6 @@ FORWARD = """<!doctype html>
 <body><a href="synkhole/">[s[i/y]n[k][w]hole</a></body>
 </html>
 """
-README = '<!-- built by src/deploy.py from src/README.md: edit that file, not this one -->\n' + (HERE / 'README.md').read_text().replace('HOME', HOME)
 
 NAMES = [a for a in sys.argv[1:] if a in ('index.html', 'about.html')] or ['index.html', 'about.html']
 if 'about.html' in NAMES and not (HERE / 'about.html').exists(): sys.exit('src/about.html is missing and the piece links to it; nothing written')
@@ -63,6 +62,6 @@ if lost: sys.exit(f'about.html names {len(lost)} pictures missing from {SITE / "
 for name, html in pages.items(): (SITE / name).write_text(preview(html, name))
 (DEST / 'index.html').write_text(FORWARD)
 (DEST / '.nojekyll').write_text('')
-(DEST / 'README.md').write_text(README)
-print('wrote', ', '.join('synkhole/' + n for n in pages) + ', and index.html, README.md at the root of', DEST)
+if HOME not in (DEST / 'README.md').read_text(): print('README.md does not name', HOME, '- update its links by hand')
+print('wrote', ', '.join('synkhole/' + n for n in pages) + ', and index.html at the root of', DEST)
 print('not committed, not pushed: that is done by hand in', DEST)

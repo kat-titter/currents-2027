@@ -1,4 +1,3 @@
-<!-- built by src/deploy.py from src/README.md: edit that file, not this one -->
 # currents-2027
 
 Kat Titterton's work for CURRENTS 2027, Santa Fe.
