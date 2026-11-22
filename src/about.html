@@ -445,7 +445,7 @@
   <p data-r>below, the same insistence taken apart, one number to a row; down the middle, the numbers the piece runs, with r at 3.71.</p>
   <aside class="note" data-r><b>9</b>marilyn diptych: one publicity photograph, screen-printed 50 times, colour on the left panel, black and white on the right.</aside>
   <figure class="prints-fig wide" data-r><div class="prints" id="prints"></div><p class="mono vread" id="vread" aria-live="polite"></p><figcaption class="mono">under each print, its heart: the monitor, then a dot per beat, higher when the gap ran long</figcaption></figure>
-  <p data-r>of all these numbers, one decides whether the heart sounds alive. each gap between beats comes from the one before, by the logistic map. below r = 3 the beat settles to one steady gap; past it the loop doubles, two beats long, then four, then eight. past 3.57 the loop never closes. at 3.71 two hearts started a thousandth apart fall out of step within about 12 beats, and each still sounds like a heart. the piece lays this line along its long side, from 2.9 to 4.0, through 3.71 and the window of three at 3.83.</p>
+  <p data-r>of all these numbers, one decides whether the heart sounds alive. each gap between beats comes from the one before, by the logistic map. below r = 3 the beat settles to one steady gap; past it the loop doubles, two beats long, then four, then eight. past 3.57 the loop never closes. at 3.71 two hearts started a thousandth apart fall out of step within about 12 beats, and each still sounds like a heart, almost. one beat in 16, when x tops 0.92, comes early and misshapen, without its second sound, and the next waits to make up the time. the piece lays this line along its long side, from 2.9 to 4.0, through 3.71 and the window of three at 3.83.</p>
   <figure class="edge wide" data-r>
     <div class="bif"><span><canvas role="img" aria-label="the logistic map from r = 3 to 4, drawn as dots: one line splits into two, four, eight, then dissolves into chaos past 3.57, with a window of three near 3.83. The heart's own values light up where each print in the groove row beats."></canvas><i class="lo">repeats</i><i class="hi">chaos</i></span></div>
     <div class="axis mono"><span class="nm">r</span><span class="track"><i class="tick" style="left:0%">3</i><i class="tick" style="left:20%">3.2</i><i class="tick" style="left:50%">3.5</i><i class="tick here" style="left:71%">3.71</i><i class="tick" style="left:83%">3.83</i><i class="tick end" style="left:100%">4</i><input class="drag" type="range" min="3" max="4" step="0.01" value="3.71" aria-label="r, from 3 to 4: retunes this page's heart"><b class="mark" style="left:71%"></b></span><span class="val">3.71</span></div>
@@ -584,25 +584,31 @@ let HS = 0, HT = 0; const RIP = [];                                             
 const kss = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }, kh = (n) => { const x = Math.sin(n*127.1 + 3.7)*43758.5453; return x - Math.floor(x); };   // as in the piece
 const logi = (r, x) => { x = r*x*(1 - x); return x > 1e-6 && x < 1 - 1e-6 ? x : 0.2 + 0.6*Math.random(); };   // the groove's map; at r = 4 it can fall onto 0 and stay, so it is nudged off
 const g = (x, c, w) => Math.exp(-(((x - c)/w)**2));
-const ekg = (f, dub, ghost, bl) => { f = (f % 1 + 1) % 1; const d = (f < 0.62 ? f : f - 1)*bl, du = dub*bl, gh = 1.9*du;   // seconds from the lub, so a faster heart keeps a sharp QRS
-  return 0.1*g(d, -0.1, 0.024) - 0.12*g(d, -0.022, 0.008) + g(d, 0, 0.009) - 0.3*g(d, 0.022, 0.009)
-    + 0.52*g(d, du, 0.01) + 0.18*g(d, du + 0.015, 0.005) - 0.34*g(d, du + 0.032, 0.011) + 0.24*g(d, du + 0.17, 0.045)
-    + ghost*(0.9*g(d, gh, 0.008) - 0.4*g(d, gh + 0.02, 0.008)); };
+// the beat law, as in the piece (index.html kLaw): the gap from x; when x tops 0.92 (one beat in 16 at r = 3.71) the next beat comes early, a stranger with no second sound
+// and a weak ring, and the one after waits 1.4 gaps and lands hard. A heart skipping: almost human, not quite
+const kLaw = (h) => { h.post = h.ect; h.ect = h.pend; const x = h.lx; h.pend = x > 0.92 ? 1 : 0; h.dub = h.ect ? 2 : 0.13 + 0.06*x;
+  return (0.9 + 0.2*x)*(x < 0.05 ? 1.5 : 1)*(h.ect ? 1.4 : 1)*(h.pend ? 0.6 : 1); };
+const kLawBa = (h) => h.ect ? 0.6 : h.post ? 1.3 : 1;
+const ekg = (f, h, bl) => { f = (f % 1 + 1) % 1; const d = (f < 0.62 ? f : f - 1)*bl, du = h.dub*bl, a = 0.85 + 0.3*h.lx;   // seconds from the lub, so a faster heart keeps a sharp QRS; each beat as tall as its ring is strong by x
+  if (d < 0 && h.pend) return 0;                                                                                                   // the stranger comes unannounced: no P before it
+  if (d >= 0 && h.ect) return a*(-0.2*g(d, -0.01, 0.012) + 1.1*g(d, 0.022, 0.026) - 0.55*g(d, 0.08, 0.03) - 0.3*g(d, 0.25, 0.08));   // the stranger: wide and tall, a dip after, its T upside down, no second sound
+  return a*(0.1*g(d, -0.1, 0.024) - 0.12*g(d, -0.022, 0.008) + g(d, 0, 0.009) - 0.3*g(d, 0.022, 0.009)
+    + 0.52*g(d, du, 0.01) + 0.18*g(d, du + 0.015, 0.005) - 0.34*g(d, du + 0.032, 0.011) + 0.24*g(d, du + 0.17, 0.045)); };
 // this page's heart. Its r is 3.71, as in the piece, until a hand takes the r axis in 06: then the page keeps that r for six seconds after the last move, and the monitor shows it
-const HB = { t:0, len:0.8, x:0.37, dub:0.16, ghost:0, nb:0, xs:[] }, RT = { r:3.71, until:0 };
+const HB = { t:0, len:0.8, lx:0.37, dub:0.16, ect:0, pend:0, post:0, nb:0, xs:[] }, RT = { r:3.71, until:0 };
 const tunedR = () => performance.now() < RT.until ? RT.r : 3.71;
 // the heart along the bottom, drawn as a monitor draws it: on the lub a small P, a sharp QRS and a rounded T; on the dub a second QRS, smaller and slightly wrong
-// (notched); now and then a third. Gaps from a logistic map at r = 3.71 (the edge of chaos), as in the piece. It sweeps left to right with a gap ahead of the pen.
+// (notched); now and then a stranger: early, unannounced, wide, with no second sound, and then a wait (kLaw). Gaps from a logistic map at r = 3.71 (the edge of chaos), as in the piece. It sweeps left to right with a gap ahead of the pen.
 // Once the live piece in 09 has loaded (same origin), the trace is the drain's own heart (its kq: faster as it drains) and the label says live; until then, the page's: rest; while r is retuned, that r.
 { const pc = document.getElementById('pulse'), px = pc.getContext('2d'), lab = document.getElementById('ekgl'), hb = HB, SPEED = 96, GAP = 16;
-  const step = (dt) => { hb.t += dt; HT += dt; if (hb.t >= hb.len) { hb.t -= hb.len; const r = tunedR(); hb.x = logi(r, hb.x); hb.len = (0.9 + 0.2*hb.x)/0.9*(hb.x < 0.05 ? 1.5 : 1); hb.dub = 0.13 + 0.06*hb.x; hb.ghost = hb.x > 0.92 ? 0.4 : 0; HS++; hb.nb++; hb.dd = false;
-      hb.xs.push([HT, r, hb.x]); if (hb.xs.length > 8) hb.xs.shift(); RIP.push([HT, HS % 16 === 1 ? 1.3 : 1]); if (RIP.length > 10) RIP.shift(); }
+  const step = (dt) => { hb.t += dt; HT += dt; if (hb.t >= hb.len) { hb.t -= hb.len; const r = tunedR(); hb.lx = logi(r, hb.lx); hb.len = kLaw(hb)/0.9; HS++; hb.nb++; hb.dd = false;
+      hb.xs.push([HT, r, hb.lx]); if (hb.xs.length > 8) hb.xs.shift(); RIP.push([HT, (HS % 16 === 1 ? 1.3 : 1)*kLawBa(hb)]); if (RIP.length > 10) RIP.shift(); }
     if (!hb.dd && hb.t >= hb.dub*hb.len) { HS++; hb.dd = true; RIP.push([HT, 0.55]); if (RIP.length > 10) RIP.shift(); } };
   const fr = document.querySelector('.live iframe'); let seen = { bt:-1, nb:-1, at:0 }, live = false;
   const piece = () => { try { const k = fr && fr.contentWindow && fr.contentWindow.__basin && fr.contentWindow.__basin.kq; if (!k || !(k.bl > 0)) return null;
       const now = performance.now(); if (k.bt !== seen.bt || k.nb !== seen.nb) seen = { bt:k.bt, nb:k.nb, at:now }; return now - seen.at < 1500 ? k : null; } catch (e) { return null; } };   // a sleeping or hidden frame stops counting: then the page's heart
   let pw = 0, ph = 0, pd = 1, N = 0, buf = new Float32Array(0), pen = 0, acc = 0, lastT = 0, grid = null;
-  const fill = () => { for (let i = 0; i < N; i++) { step(1/SPEED); buf[i] = ekg(hb.t/hb.len, hb.dub, hb.ghost, hb.len); } pen = STILL ? Math.round(N*0.86) : 0; };   // it was beating before you came
+  const fill = () => { for (let i = 0; i < N; i++) { step(1/SPEED); buf[i] = ekg(hb.t/hb.len, hb, hb.len); } pen = STILL ? Math.round(N*0.86) : 0; };   // it was beating before you came
   const size = () => { pd = Math.min(3, devicePixelRatio || 1); pw = pc.clientWidth; ph = pc.clientHeight; pc.width = Math.round(pw*pd); pc.height = Math.round(ph*pd);
     if (N !== pw) { N = pw; buf = new Float32Array(N); fill(); }
     grid = document.createElement('canvas'); grid.width = pc.width; grid.height = pc.height; const gx = grid.getContext('2d'); gx.setTransform(pd, 0, 0, pd, 0, 0);   // faint squares, as on monitor paper: small every 6 px, large every 30
@@ -620,7 +626,7 @@ const tunedR = () => performance.now() < RT.until ? RT.r : 3.71;
   else { const run = (now) => { requestAnimationFrame(run); const dt = Math.min(0.1, lastT ? (now - lastT)/1000 : 0); lastT = now; if (document.hidden) return;
       acc += dt*SPEED; const n = Math.floor(acc); acc -= n; const tuned = performance.now() < RT.until, k = tuned ? null : piece();
       const say = tuned ? RT.r.toFixed(2) : k ? 'live' : 'rest'; if (say !== lab.textContent) lab.textContent = say; live = !!k;
-      for (let i = 0; i < n; i++) { step(1/SPEED); buf[pen] = k ? ekg((k.bt - (n - 1 - i)/SPEED)/k.bl, k.dub, k.ghost, k.bl) : ekg(hb.t/hb.len, hb.dub, hb.ghost, hb.len); pen = (pen + 1) % N; }
+      for (let i = 0; i < n; i++) { step(1/SPEED); buf[pen] = k ? ekg((k.bt - (n - 1 - i)/SPEED)/k.bl, k, k.bl) : ekg(hb.t/hb.len, hb, hb.len); pen = (pen + 1) % N; }
       draw(); }; requestAnimationFrame(run); } }
 
 // where you are: 01 / 10
@@ -909,12 +915,12 @@ const GLY = {
           D(cx + ((k % 3) - 1)*s*0.35, cy + (Math.floor(k/3) - 1)*s*0.26, Math.max(0.35, s*0.13*sz), 0.15 + a/8*0.6, 0); } }
       T(String(GRID_RS[a]), cx, h - 22); T(PER[a], cx, h - 6); }
     T('slow', L - 6, top + chh*0.5 + 4, 'right'); T('fast', L - 6, top + chh*5.5 + 4, 'right'); T('r', L - 6, h - 22, 'right'); T('loop', L - 6, h - 6, 'right'); },
-  // 07: the wall's score. The 48 hearts as index.html runs them at rest (hBeat: x = r x (1 - x), gap = (0.9 + 0.2 x)/hz, 1.5 times longer when x < 0.05; hz = 0.9, breathing
+  // 07: the wall's score. The 48 hearts as index.html runs them at rest (hBeat: x = r x (1 - x), gap = kLaw/hz: (0.9 + 0.2 x), 1.5 times longer when x < 0.05, early after x > 0.92 and late after that; hz = 0.9, breathing
   // 4.5% over a 32-beat phrase, times the pace; r wanders 0.006 round its place), one row each, in eight bands by r, six paces slow to fast; the last 20 seconds, a dot per beat as large as its x
   wall(D, O, T, w, h, b, t){ const L = 44, top = 4, bot = 24, rp = (h - top - bot)/(48 + 7*1.6), gg = 1.6*rp, W = 20, now = 30 + (t % 860), x0 = L, x1 = w - 4;
-    if (!WALL.length) for (let a = 0; a < 8; a++) for (let c = 0; c < 6; c++) { const i = c*8 + a, seed = i*0.618, tf = 1 + 0.06*(c/5 - 0.5); let lx = 0.37, T0 = 0, bl = 1.1, nb = 0; const bs = [];
+    if (!WALL.length) for (let a = 0; a < 8; a++) for (let c = 0; c < 6; c++) { const i = c*8 + a, seed = i*0.618, tf = 1 + 0.06*(c/5 - 0.5); let lx = 0.37, T0 = 0, bl = 1.1, nb = 0; const bs = [], st = { lx, ect:0, pend:0 };
       while (T0 < 900) { T0 += bl; const r = GRID_RS[a] + 0.006*(2*kNoise(T0/23 + seed*7.1) - 1); lx = r*lx*(1 - lx); if (!(lx > 1e-6 && lx < 1 - 1e-6)) lx = 0.2 + 0.6*kh(nb*0.37 + seed);
-        bl = (0.9 + 0.2*lx)/(0.9*(1 + 0.045*Math.sin(6.28318*(nb % 32)/32))*tf)*(lx < 0.05 ? 1.5 : 1); nb++; bs.push([T0, lx]); }
+        st.lx = lx; bl = kLaw(st)/(0.9*(1 + 0.045*Math.sin(6.28318*(nb % 32)/32))*tf); nb++; bs.push([T0, lx]); }
       WALL.push({ a, c, bs }); }
     for (const H of WALL) { const y = top + H.a*(6*rp + gg) + (H.c + 0.5)*rp;
       for (const [T0, lx] of H.bs) { if (T0 < now - W) continue; if (T0 > now) break; D(x0 + (T0 - now + W)/W*(x1 - x0), y, Math.max(0.35, rp*0.5*(0.15 + 0.85*kss(0.2, 0.95, lx))), 0.15 + H.a/8*0.6, 0); } }
@@ -981,7 +987,7 @@ function drawGlyph(el, now){ const S = el._g; if (!S) return; const x = el.getCo
 // its numbers, the same water and the same start in every print, and every print is touched at the same moments by one ghost hand: only the nudged number differs.
 const BUILT = { r:3.71, hz:0.9, v:0.13, g:0.2, e:0.046 };
 const AXES = [
-  { k:'r', nm:'groove', un:'r', vals:[3.2, 3.5, 3.71, 3.83, 4], say:['two beats, long and short, forever', 'four beats, then the same four again', 'never repeats; one beat in 16 gets a third', 'a three-beat loop comes back out of the chaos, a ghost beat on one of the three', 'anything goes: a third beat on one beat in 5, a long pause on one in 7'] },
+  { k:'r', nm:'groove', un:'r', vals:[3.2, 3.5, 3.71, 3.83, 4], say:['two beats, long and short, forever', 'four beats, then the same four again', 'never repeats; one beat in 16 comes early, and the next waits', 'a three-beat loop comes back out of the chaos, and every third beat comes early', 'anything goes: one beat in 5 early, a long pause on one in 7'] },
   { k:'hz', nm:'heart', un:'Hz at rest', vals:[0.45, 0.65, 0.9, 1.3, 2.6], was:3, say:['27 beats a minute: the rings far apart', '39 beats a minute', '54 beats a minute at rest, 78 as the basin drains', '78 beats a minute: the resting rate until 20 nov 2026', '156 beats a minute: a throb, not a ripple'] },
   { k:'v', nm:'ripple', un:'widths/s', vals:[0.04, 0.08, 0.13, 0.2, 0.4], was:3, say:['rings die halfway to the rim', 'rings reach the rim as they fade', 'crests roll through each ring at 0.195, three to two', 'the speed until 20 nov 2026', 'a ring reaches the rim in about a second'] },
   { k:'g', nm:'touch', un:'± %', vals:[0, 0.1, 0.2, 0.4, 0.8], fmt:(v) => String(Math.round(v*100)), say:['ignores a hand', 'a nudge, barely felt', 'a press lifts it 20%, a held hand slows it 20%, letting go lifts it 15%', 'startles hard, then sinks', 'startles, then all but stops under a held hand'] },
@@ -999,12 +1005,12 @@ function printStep(s, dt, T, P){   // index.html kTick, one print's worth
   s.under += ((P.down ? kss(1.5, 6, P.held) : 0) - s.under)*(1 - Math.exp(-dt/(P.down ? 2 : 0.8)));
   const hz = o.hz*(1 + 0.045*Math.sin(6.28318*((s.nb % 32) + s.bt/s.bl)/32))*Math.max(0.05, (1 + 0.3*G*s.tq)*(1 - 0.18*G*s.under));
   s.bt += dt;
-  if (s.bt >= s.bl) { s.bt -= s.bl; s.lx = logi(o.r, s.lx); s.bl = (0.9 + 0.2*s.lx)/hz*(s.lx < 0.05 ? 1.5 : 1); s.dub = 0.13 + 0.06*s.lx; s.ghost = s.lx > 0.92 ? 0.4 : 0;
-    s.nb++; s.steps++; s.dd = false; s.xs.push([T, s.lx]); if (s.xs.length > 8) s.xs.shift(); s.gs.push((0.9 + 0.2*s.lx)*(s.lx < 0.05 ? 1.5 : 1)); if (s.gs.length > 24) s.gs.shift();   // each gap, as the groove sets it
+  if (s.bt >= s.bl) { s.bt -= s.bl; s.lx = logi(o.r, s.lx); const gf = kLaw(s); s.bl = gf/hz;
+    s.nb++; s.steps++; s.dd = false; s.xs.push([T, s.lx]); if (s.xs.length > 8) s.xs.shift(); s.gs.push(gf); if (s.gs.length > 24) s.gs.shift();   // each gap, as the groove sets it
     const pi = s.nb % 32, pn = Math.floor(s.nb/32);
-    s.ba = (0.3 + 0.7*kss(0, 8, pi)*(1 - 0.8*kss(22, 32, pi)))*(pn % 4 === 3 ? 0.35 : 0.75 + 0.35*kh(pn + 0.17))*(0.85 + 0.3*s.lx)*(pi % 8 === 0 ? 1.25 : 1)*(1 + 0.4*s.tq);
+    s.ba = (0.3 + 0.7*kss(0, 8, pi)*(1 - 0.8*kss(22, 32, pi)))*(pn % 4 === 3 ? 0.35 : 0.75 + 0.35*kh(pn + 0.17))*(0.85 + 0.3*s.lx)*(pi % 8 === 0 ? 1.25 : 1)*(1 + 0.4*s.tq)*kLawBa(s);
     const oa = 6.28318*kh(s.nb*0.37 + 0.1), or = 0.022*Math.sqrt(kh(s.nb*0.71 + 0.3)), ox = or*Math.cos(oa), oy = or*Math.sin(oa);
-    s.rip.push([T, s.ba, ox, oy], [T + s.dub*s.bl, 0.45*s.ba, ox*0.8, oy*0.8]); if (s.ghost) s.rip.push([T + 1.9*s.dub*s.bl, 0.35*s.ba, -ox, -oy]); }
+    s.rip.push([T, s.ba, ox, oy]); if (!s.ect) s.rip.push([T + s.dub*s.bl, 0.45*s.ba, ox*0.8, oy*0.8]); }
   if (!s.dd && s.bt >= s.dub*s.bl) { s.steps++; s.dd = true; }
   while (s.rip.length && (T - s.rip[0][0] > 6.5 || s.rip.length > 16)) s.rip.shift();
 }
@@ -1013,7 +1019,7 @@ function printsTick(dt){
   const P = { down, held:f - a, dn:down && !PR.down, up:!down && PR.down }; PR.down = down; PR.hs += ((down ? 1 : 0) - PR.hs)*(1 - Math.exp(-dt/(down ? 0.25 : 0.9)));
   for (const tl of PR.tiles) { const s = tl.s; printStep(s, dt, T, P); const S = tl.S; if (!S) continue;
     S.acc += dt*PSPEED; const n = Math.floor(S.acc); S.acc -= n;
-    for (let i = 0; i < n; i++) { let best = 0; for (let m = 0; m < 6; m++) { const v = ekg((s.bt - (n - 1 - i + m/6)/PSPEED)/s.bl, s.dub, s.ghost, s.bl); if (Math.abs(v) > Math.abs(best)) best = v; }   // a pixel holds 40 ms: keep its sharpest moment, or the QRS falls between samples
+    for (let i = 0; i < n; i++) { let best = 0; for (let m = 0; m < 6; m++) { const v = ekg((s.bt - (n - 1 - i + m/6)/PSPEED)/s.bl, s, s.bl); if (Math.abs(v) > Math.abs(best)) best = v; }   // a pixel holds 40 ms: keep its sharpest moment, or the QRS falls between samples
       S.buf[S.pen] = best; S.pen = (S.pen + 1) % S.buf.length; } }
 }
 function drawPrint(tl){
@@ -1062,7 +1068,7 @@ function buildPrints(){
       const el = document.createElement('div'), lab = `${a.nm} ${a.k === 'r' ? 'r = ' : ''}${fmtV(a, v)}${a.k === 'r' ? '' : ' ' + a.un}${n === 2 ? ', as built' : n === a.was ? ', until 20 nov 2026' : ''}`;
       el.className = 'pt' + (n === 2 ? ' on' : '') + (n === a.was ? ' was' : ''); el.tabIndex = 0; el.setAttribute('role', 'img'); el.setAttribute('aria-label', `${lab}: ${a.say[n]}`);
       el.innerHTML = `<canvas></canvas><span class="v">${fmtV(a, v)}</span>`; box.append(el);
-      const o = { ...BUILT, [a.k]:v }, tl = { el, c:el.querySelector('canvas'), a, v, s:{ o, bt:0, bl:1/o.hz, lx:0.37, dub:0.16, ghost:0, nb:0, steps:0, ba:1, touch:0, tq:0, under:0, rip:[], xs:[], gs:[], dd:true }, S:null };
+      const o = { ...BUILT, [a.k]:v }, tl = { el, c:el.querySelector('canvas'), a, v, s:{ o, bt:0, bl:1/o.hz, lx:0.37, dub:0.16, ect:0, pend:0, post:0, nb:0, steps:0, ba:1, touch:0, tq:0, under:0, rip:[], xs:[], gs:[], dd:true }, S:null };
       PR.tiles.push(tl);
       const on = () => { PR.hot = tl; rd.innerHTML = `<b>${a.nm} ${a.k === 'r' ? 'r = ' : ''}${fmtV(a, v)}${n === 2 ? ', as built' : ''}</b>${a.say[n]}`; }, off = () => { if (PR.hot === tl) PR.hot = null; rd.innerHTML = base; };
       el.addEventListener('mouseenter', on); el.addEventListener('focus', on); el.addEventListener('mouseleave', off); el.addEventListener('blur', off);
