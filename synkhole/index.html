@@ -603,8 +603,8 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
 vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*B.x/uGS.x;   // pw: the rim is about a dot and a half wide, whatever the scale
     // the heartbeat as a speaker gives it (Kat 2026-11-22: "it used to feel more like a speaker with the borders and the ring being emitted"): round each drain a cone, its rim a thin ring of
   for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;   // light (Rs, the surround: a border drawn in light, not in black, so the copies stay one field). On a beat the whole cone moves at once, the rim flares, and a crest leaves the rim:
-    float gone = max(0., d - Rs), far = clamp(gone/0.3, 0., 1.), sl = 0.05 + 0.07*far, sd = 0.045 + 0.055*far, s = 0.;                         // crisp where it is thrown, softer the further it rolls, on through the neighbours; a smaller crest just behind (lub, dub)
-    for (int i = 0; i < 4; i++) { vec4 e = uWv[4*j + i]; float tau = e.x - gone/0.18; if (e.y <= 0. || tau < -0.3 || tau > 0.68) continue;
+    float gone = max(0., d - Rs), far = clamp(gone/0.3, 0., 1.), sl = 0.15 + 0.03*far, sd = 0.12 + 0.03*far, s = 0.;   // slow in, slow out (Kat 2026-11-22: "pearl ring is way too fast": it flashed in under a tenth of a second): the rim swells over about a third of a second and eases back                         // crisp where it is thrown, softer the further it rolls, on through the neighbours; a smaller crest just behind (lub, dub)
+    for (int i = 0; i < 4; i++) { vec4 e = uWv[4*j + i]; float tau = e.x - 0.32 - gone/0.18; if (e.y <= 0. || tau < -0.45 || tau > 0.85) continue;
       s += e.y*(exp(-tau*tau/(sl*sl)) + (e.z > 0. ? 0.5*exp(-(tau - e.z)*(tau - e.z)/(sd*sd)) : 0.)); }
     w += inversesqrt(1. + d/0.25)*(1. - smoothstep(0.4, 0.64, d))*mix(0.45, 1., smoothstep(Rs - 0.03, Rs, d))*s; kr += exp(-(d - Rs)*(d - Rs)/(pw*pw))*(0.7 + 1.4*s); }
   return vec2(w + kr, kr); }   // y: the rim alone, which also shows where the water is dark
