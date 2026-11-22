@@ -4,7 +4,7 @@
 //   the water runs, the look is the default (k 0.25, no line under the basin, the code on the drain's rim), the reservoir pours when no
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
 //   On the grid (?r=grid, the bare address) it checks the fall instead: a tap goes in, a drain tap falls through to depth 1, a short pull
-//   slides back, a pull to the rim climbs out, 30 s alone floats up, two fingers go out.
+//   slides back, a pull to the rim climbs out, a hold grips and the rim tells its time, past 30 s alone (set by __basin.idle(s)) it floats up, two fingers go out.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
@@ -52,20 +52,21 @@ try {
     const P = (t, x, y, id) => js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${x}, clientY:${y}, pointerId:${id || 1}, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
     const F = () => js('JSON.stringify(window.__basin.fall)').then(JSON.parse), W = await js('innerWidth'), H = await js('innerHeight'), cx = W/2, cy = H/2;
     const until = async (test, ms) => { const end = Date.now() + ms; let f = await F(); while (!test(f) && Date.now() < end) { await nap(100); f = await F(); } return f; };   // poll the page's own state, never its timings
+    const expect = async (test, ms, what) => { const f = await until(test, ms); need(test(f), `${what} (${JSON.stringify(f)})`); return f; };   // poll, and fail out loud on a timeout
     const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
-    const goIn = async () => { await until((f) => f.z === 0 && f.in === null, 8000); await tap(0.3*W, 0.3*H); return until((f) => f.in !== null && f.z === 1, 8000); };
+    const goIn = async () => { await expect((f) => f.z === 0 && f.in === null, 8000, 'never back on the wall'); await tap(0.3*W, 0.3*H); return expect((f) => f.in !== null && f.z === 1, 8000, 'a tap on the wall did not go in'); };
     const drag = async (x0, y0, x1, y1) => { await P('pointerdown', x0, y0); for (let i = 1; i <= 15; i++) { await P('pointermove', x0 + (x1 - x0)*i/15, y0 + (y1 - y0)*i/15); await nap(40); } };
-    let f = await goIn(); need(f.in !== null, `a tap on the wall did not go in (${JSON.stringify(f)})`);
-    await tap(cx, cy); f = await until((f) => f.f !== null, 2000); need(f.f !== null, `a tap on the drain did not start a fall (${JSON.stringify(f)})`);
-    f = await until((f) => f.f === null, 20000); need(f.depth === 1 && f.in !== null, `the fall did not come back to the same basin, one ring deeper (${JSON.stringify(f)})`);
-    await drag(cx, cy, cx, cy + 0.2*H); f = await until((f) => f.climb > 0.1, 3000); need(f.climb > 0.1, `a pull from the drain did not grip (${JSON.stringify(f)})`);
-    await P('pointerup', cx, cy + 0.2*H); f = await until((f) => f.climb === 0, 5000); need(f.in !== null && f.climb === 0, `a short pull did not slide back in (${JSON.stringify(f)})`);
-    await drag(cx, cy, cx, H - 2); f = await until((f) => f.in === null, 3000); await P('pointerup', cx, H - 2); need(f.in === null, `a pull to the rim did not climb out (${JSON.stringify(f)})`);
+    let f = await goIn();
+    await tap(cx, cy); await expect((f) => f.f !== null, 2000, 'a tap on the drain did not start a fall');
+    await expect((f) => f.f === null && f.depth === 1 && f.in !== null, 20000, 'the fall did not come back to the same basin, one ring deeper');
+    await drag(cx, cy, cx, cy + 0.2*H); await expect((f) => f.climb > 0.1, 3000, 'a pull from the drain did not grip');
+    await P('pointerup', cx, cy + 0.2*H); await expect((f) => f.in !== null && f.climb === 0, 5000, 'a short pull did not slide back in');
+    await drag(cx, cy, cx, H - 2); await expect((f) => f.in === null, 3000, 'a pull to the rim did not climb out'); await P('pointerup', cx, H - 2);
     await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(1200); handIn(await js(STATE)); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
     need(f.in !== null, `a hold away from the drain did not stay in (${JSON.stringify(f)})`); await nap(1500); handOut(await js(STATE));
-    await js('window.__basin.idle(1e3), 1'); f = await until((f) => f.in === null, 3000); need(f.in === null, `left alone, it did not float up (${JSON.stringify(f)})`);
+    await js('window.__basin.idle(30.1), 1'); await expect((f) => f.in === null, 3000, 'past 30 s alone, it did not float up');
     await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
-    f = await until((f) => f.in === null, 3000); need(f.in === null, `two fingers did not go out (${JSON.stringify(f)})`);
+    await expect((f) => f.in === null, 3000, 'two fingers did not go out');
   } else {                                                         // one basin: a hand in the water, then the rim tells its time
     await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
     for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
