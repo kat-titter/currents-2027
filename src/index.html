@@ -478,7 +478,12 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
     put('display', 'uniform vec4 uKH;', 'uniform sampler2D uGA; uniform vec4 uGC[48], uGX;   // glyphs: the atlas; the code line, one slot per character; its length, the atlas mip level, how drained, the step of the rows\n', 'before');
     put('display', 'uniform vec4 uKH;', 'uniform float uKStep;                 // seconds since the heart last stepped: a dot eases to its new size, never snaps\n', 'before');
     put('display', 'uniform vec4 uKH;', 'uniform vec4 uQD, uBH, uHG;      // quanta: cells across, the mip level of one cell, the clock of the dots, how much; the hole: its edge, its ring of focus, its twist, how faint the empty grid; the hand: where, its pull, its reach\n', 'before');
-    put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1.;
+    // nacre (Kat 2026-11-21: the bubble read "too shiny ... cheap video game", "mattify it or even make it iridescent"): a pearl has no hotspot, its light comes from inside, in thin layers.
+    // With the dots on, a bubble loses its catch-light and its smooth rim light (the only marks on the page that were not dots); its dots go matte and wear the film in rings
+    put('display', '+ 0.4*smoothstep(0.35, 0., abs(t-0.7))', '+ 0.4*(1. - uQD.w)*smoothstep(0.35, 0., abs(t-0.7))', 'swap');
+    put('display', 'if (t < 1.) ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t);', 'if (t < 1.) { ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t); film = max(film, uQD.w*k*(1. - t*t)); }', 'swap');   // a popping bubble is nacre too, as it melts
+    put('display', '(c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L', '(c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L*(1. - 0.85*uQD.w)', 'swap');
+    put('display', 'vec2 p = C+ql;', `float bhr = length(ql), bhClock = 1., bubF = clamp(film, 0., 1.), bubR = clamp(rimL, 0., 1.), bubM = clamp(2.5*men, 0., 1.);
     if (uHG.z > 0.) { vec2 hd = ql - uHG.xy; float h2 = dot(hd, hd);   // the hand has a little gravity of its own: the grid bends toward it, and near it the clocks run slow
       ql -= hd*uHG.z*uHG.z/(h2 + uHG.w*uHG.w);
       bhClock *= mix(1., smoothstep(0., 3.5*uHG.w, sqrt(h2)), clamp(uHG.z/0.03, 0., 1.)*0.85); }
@@ -494,7 +499,8 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       vec2 gp = (ql + B)/(2.*B)*gs, gc = floor(gp), gf = fract(gp) - 0.5;
       vec3 cqc = clamp(textureLod(uDye, C - B + (gc + 0.5)/gs*2.*B, uQD.y).rgb, 0., 1.); float lq = lum(cqc);
       b = mix(b, cqc*(0.6 + 0.6*lum(b)/max(lq, 0.02)), 0.65);   // each dot one colour, the cell's own, so its edge is sharp; the water's light still plays on it
-      float fw = clamp(length(fwidth(gp)), 1e-3, 2.);
+      float fw = clamp(length(fwidth(gp)), 1e-3, 2.), bz = max(max(bubF, 0.6*bubR), 0.7*bubM);
+      fw = mix(fw, min(fw, 0.24), bz);                     // over a bubble a dot keeps a hard edge however the dome squeezes the grid: soft light among dots reads as gloss
       float tdiv = exp2(floor(min(3., -1.3*log2(max(bhClock, 0.05)))));   // one song: the dots step on the heart, half of them on every lub and dub, half on the lub alone; near the hole half time, then quarter, then eighth
       float tD = tdiv*(hash(gc + 3.1) < 0.5 ? 1. : 2.), tick = floor(uQD.z/tD) + 9.*floor(hash(gc)*7.);
       float tE = mod(uQD.z, tD) < 0.5 ? smoothstep(0., 0.14, uKStep) : 1.;   // a dot whose step just came grows or shrinks to its new size over 0.14 s, done before the dub
@@ -503,21 +509,25 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
       float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
       float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
-      vec3 film = kiri(x + 0.55*gu);
+      vec3 film = kiri(x + 0.55*gu*(1. - bz) + 2.4*bubF + 1.2*bubR);                                            // over a bubble the film's bands close into rings, thinner toward its edge, as on nacre
       vec3 core = mix(BONE*lb*1.15 + b*0.35, b*film*1.6, smoothstep(0.15, 1.0, gu));                 // pearl: bone at the heart of each dot, the film's colours toward its edge
+      float nac = bz;                                                                                  // the bubble, its rim and the ring where the water curves down to it
+      core = mix(core, film*(0.20*lb + 0.38*lq + 0.05), nac); lb *= 1. - 0.35*nac;               // nacre: in a bubble a dot loses its bone heart; its colour is the film's, one flat colour (a gradient across it made a lit bead), its light the cell's own, matte
       float ring = exp(-pow((g0 - rad*1.45 - 0.035)/0.04, 2.));                                       // and a thin halo round it, the film's colours shifted a step
-      vec3 dq = 1.75*dotm*core + 0.16*b*exp(-g0*g0/(2.4*rad*rad + 1e-4)) + 0.34*ring*lb*kiri(x + 0.5 + 1.6*g0);
+      vec3 dq = 1.75*dotm*core + 0.16*(1. - smoothstep(0., 0.35, nac))*b*exp(-g0*g0/(2.4*rad*rad + 1e-4)) + 0.34*(1. - 0.7*nac)*ring*lb*kiri(x + 0.5 + 1.6*g0);   // no glow between a bubble's dots, and no halo round them, which made beads of the magnified dots: no sheen
       float r0 = 0.085*(0.85 + 0.3*tw8);                                                           // and where the water is dark the grid stays: every cell a faint dot, so the bend of space shows with no dream in it
       dq = max(dq, uBH.w*mix(BONE, film, 0.5)*smoothstep(r0 + 0.5*fw, r0 - 0.5*fw, g0));
       float hc = 0.7*hash(gc + 0.37), gon = smoothstep(hc, hc + 0.2, max(1.4*(1. - bhClock), step(0.0001, uBH.x)*smoothstep(0.34, 0.09, bhr)) + uGX.z);   // where time runs slow, and as the water goes, a dot dies into the code it was dreamed from: cell by cell, not all at once
+      gon *= 1. - smoothstep(0., 0.3, bz);                 // a bubble holds no code: squeezed by its dome, the letters smeared into grey sheen
       if (gon > 0.001 && uGX.x > 0.) {
         float n = uGX.x, ix = mod(gc.x + floor(hash(vec2(gc.y, uGX.w) + 0.71)*n), n);   // each row reads the line from its own place, re-rolled now and then; bent with the grid, the code curves round the hole
         int i = int(ix); float ch = uGC[i/4][i - 4*(i/4)];
         float ga = textureLod(uGA, (vec2(mod(ch, 16.), 5. - floor(ch/16.)) + gf + 0.5)/vec2(16., 6.), uGX.y).g;
         vec3 gq = mix(BONE, film, 0.5)*ga*max(0.12 + 1.35*lq, 0.30 + 0.25*(1. - bhClock));   // the code gives its own light, a little more the slower its clock
         dq = mix(dq, gq, gon); }
+      dq *= 1. - 0.85*smoothstep(0.2, 0.8, bubM);         // a bubble's rim, where its dome squeezes the dots one way and stretches them the other into arcs of light (a glass rim), falls into the water's shadow instead
       float z = 1. - bhClock; dq *= mix(vec3(1.), vec3(1.0, 0.40, 0.66), 0.75*z*z)*(1. - 0.55*z*z*z);   // light climbing out of the hole loses its blue, then itself
-      b = mix(b, mix(dq, b*0.8, smoothstep(0.30, 0.75, fw)), uQD.w); }   // where the lens packs the dots finer than a pixel, they blur into the light they carry
+      b = mix(b, mix(dq, b*0.8/(1. + 4.*lum(b))*(1. - 0.8*max(nac, bubM)), smoothstep(0.30, 0.75, fw)), uQD.w); }   // where the lens packs the dots finer than a pixel, they blur into the light they carry, its bright end held down so a smear never outshines the dots (a bright smooth smear read as chrome); round a bubble, barely
     if (uBH.x > 0.) { float a = atan(q.y, q.x);           // the edge of the dark, and one thin ring of light at it, brighter on the side that turns toward you
       b *= smoothstep(uBH.x*0.90, uBH.x*1.06, r);
       b += pearl(a/6.28318 + 0.04*uTime)*(0.50*exp(-pow((r - uBH.x*1.10)/(uBH.x*0.030), 2.)) + 0.16*exp(-pow((r - uBH.x*1.19)/(uBH.x*0.018), 2.)))*(0.35 + 0.65*pow(0.5 + 0.5*cos(a - 2.4), 2.)); }
