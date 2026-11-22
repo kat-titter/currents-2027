@@ -1368,7 +1368,7 @@ function step(dt){
 // Only while the water runs; never more than sixteen.
 const NB = 16, BUB = new Float32Array(NB*4), BS = new Float32Array(NB), bubs = []; let nextBub = 0, lastBub = 0;
 const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.random()*2-1)*BY*0.6, a:Math.random()*6.283 }));   // a cauldron: bubbles keep coming up where it is hottest
-const POP = 1.6;                                      // a gooey pop: a breath to melt back (Kat 2026-11-20: "bubbles too slow and awkward")
+const POP = 2.8;                                      // a gooey pop: two breaths to melt back (Kat 2026-11-22, on the wall: "they appear and pop ... a little bit fast and sudden ... more slow and smooth"; it was 1.6 s after 2026-11-20's "too slow and awkward")
 let bubNb = -1;                                       // ?k: the last heartbeat the bubbles answered
 const bubNow = () => K > 0 ? kq.bub : performance.now()/1000;   // ?k: the bubbles keep the water's clock, so they can run backwards
 function popBub(b, t){ if (b.pop) return; b.pop = t;
@@ -1380,15 +1380,15 @@ function blow(){
   const t = bubNow(), dt = Math.min(0.1, t - (lastBub || t)); lastBub = t;
   vents.forEach((v) => { v.a += (Math.random() - 0.5)*dt; v.x = Math.max(-BX*0.7, Math.min(BX*0.7, v.x + Math.cos(v.a)*0.004*dt)); v.y = Math.max(-BY*0.7, Math.min(BY*0.7, v.y + Math.sin(v.a)*0.004*dt)); });
   if (K > 0 && kq.nb !== bubNb) { bubNb = kq.nb; if (Math.random() < 0.4*kq.ba) nextBub = Math.min(nextBub, t + 0.06 + 0.3*Math.random()); }   // ?k: on some beats, more in a strong phrase, a vent answers a moment later
-  const mk = (x, y, R, born, life) => ({ x, y, R, r:0, born, life, pop:0, seed:Math.random(), rise:(0.35 + 0.65*Math.random())*(0.6 + 6*R), vx:0, vy:0 });   // rise: how long it takes to surface, 0.2 to 1.6 s, the big ones slower
+  const mk = (x, y, R, born, life) => ({ x, y, R, r:0, born, life, pop:0, seed:Math.random(), rise:(0.5 + 0.5*Math.random())*(1.6 + 14*R), vx:0, vy:0 });   // rise: how long it takes to surface, 0.9 to 3.3 s, the big ones slower
   if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a bigger one; often a glob of two or three
     const R = 0.012 + 0.11*Math.pow(Math.random(), 2.4), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
     const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
-    const life = 2.5 + 30*R + 3*Math.random(), n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;   // a small one lives about 3 s, the biggest about 9
+    const life = 4 + 34*R + 3*Math.random(), n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;   // a small one lives about 3 s, the biggest about 9
     bubs.push(mk(x, y, R, t, life));
     for (let k = 0; k < n && bubs.length < NB; k++) { const r2 = R*(0.3 + 0.5*Math.random()), a2 = Math.random()*6.283;
-      bubs.push(mk(x + Math.cos(a2)*(R + r2)*0.8, y + Math.sin(a2)*(R + r2)*0.8, r2, t + 0.1 + 0.5*Math.random(), life*(0.5 + 0.5*Math.random()))); }
-    nextBub = t + 0.35 + 1.2*Math.random(); }
+      bubs.push(mk(x + Math.cos(a2)*(R + r2)*0.8, y + Math.sin(a2)*(R + r2)*0.8, r2, t + 0.3 + 0.9*Math.random(), life*(0.5 + 0.5*Math.random()))); }
+    nextBub = t + 0.7 + 1.6*Math.random(); }
   if (dt < 0 && BUBBLES && t < kq.unpop && bubs.length < NB && water > 0.5) {   // ?k, backwards: a bubble un-pops. Goo gathers into a skin, the dome shrinks and sinks
     const R = 0.015 + 0.09*Math.pow(Math.random(), 2), life = 2.5 + 30*R + 3*Math.random();
     bubs.push(Object.assign(mk((Math.random()*2-1)*(BX-R)*0.8, (Math.random()*2-1)*(BY-R)*0.8, R, t - POP - life*(0.6 + 0.35*Math.random()), life), { pop:t - POP + 0.02 }));
@@ -1407,11 +1407,11 @@ function blow(){
       if (dt >= 0 && (a >= 1.12 || crest > 0.025 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.25))) popBub(b, t); }   // no water, no bubbles: they pop as it drains
     if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
   bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = age/b.life;
-    const x = Math.min(1, age/b.rise), up = x*x*(3 - 2*x), y = x - 1, size = 1 + 2*y*y*y + y*y;   // surfacing: it comes up quickly, a little past its size, and settles back
-    b.r = b.R*(0.25 + 0.75*size)*(1 + 0.12*Math.min(1, a))*(1 + 0.06*kss(0.85, 1.05, a));         // then it grows slowly, and swells a touch as its skin thins, just before it goes
+    const x = Math.min(1, age/b.rise), up = x*x*x*(x*(6*x - 15) + 10);   // surfacing: from nothing, slow in and slow out, never past its size
+    b.r = b.R*(0.1 + 0.9*up)*(1 + 0.12*Math.min(1, a))*(1 + 0.06*kss(0.85, 1.05, a));         // then it grows slowly, and swells a touch as its skin thins, just before it goes
     const rk = K > 0 ? kRip(b.x, b.y) : [0, 0], rl = Math.hypot(b.x, b.y) || 1, bob = 0.007*rk[1];   // it rides the heart's ripples: lifted and moved with the grid under it
     if (b.pop) { const k = Math.min(1, (t - b.pop)/POP), m = k*k*(3 - 2*k); BUB.set([b.x, b.y, b.r*(1 + 0.18*m), -(1 - m)], i*4); }
-    else BUB.set([b.x - b.x/rl*bob, b.y - b.y/rl*bob, b.r*(1 + 0.6*rk[0]), 0.08 + 0.92*up], i*4); });
+    else BUB.set([b.x - b.x/rl*bob, b.y - b.y/rl*bob, b.r*(1 + 0.6*rk[0]), up], i*4); });
 }
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
