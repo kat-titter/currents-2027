@@ -61,7 +61,8 @@
   main { position:relative; z-index:1; }
   section { position:relative; padding:0 48px; margin:34vh 0 0; display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 33rem) minmax(0, 1.5fr); column-gap:56px; }
   section > * { grid-column:2; }
-  .kick { grid-column:1; justify-self:end; display:flex; align-items:baseline; gap:14px; position:sticky; top:42vh; align-self:start; margin:0; text-align:right; }
+  .kick { grid-column:1; justify-self:end; display:flex; align-items:baseline; gap:14px; align-self:baseline; margin:0; text-align:right; }
+  .kick + * { align-self:baseline; }   /* a label sits on its section's first line and moves with it (Kat 2026-11-22: "text alignment about seems off?" a sticky label hung at 42% of the screen, in line with no text) */
   .kick h2 { margin:0; font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; }
   .ring { width:13px; height:13px; flex:none; border-radius:50%; background:var(--film); align-self:center;
     -webkit-mask:radial-gradient(circle, transparent 5px, #000 5.5px, #000 6.2px, transparent 6.7px); mask:radial-gradient(circle, transparent 5px, #000 5.5px, #000 6.2px, transparent 6.7px); }
@@ -163,6 +164,8 @@
   .live { position:relative; aspect-ratio:4/3; margin:.6em auto 0; width:min(100%, 1180px);   /* no edge: the piece fades into the field of dots */
     -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 48%, rgba(0,0,0,.55) 70%, transparent 98%); mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 48%, rgba(0,0,0,.55) 70%, transparent 98%); }
   .live iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent; }
+  /* the live piece starts at the text's column, right of the labels (Kat 2026-11-22: the words over the dots were "visually cluttered") */
+  @media (min-width:961px) { #link.live-b .live { grid-column:2 / 4; width:100%; margin-left:0; } }
   /* bracket words: a bracket hides a letter; take it out and the word says something else. hover or focus shows both readings */
   .kick .bw { font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; outline-offset:6px; }
   .kick .bw .br { font-style:normal; color:var(--dim); }
