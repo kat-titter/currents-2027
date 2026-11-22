@@ -575,9 +575,26 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));', 'swap');
     }
     if (RCON === 'grid') {                               // thirst: a copy's dots go dry one by one, in patches, like a silkscreen running out of ink; each leaves a faint point of the grid
-      put('display', 'uniform vec4 uKH;', 'uniform float uInk, uInkSeed; uniform vec2 uInkDir;      // how much of this copy has gone dry today, where its patches fall, and which side faces the dry\n', 'before');
-      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float kthr = 0.38*hash(gc + 9.7) + 0.32*vnoise(gc*0.12 + uInkSeed) + 0.3*clamp(0.5 - 0.5*dot((gc + 0.5)/gs*2. - 1., uInkDir), 0., 1.), kdry = smoothstep(kthr - 0.015, kthr, uInk*1.02); dq *= 1. - 0.96*kdry;\n      ', 'before');
+      put('display', 'uniform vec4 uKH;', 'uniform float uInkN[9], uInkSeed; uniform vec4 uCellE;   // how dry this copy and its eight neighbours are today (row by row, down the screen); where the patches fall; the cell: its half size in basin units, its column and row\n', 'before');
+      // no seams (Kat 2026-11-22: "harsh edges, binary borders in the grid"): each copy fades out before its cell's edge as a halftone print does, its dots smaller and smaller, never cut.
+      // The edge is the nearer of the cell's (corners rounded) and the basin's own; it wanders inward on noise, so no ruled line runs down the wall. Read at the dot's centre: a dot is whole
+      put('display', 'float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));', `vec2 qs = (gl_FragCoord.xy + dpc - uCenter)/uS; qs = vec2((1. - uFall.y)*qs.x - uFall.x*qs.y, uFall.x*qs.x + (1. - uFall.y)*qs.y);   // this dot's centre on the screen, in basin units
+      vec2 cu = vec2(qs.x, -qs.y)/(2.*uCellE.xy), wq = uCellE.zw + 0.5 + cu, de = abs(qs) - uCellE.xy + 0.05;                           // where in its cell (-0.5 to 0.5, down the screen), and on the wall
+      float mE = min(0.05 - length(max(de, 0.)) - min(max(de.x, de.y), 0.), -sdBox(qs)), pit = 2.*B.x/gs.x;                        // pit: one dot's pitch
+      float gEdge = smoothstep(0., 3.5*pit, mE - 0.5*pit - 0.015*vnoise(wq*2.3 + uInkSeed) - 0.5*pit*hash(gc + 4.3));   // about four dots of fade, its line broken dot by dot
+      rad *= sqrt(gEdge);                                 // a dot's area, so its light, goes down with the fade, as a halftone's does
+      `, 'before');
+      put('display', '*ring*lb*kiri(', '*ring*gEdge*lb*kiri(', 'swap');
+      put('display', 'dotm = mix(dotm, keep*smoothstep(rpx + 0.5, rpx - 0.5, dpx), uRound);', 'dotm *= smoothstep(0., 0.15, gEdge); ', 'after');   // the last dots go, not a speck left at the cut
+      // thirst as one field over the wall: each dot reads the dryness of its own copy and its neighbours, blended by where it lies, so two copies agree where they meet and the dry comes
+      // across the wall as a front, curved by noise laid on the wall itself, never stopping at a cell's edge
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', `ivec2 sx = ivec2(cu.x < 0. ? -1 : 1, cu.y < 0. ? -1 : 1); vec2 fa = abs(cu);
+      float inkL = mix(mix(uInkN[4], uInkN[4 + sx.x], fa.x), mix(uInkN[4 + 3*sx.y], uInkN[4 + sx.x + 3*sx.y], fa.x), fa.y);
+      float kthr = 0.42*hash(gc + 9.7) + 0.58*vnoise(wq*3.1 + uInkSeed + 7.3), kdry = smoothstep(kthr - 0.015, kthr, inkL*1.02); dq *= 1. - 0.96*kdry;
+      `, 'before');
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float r0 = 0.085*(0.85 + 0.3*tw8)*gEdge;', 'swap');   // the faint grid fades with the rest
       put('display', '+ uGX.z);', '+ uGX.z + 0.9*kdry);', 'swap');                      // a dry dot turns into a letter of the bracket words, faint: when the water is gone, the meaning shows
+      put('display', 'gon *= (1. - smoothstep(0., 0.3, bz))*(1. - uRound);', 'gon *= (1. - smoothstep(0., 0.3, bz))*(1. - uRound)*step(hash(gc + 2.9), gEdge);', 'swap');   // toward the edge fewer letters, never a cut one
       put('display', 'dq = mix(dq, gq, gon); }', 'dq = mix(dq, gq*(1. - 0.5*kdry), gon); }', 'swap');
       put('display', 'uKE*(0.05 + 0.08*vnoise', 'uKE*0.4*(0.05 + 0.08*vnoise', 'swap');   // a bigger light in every copy (Kat 2026-11-21: "the light region should be bigger"): the uneven edge fade is narrower
       put('display', 'float bowl = mix(0.32,1.,smoothstep(0.,-0.07,sd))', 'float bowl = mix(0.7,1.,smoothstep(0.,-0.04,sd))', 'swap');   // the bowl's rim barely darker
@@ -1015,10 +1032,8 @@ function gridThirst(){                                // the land for today: val
   const rank = (v) => { const o = v.map((_, i) => i).sort((x, y) => v[x] - v[y]), r = []; o.forEach((i, k) => { r[i] = k/Math.max(1, v.length - 1); }); return r; };
   const lean = rank(land.map((f, i) => { const x = i % c, y = Math.floor(i/c); let m = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) m += at(x + dx, y + dy); return 0.55*f + 0.45*m/8; }));   // each copy leans on its neighbours
   const t = rank(grid.hearts.map((h, i) => 0.87*lean[i] + 0.08*kss(3.45, 4.0, h.r0) + 0.05*kh(i*7.7 + sd)));   // a little more thirst where the heart is chaotic, a little chance; ranked, so the day drains evenly
-  grid.hearts.forEach((h, i) => { const x = i % c, y = Math.floor(i/c); let vx = 0, vy = 0;   // which way the dry lies: toward the thirstier neighbours (up the screen is up in the copy)
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) { const j = Math.max(0, Math.min(rows - 1, y + dy))*c + Math.max(0, Math.min(c - 1, x + dx)); if (j === i) continue; const d = (t[j] - t[i])/Math.hypot(dx, dy); vx += d*dx; vy -= d*dy; }
-    const L = Math.hypot(vx, vy); h.dryDir = L > 1e-6 ? [vx/L*kss(0.02, 0.25, L), vy/L*kss(0.02, 0.25, L)] : [0, 0];
-    h.thirst = t[i]; h.ink = h.inkT = dryAt(h, dayP()); });
+  grid.hearts.forEach((h, i) => { h.thirst = t[i]; h.ink = h.inkT = dryAt(h, dayP()); });
+  grid.inkSeed = kh(n*0.29 + 0.13)*61;                // the patches' noise is laid on the wall, one for all the copies, new each day
   grid.dn = n;
 }
 function gridLayout(){                                // as many columns as make each basin largest, packed tight; then the camera, moving into one of them
@@ -1081,6 +1096,13 @@ if (grid) {                                           // a tap goes into a copy 
   canvas.addEventListener('pointerup', (ev) => { const d = dn; dn = null; if (d && performance.now() - d.t < 300 && Math.hypot(ev.clientX - d.x, ev.clientY - d.y) < 10) gridTap(ev.clientX, ev.clientY); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') gridTap(); });
 }
+const INKN = new Float32Array(9);
+function inkUp(u, t){                                 // a copy's cell and how dry it and its eight neighbours are (the wall is a torus, so the edge copies' neighbours are on the far side)
+  if (!u['uInkN[0]']) return;
+  const c = grid.cr, rows = GRID_N/c, x = t.hi % c, y = Math.floor(t.hi/c), w = (v, n) => ((v % n) + n) % n;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) INKN[(dy + 1)*3 + dx + 1] = grid.hearts[w(y + dy, rows)*c + w(x + dx, c)].ink || 0;
+  gl.uniform1fv(u['uInkN[0]'], INKN); gl.uniform1f(u.uInkSeed, grid.inkSeed || 0); gl.uniform4f(u.uCellE, t.hw/t.S, t.hh/t.S, x, y);
+}
 function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each in its own cell of the page, with its own heart; its dots as fine as stay crisp (about 5.5 screen pixels a cell)
   const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(3/255, 3/255, 4/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);   // the seams stay ink (the screen, not the last water target)
   for (const t of grid.below ? [...grid.below, ...grid.tiles] : grid.tiles) {   // falling: the wall below first, then the one you leave, its drain open onto it
@@ -1097,7 +1119,7 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
     if (t.thru) gl.uniform4f(u.uThru, t.thru[0]*d, (view.h - t.thru[1])*d, t.thru[2]*d, t.thru[3]); else gl.uniform4f(u.uThru, 0, 0, 0, 0);
     gl.uniform1f(u.uRound, t.round || 0);
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
-    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, h.rip); orbUp(u, h.orb); gl.uniform1f(u.uInk, h.ink || 0); gl.uniform1f(u.uInkSeed, h.seed*13.1); gl.uniform2f(u.uInkDir, ...(h.dryDir || [0, 0]));
+    gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, h.rip); orbUp(u, h.orb); inkUp(u, t);
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, qn, Math.max(0, Math.log2(dye.read.w*2*BX/qn)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt);
       gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)) + (t.tw || 0), 0.11*QD);   // falling in, the drain's swirl drags its dots up to half a turn round
       if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/qn*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }

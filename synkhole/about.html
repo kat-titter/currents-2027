@@ -61,7 +61,8 @@
   main { position:relative; z-index:1; }
   section { position:relative; padding:0 48px; margin:34vh 0 0; display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 33rem) minmax(0, 1.5fr); column-gap:56px; }
   section > * { grid-column:2; }
-  .kick { grid-column:1; justify-self:end; display:flex; align-items:baseline; gap:14px; position:sticky; top:42vh; align-self:start; margin:0; text-align:right; }
+  .kick { grid-column:1; justify-self:end; display:flex; align-items:baseline; gap:14px; align-self:baseline; margin:0; text-align:right; }
+  .kick + * { align-self:baseline; }   /* a label sits on its section's first line and moves with it (Kat 2026-11-22: "text alignment about seems off?" a sticky label hung at 42% of the screen, in line with no text) */
   .kick h2 { margin:0; font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; }
   .ring { width:13px; height:13px; flex:none; border-radius:50%; background:var(--film); align-self:center;
     -webkit-mask:radial-gradient(circle, transparent 5px, #000 5.5px, #000 6.2px, transparent 6.7px); mask:radial-gradient(circle, transparent 5px, #000 5.5px, #000 6.2px, transparent 6.7px); }
