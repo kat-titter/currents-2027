@@ -5,7 +5,7 @@
 #   python3 src/deploy.py                 every page
 #   python3 src/deploy.py index.html      the piece only (about.html left as it is, e.g. while the about page is being edited)
 # Writes synkhole/index.html (the piece), synkhole/about.html (the page about the piece), and at the root index.html (sends a visitor
-# on to synkhole/), README.md and .nojekyll.
+# on to synkhole/) and .nojekyll. README.md is written by hand; this only checks that it still names HOME.
 # Binaries live once, in the built folder, never in src/: the about page's pictures in synkhole/doc/ (here only checked: every picture
 # about.html names is there), the reservoir in synkhole/reservoir/ (stored dreams for when the spring sleeps, made by src/reservoir.py
 # or by the refill; here only checked: whole, and 6 MB at most; no reservoir, nothing written: without it the basin is dry), and a link
@@ -49,20 +49,6 @@ FORWARD = """<!doctype html>
 <body><a href="synkhole/">[s[i/y]n[k][w]hole</a></body>
 </html>
 """
-README = f"""# currents-2027
-
-Kat Titterton's work for CURRENTS 2027, Santa Fe.
-
-- [s[i/y]n[k][w]hole: {HOME}
-- about the piece: {HOME}about.html
-
-By Kat Titterton (macrofluidic). An evolution of Vanitas Veritas, an earlier sink, which keeps its own address: https://kat-titter.github.io/veritas/
-
-- `src/`: the source of the piece and its about page; `python3 src/deploy.py` builds them into `synkhole/`. Never published.
-- `synkhole/`: the built pages, with `doc/` (the about page's pictures) and `reservoir/` (stored dreams, from `src/reservoir.py` or the refill).
-- `refill/`: dreams new water on a runner (`.github/workflows/refill.yml`).
-- `src/archive/`: three versions of the piece from 17 Nov and the script that built them, retired.
-"""
 
 NAMES = [a for a in sys.argv[1:] if a in ('index.html', 'about.html')] or ['index.html', 'about.html']
 if 'about.html' in NAMES and not (HERE / 'about.html').exists(): sys.exit('src/about.html is missing and the piece links to it; nothing written')
@@ -76,6 +62,6 @@ if lost: sys.exit(f'about.html names {len(lost)} pictures missing from {SITE / "
 for name, html in pages.items(): (SITE / name).write_text(preview(html, name))
 (DEST / 'index.html').write_text(FORWARD)
 (DEST / '.nojekyll').write_text('')
-(DEST / 'README.md').write_text(README)
-print('wrote', ', '.join('synkhole/' + n for n in pages) + ', and index.html, README.md at the root of', DEST)
+if HOME not in (DEST / 'README.md').read_text(): print('README.md does not name', HOME, '- update its links by hand')
+print('wrote', ', '.join('synkhole/' + n for n in pages) + ', and index.html at the root of', DEST)
 print('not committed, not pushed: that is done by hand in', DEST)
