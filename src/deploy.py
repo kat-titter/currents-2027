@@ -9,7 +9,8 @@
 # Binaries live once, in the built folder, never in src/: the about page's pictures in synkhole/doc/ (here only checked: every picture
 # about.html names is there), the reservoir in synkhole/reservoir/ (stored dreams for when the spring sleeps, made by src/reservoir.py
 # or by the refill; here only checked: whole, and 6 MB at most; no reservoir, nothing written: without it the basin is dry), and a link
-# preview picture, synkhole/og.jpg (1200 x 630), whose tags are added when it is there.
+# preview picture, synkhole/og.jpg (1200 x 630, the piece itself with its title), whose tags are added when it is there. The tab icon is
+# no file: its SVG sits inline in each page's <head>; synkhole/apple-touch-icon.png is that SVG drawn at 180 px, full bleed.
 # Vanitas Veritas is a separate piece with its own script (verse/deploy_verse.py) and its own address; nothing here writes to it.
 import json, pathlib, re, sys
 
@@ -42,7 +43,8 @@ FORWARD = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CURRENTS 2027, Kat Titterton</title>
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23bfe6ee'/%3E%3Cstop offset='.5' stop-color='%23cfc9f2'/%3E%3Cstop offset='1' stop-color='%23f2c9dd'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%23030304'/%3E%3Ccircle cx='32.0' cy='8.0' r='4' fill='%237cb0ff'/%3E%3Ccircle cx='44.0' cy='11.2' r='4' fill='%2364d4ff'/%3E%3Ccircle cx='52.8' cy='20.0' r='4' fill='%2364d4ff'/%3E%3Ccircle cx='56.0' cy='32.0' r='4' fill='%237cb0ff'/%3E%3Ccircle cx='52.8' cy='44.0' r='4' fill='%23928cff'/%3E%3Ccircle cx='44.0' cy='52.8' r='4' fill='%23ae79f3'/%3E%3Ccircle cx='32.0' cy='56.0' r='4' fill='%23ce76dc'/%3E%3Ccircle cx='20.0' cy='52.8' r='4' fill='%23ef74c4'/%3E%3Ccircle cx='11.2' cy='44.0' r='4' fill='%23ef74c4'/%3E%3Ccircle cx='8.0' cy='32.0' r='4' fill='%23ce76dc'/%3E%3Ccircle cx='11.2' cy='20.0' r='4' fill='%23ae79f3'/%3E%3Ccircle cx='20.0' cy='11.2' r='4' fill='%23938cff'/%3E%3Ccircle cx='32' cy='32' r='14.1' fill='url(%23p)'/%3E%3Ccircle cx='32' cy='32' r='11.9' fill='%23000'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="synkhole/apple-touch-icon.png">
 <meta http-equiv="refresh" content="0; url=synkhole/">
 <style>body{margin:0;background:#030304} a{color:#8a8d93;font:12px ui-monospace,Menlo,monospace;padding:20px;display:block}</style>
 </head>
