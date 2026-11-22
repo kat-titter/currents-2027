@@ -97,7 +97,7 @@ const KW = K > 0 ? kNum('kw', 0) : 0;   // warmth out: how much of a dream's gol
 //   drags it into a slow twist, and slows the dots' clocks to a stop at its edge, where their light goes to rose. A thin ring of light at the edge of the dark
 const QD = K > 0 ? kNum('qd', 0) : 0, QN = Math.max(24, Math.min(256, parseInt(params.get('qn')) || 128)), BH = K > 0 ? kNum('bh', 0) : 0;
 // ?r=<2.5 to 4>: the heart's own r, the logistic map that spaces its beats, held there (3.71 with ?r=off: past the edge of chaos). Concepts for many hearts (Kat 2026-11-20, "grid of heartbeats with different parameters"), each a way of choosing r:
-//   ?r=grid   (in LOOK, so the bare address; not in the stone or a document unless asked) forty-eight basins, one water: along the long side r steps from order (2.9, a steady beat) into chaos (4), along the short side the pace a hair; the dots show the beats' values, so each copy's period is drawn. Tap one to go in; inside, tap the drain to fall through it, through one point, back into the same basin; pull from the drain to the rim to climb out (Esc, two fingers, or 30 s alone)
+//   ?r=grid   (in LOOK, so the bare address; not in the stone or a document unless asked) forty-eight basins, one water: along the long side r steps from order (2.9, a steady beat) into chaos (4), along the short side the pace a hair; the dots show the beats' values, so each copy's period is drawn. Tap one to go in; inside, tap the drain to fall through it, a wormhole whose far mouth is this same wall, and out into the same basin; pull from the drain to the rim to climb out (Esc, two fingers, or 30 s alone)
 //   ?r=sync   seven hearts in one basin, each its own r and pace; a ring that reaches a heart pulls its next beat early, so they drift, lock and slip; a tap is a beat too
 //   ?r=field  every dot a heart, coupled to its four neighbours (a coupled map lattice, after Kaneko); the hand is a point on the plane of r (across) and coupling (up)
 //   ?r=held   the hold is the dial: a hand in the water steadies the heart, then, the longer it stays, walks it past the edge into chaos
@@ -147,7 +147,7 @@ layout();
 { const px = 2*BX*view.S*view.dpr;              // a 4K screen gets the spring's full frames and water fine enough to show them
   DYE = SMALL ? 768 : px > 1800 ? 2048 : px > 1200 ? 1536 : 1024; BIG = px > 1400; }
 
-const gl = canvas.getContext('webgl2', { alpha:false, antialias:false, depth:false, stencil:false, preserveDrawingBuffer:params.has('snap') });   // ?snap: the documents capture stills of the layers
+const gl = canvas.getContext('webgl2', { alpha:false, antialias:false, depth:RCON === 'grid', stencil:false, preserveDrawingBuffer:params.has('snap') });   // ?snap: the documents capture stills of the layers   // ?r=grid: a depth buffer, which the fall uses to say which copy each pixel sees
 if (!gl || !gl.getExtension('EXT_color_buffer_float')) {           // no GPU: the tap is dry
   document.body.classList.add('nogpu'); addEventListener('resize', layout); return;
 }
@@ -176,8 +176,24 @@ float vnoise(vec2 p){
 float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
 `;
 const VS = `#version 300 es
-in vec2 aPos; out vec2 vUv;
-void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.,1.); }`;
+in vec2 aPos; out vec2 vUv; uniform float uZ;      // uZ: the quad's depth (the fall draws copy i at (i + 0.5)/64); 0 unless set
+void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,uZ,1.); }`;
+const WN = 2048;                                      // the fall's table: samples of its radial map, 0.02 screen px at worst against the closed form (checked in node)
+// the fall (the grid's): an Ellis wormhole, ds^2 = -dt^2 + dl^2 + (b0^2 + l^2) dOmega^2, whose far mouth opens onto this same wall. The physics is wormRay() below, in the
+// page's script; the map it makes is radial, so each frame it is tabled once (wormTable) and every pixel reads it here.
+const WORM = `
+uniform vec4 uWorm;    // the mouth: its centre on the screen and 2f (device px), 1 when on
+uniform vec4 uWormS;   // s = asinh(l/b0): where the camera is
+uniform highp sampler2D uWormT;   // the frame's table: the sky's angle less the flat one (Phi - 2 atan T), and the drag's cosine and sine, at w = sign(d) ln(1 + |d|/1e-6), d = ln T - s (fine at the ring)
+vec2 worm(vec2 t){     // a screen offset from the mouth's centre, to the wall point that ray sees, offset from the same centre (device px)
+  float rho = length(t), T = rho/uWorm.z, d = log(max(T, 1e-30)) - uWormS.x, w = sign(d)*log(1. + abs(d)*1e6);
+  float x = clamp((w + 17.)*(${WN}./34.) - 0.5, 0., ${WN - 1}.), i = min(floor(x), ${WN - 2}.);
+  vec3 m = mix(texelFetch(uWormT, ivec2(int(i), 0), 0).xyz, texelFetch(uWormT, ivec2(int(i) + 1, 0), 0).xyz, x - i);   // the drag turns under a fiftieth of a radian a sample, so its cosine and sine blend
+  vec2 u = rho > 1e-6 ? t/rho : vec2(1., 0.), c = m.yz/length(m.yz);
+  return vec2(c.x*u.x - c.y*u.y, c.y*u.x + c.x*u.y)*uWorm.z*tan(atan(T) + 0.5*m.x); }   // R = 2f tan(Phi/2), Phi = 2 atan T + the table's
+float wStretch(vec2 wf){ vec2 jx = dFdx(wf), jy = dFdy(wf); float ja = dot(jx, jx), jc = dot(jy, jy), jb = dot(jx, jy);   // how many of the wall's pixels one pixel on the screen spans, the way it is squeezed most
+  return sqrt(0.5*(ja + jc + sqrt(max(0., (ja - jc)*(ja - jc) + 4.*jb*jb)))); }
+`;
 
 const FS = {
 curl: `
@@ -300,7 +316,8 @@ display: `
 uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
 uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass;
-uniform vec4 uLens, uWrap, uPt;    // the fall into a hole: the lens (its centre in pixels, its strength Re^2 in pixels^2, minus for the white hole, 1 when on); the wall's period in pixels and this copy's cell, half size in basin units, where it is cut; the one point (centre, radius, how bright). All 0: none
+uniform vec4 uWrap;                // the fall: the wall's period in pixels, and this copy's cell, half size in basin units, where it is cut. 0: none
+${WORM}
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
 uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
@@ -317,15 +334,11 @@ float caustic(vec2 p, float t){                 // light focused by the moving s
   c = 1.17 - pow(c/4., 1.4); return pow(clamp(c, 0., 1.), 8.);
 }
 void main(){
-  if (uPt.w > 0.) { float d = length(gl_FragCoord.xy - uPt.xy); if (d > uPt.z + 1.) discard; o = vec4(pearl(0.04*uTime)*uPt.w*smoothstep(uPt.z + 0.5, uPt.z - 0.5, d), 1.); return; }   // the singularity: one point of light
   vec2 fc = gl_FragCoord.xy; float lpx = 1.;   // lpx: how many of the wall's pixels one pixel on the screen spans, the way space squeezes it most
-  if (uLens.w > 0.) { vec2 t = fc - uLens.xy; float m = uLens.z/max(dot(t, t), 1e-3);   // a point lens on the whole wall: what is seen here lies at t(1 - Re^2/t^2) from it
-    lpx = max(1. + m, abs(1. - m));                 // squeezed along the radius by 1 + m, round it by 1 - m (0 on the ring, where the drain is drawn out into a circle)
-    if (uWrap.z*uS < 2.5*lpx) discard;              // a copy here would be a few pixels across, its dots and ring all under a pixel: nothing, never a smear
-    fc = uLens.xy + t*(1. - m);
-    vec2 w = fc - uCenter; fc = uCenter + w - uWrap.xy*floor(w/uWrap.xy + 0.5); }   // the wall is a torus: wherever the lens reaches, it finds this copy again, one period on
+  if (uWorm.w > 0.) { vec2 wf = uWorm.xy + worm(fc - uWorm.xy); lpx = wStretch(wf);   // falling: this pixel sees the wall point the wormhole bends its ray to (the depth test has kept only this copy's pixels)
+    vec2 w = wf - uCenter; fc = uCenter + w - uWrap.xy*floor(w/uWrap.xy + 0.5); }   // the wall is a torus: wherever the ray lands, it finds this copy again, one period on
   vec2 q = (fc-uCenter)/uS, q0 = q;     // basin units, origin at the drain; q0 kept unbent, for where a dot sits in its cell
-  if (uWrap.z > 0. && (abs(q.x) > uWrap.z || abs(q.y) > uWrap.w)) discard;   // each copy cut at its own cell's edge, wherever the lens has bent it
+  bool cut = uWrap.z > 0. && (abs(q.x) > uWrap.z || abs(q.y) > uWrap.w);   // each copy cut a pixel in from its own cell's edge, wherever the fall has bent it (no discard: the depth test must stay early)
   float r = length(q), aa = 1.5/uS;
   aa *= lpx;
   vec3 col = vec3(0.0012,0.0012,0.0015);
@@ -412,7 +425,19 @@ void main(){
   float sheen = 0.35 + 0.65*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
   vec3 steel = vec3(0.10,0.105,0.11)*(0.7 + 0.6*sheen) + BONE*0.10*sheen*smoothstep(0.009, 0.0, abs(sd2 - 0.0012)/0.0012*0.009);
   col = mix(col, steel, lip*0.9);                        // dark brushed steel, catching the light on the upper left
-  o = vec4(max(col,0.),1.);
+  o = vec4(cut ? vec3(0.0012,0.0012,0.0015) : max(col,0.),1.);
+}`,
+
+// the fall's first pass: for every pixel, which copy its ray lands in, written as depth (copy i at (i + 0.5)/64), so each copy is then drawn once and the depth test keeps
+// only its own pixels. Where a copy would be a few pixels across, its dots and ring all under a pixel, none: nothing, never a smear
+wormIdx: `${WORM}
+uniform vec4 uIdx, uIdx2;          // the home copy's centre and the cell's size (device px); its column and row, and the wall's columns and rows
+void main(){
+  vec2 wf = uWorm.xy + worm(gl_FragCoord.xy - uWorm.xy);
+  if (!(0.5*uIdx.z >= 2.5*wStretch(wf))) discard;
+  vec2 n = floor((wf - uIdx.xy)/uIdx.zw + 0.5);
+  gl_FragDepth = (mod(uIdx2.y - n.y, uIdx2.w)*uIdx2.z + mod(uIdx2.x + n.x, uIdx2.z) + 0.5)/64.;
+  o = vec4(0.);
 }`,
 };
 if (K > 0) {                                           // ?k: the k lines join the shaders here, so with no flag every shader is today's, letter for letter
@@ -510,9 +535,15 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
     `, 'before');
     put('display', 'b *= 1. + 0.035*kin*(kb - 0.15); ', `
     if (uQD.w > 0.) {                                     // quanta: each cell of the grid the dream was dreamed on is one dot of light, as large as the cell is bright
-      vec2 gs = vec2(uQD.x, floor(uQD.x*0.75 + 0.5));
-      vec2 gp = (ql + B)/(2.*B)*gs, gc = floor(gp), gf = fract(gp) - 0.5;
-      vec3 cqc = clamp(textureLod(uDye, C - B + (gc + 0.5)/gs*2.*B, uQD.y).rgb, 0., 1.); float lq = lum(cqc);
+      vec2 gs = vec2(uQD.x, floor(uQD.x*0.75 + 0.5)), gp0 = (ql + B)/(2.*B)*gs, j0x = dFdx(gp0), j0y = dFdy(gp0);
+      float j0a = dot(j0x, j0x), j0c = dot(j0y, j0y), j0b = dot(j0x, j0y);   // falling, where space packs the grid finer than about 5.5 pixels a dot (the grid's own pitch), its dots come from a coarser grid,
+      float lodC = uRound*clamp(log2(5.5*sqrt(max(1e-8, 0.5*(j0a + j0c + sqrt(max(0., (j0a - j0c)*(j0a - j0c) + 4.*j0b*j0b)))))), 0., 6.);   // one in four kept at each step: deep in the rings a copy is a few pearls
+      float lodL = floor(lodC), lodS = exp2(lodL), lodF = smoothstep(0.5, 1., lodC - lodL);
+      vec2 gp = (gp0 + 0.5*(lodS - 1.))/lodS, gc = floor(gp), gf = fract(gp) - 0.5, gcen = ((gc + 0.5)*lodS - 0.5*(lodS - 1.))/gs;   // the coarser grid's centres sit on the finer grid's even dots; gcen: this dot's centre, 0 to 1 across the copy
+      bool lodK = mod(gc.x, 2.) < 0.5 && mod(gc.y, 2.) < 0.5; gs /= lodS;   // lodK: this dot is kept at the next step; the other three shrink away first, so nothing pops
+      vec3 cqc = clamp(textureLod(uDye, C - B + gcen*2.*B, uQD.y + lodL).rgb, 0., 1.);
+      if (lodK && lodF > 0.) cqc = mix(cqc, clamp(textureLod(uDye, C - B + gcen*2.*B, uQD.y + lodL + 1.).rgb, 0., 1.), lodF);   // and a kept dot takes on the coarser cell's colour as it goes
+      float lq = lum(cqc);
       b = mix(b, cqc*(0.6 + 0.6*lum(b)/max(lq, 0.02)), 0.65);   // each dot one colour, the cell's own, so its edge is sharp; the water's light still plays on it
       float fw = clamp(length(fwidth(gp)), 1e-3, 2.);
       vec2 jx = dFdx(gp), jy = dFdy(gp); float jd = jx.x*jy.y - jy.x*jx.y;
@@ -527,7 +558,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float rad = min(0.47, (0.08 + 0.38*sqrt(lq))*tw8 + 0.1*krip);   // on a ripple's crest each dot swells, a little
       float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
       float ja = dot(jx, jx), jc = dot(jy, jy), jb = dot(jx, jy), sv = sqrt(max(1e-8, 0.5*(ja + jc + sqrt(max(0., (ja - jc)*(ja - jc) + 4.*jb*jb))))), dpx = length(dpc);   // sv: cells per pixel the way the grid is squeezed most
-      float rpx = rad/sv, keep = smoothstep(0.45, 0.95, rpx);   // falling in, a dot is a disc on the screen as wide as its cell is narrow: round where the drain stretches the grid, gone (never a smear) where it packs it finer than a pixel
+      float lodR = (lodL < 0.5 ? 1. : 0.5*exp2(lodC - lodL))*(lodK ? 1. : 1. - lodF), rpx = rad/sv*lodR, keep = smoothstep(0.45, 0.95, rpx);   // on a coarser grid a dot keeps one size on the screen, half its cell at most   // falling in, a dot is a disc on the screen as wide as its cell is narrow: round where the drain stretches the grid, gone (never a smear) where it packs it finer than a pixel
       dotm = mix(dotm, keep*smoothstep(rpx + 0.5, rpx - 0.5, dpx), uRound);
       float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
       float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
@@ -538,7 +569,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float ring = exp(-pow((g0 - min(rad*1.45 + 0.035, 0.44))/0.04, 2.))*(1. - uRound);                                       // and a thin halo round it, the film's colours shifted a step
       vec3 dq = 1.75*dotm*core + 0.34*(1. - 0.7*nac)*ring*lb*kiri(x + 0.5 + 1.6*g0);   // every mark a dot: no soft glow (Kat 2026-11-21, a bubble's "jagged pizel edge": the glow was cut square at each cell's edge, and a bubble magnified the squares)
       float r0 = 0.085*(0.85 + 0.3*tw8);                                                           // and where the water is dark the grid stays: every cell a faint dot, so the bend of space shows with no dream in it
-      dq = max(dq, uBH.w*mix(BONE, film, 0.5)*mix(smoothstep(r0 + 0.5*fw, r0 - 0.5*fw, g0), smoothstep(0.45, 0.95, r0/sv)*smoothstep(r0/sv + 0.5, r0/sv - 0.5, dpx), uRound));
+      dq = max(dq, uBH.w*mix(BONE, film, 0.5)*mix(smoothstep(r0 + 0.5*fw, r0 - 0.5*fw, g0), smoothstep(0.45, 0.95, r0/sv*lodR)*smoothstep(r0/sv*lodR + 0.5, r0/sv*lodR - 0.5, dpx), uRound));
       float hc = 0.7*hash(gc + 0.37), gon = smoothstep(hc, hc + 0.2, max(1.4*(1. - bhClock), step(0.0001, uBH.x)*smoothstep(0.34, 0.09, bhr)) + uGX.z);   // where time runs slow, and as the water goes, a dot dies into the code it was dreamed from: cell by cell, not all at once
       gon *= (1. - smoothstep(0., 0.3, bz))*(1. - uRound);   // falling, no code: drawn in its cell, a letter would stretch round the drain                 // a bubble holds no code: squeezed by its dome, the letters smeared into grey sheen
       if (gon > 0.001 && uGX.x > 0.) {
@@ -556,7 +587,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float w1 = min(uBH.x*0.030, 2.2*px), w2 = min(uBH.x*0.018, 1.4*px), W1 = max(w1, 0.6*px), W2 = max(w2, 0.6*px);   // a ring squeezed thinner than a pixel is drawn a pixel wide and as much fainter: it fades, never sparkles
       b += pearl(a/6.28318 + 0.04*uTime)*(0.50*w1/W1*exp(-pow((r - uBH.x*1.10)/W1, 2.)) + 0.16*w2/W2*exp(-pow((r - uBH.x*1.19)/W2, 2.)))*(0.35 + 0.65*pow(0.5 + 0.5*cos(a - 2.4), 2.))*smoothstep(1., 2.5, uBH.x*1.1/px);   // and a ring under a pixel or two across is gone
       for (int i = 0; i < 12; i++) { if (float(i) >= uDepth) break; float rr = uBH.x*(1.36 + 0.14*float(i)), w3 = min(uBH.x*0.012, 1.2*px), W3 = max(w3, 0.6*px);   // one thin pearl ring round the drain for each fall through it: how deep you are, without a word
-        b += pearl(a/6.28318 + 0.09*float(i) + 0.04*uTime)*0.42*w3/W3*exp(-pow((r - rr)/W3, 2.))*smoothstep(1., 2.5, rr/px); } }
+        b += pearl(a/6.28318 + 0.09*float(i) + 0.04*uTime)*0.42*min(1., uDepth - float(i))*w3/W3*exp(-pow((r - rr)/W3, 2.))*smoothstep(1., 2.5, rr/px); } }
     `, 'before');
   }
   {                                                    // the heartbeat's ripples, as water makes them: each beat drops a ring near the drain, a little off centre each time, so the rings cross. It runs slower through hidden lumps in spacetime,
@@ -585,7 +616,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       put('display', 'uniform vec4 uKH;', `uniform vec4 uOrb[8];             // the heart's last 16 beats, newest first: its value on the logistic map, and how long ago, two to a slot
 float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 e = i % 2 == 0 ? s.xy : s.zw; if (e.y >= back) { vec4 s1 = uOrb[(i + 1)/2]; return mix((i + 1) % 2 == 0 ? s1.x : s1.z, e.x, smoothstep(0., 0.14, e.y - back)); } } return uOrb[7].z; }
 `, 'before');                                         // so a steady heart leaves every dot one size; a two-beat, rings of two sizes; a period of three, three; chaos, no two rings alike
-      put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));', 'swap');
+      put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length(gcen*2.*B - B)/0.13));', 'swap');
     }
     if (RCON === 'grid') {                               // thirst: a copy's dots go dry one by one, in patches, like a silkscreen running out of ink; each leaves a faint point of the grid
       put('display', 'uniform vec4 uKH;', 'uniform float uInkN[9], uInkSeed; uniform vec4 uCellE;   // how dry this copy and its eight neighbours are today (row by row, down the screen); where the patches fall; the cell: its half size in basin units, its column and row\n', 'before');
@@ -636,7 +667,7 @@ void main(){                                         // the lattice, one cell a 
     }
     if (RCON === 'sync') {                               // the hearts themselves: the dots over each one swell as it beats
       put('display', 'uniform vec4 uKH;', 'uniform vec4 uCell[8];             // each heart: where, how far into its beat it swells\n', 'before');
-      put('display', 'float rad = min(0.47,', `vec2 cq = (gc + 0.5)/gs*2.*B - B; float cel = 0.; for (int i = 0; i < 8; i++) { vec2 e = cq - uCell[i].xy; cel += (0.3 + 0.7*uCell[i].z)*step(0.001, uCell[i].w)*exp(-dot(e, e)/0.00045); }   // a heart is a small knot of brighter dots, and it swells as it beats
+      put('display', 'float rad = min(0.47,', `vec2 cq = gcen*2.*B - B; float cel = 0.; for (int i = 0; i < 8; i++) { vec2 e = cq - uCell[i].xy; cel += (0.3 + 0.7*uCell[i].z)*step(0.001, uCell[i].w)*exp(-dot(e, e)/0.00045); }   // a heart is a small knot of brighter dots, and it swells as it beats
       float rad = min(0.47, 0.16*cel + `, 'swap');
       put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'dq += dotm*cel*0.55*mix(BONE, film, 0.35); ', 'before');
     }
@@ -1063,44 +1094,58 @@ function gridLayout(){                                // as many columns as make
   grid.tiles = at.map(([i, x, y, own]) => { const cx = px + (x - s[1])*Z, cy = py + (y - s[2])*Z, hw = g.cw*Z/2, hh = g.ch*Z/2; return { hi:i, own, cx, cy, S:g.S*Z, hw, hh, x0:cx - hw, x1:cx + hw, y0:cy - hh, y1:cy + hh }; });   // own: a copy's own place, not one of its torus repeats
   grid.home = grid.tiles.find((t) => t.own && t.hi === grid.sel); grid.P = [w*Z, h*Z];   // P: the wall's period on the screen
 }
-// the fall (Kat 2026-11-22, on the first one: "still feeling a little bit basic and almost like you're flying. I want to feel like space is kind of folding inside out around you until you're like wrapped up
-// in the whole. Like, what would falling into a singularity look or feel like? And then, like, oh, it's surprising. You actually end up kind of back where you started"). Space bends, not the camera.
-// Inside a copy, a tap on the drain puts a mass in it, and every copy on the wall is seen through it as through one point lens: what lies at beta is seen at theta, where beta = theta(1 - Re^2/theta^2).
-// The mass grows. The drain is drawn out into a dark ring with a pearl edge on both sides, the basin outside it bent round it, and inside it the whole wall, inside out: its far copies crowd
-// toward the middle in ever smaller rings, as a lattice does turned inside out, each pearl holding all the others (Indra's net). The ring passes the screen's edges and you are inside it.
-// The mass grows without end until every copy is less than a pixel, and there is one point. Then the mass goes through infinity and comes back negative, a white hole: the basin comes back from
-// that point, folded along a ring that closes in on the drain you fell into, and you are where you began, one more pearl ring round the drain. The way out is through, and through again:
+// the fall (Kat 2026-11-22: "still feeling a little bit basic and almost like you're flying ... what would falling into a singularity look or feel like? ... you actually end up kind of
+// back where you started"; then, on the point lens and its white hole: "still feeling a little toy ... more true to physics of falling through a black hole and better reflect Indra's net ...
+// a smooth, cohesive warping, inside out, twisting through torus"). Space bends, not the camera: one geodesic fall through a wormhole whose far mouth is this same wall (WORM, above).
+// Its mouth opens in the drain, a pinprick holding the whole wall in rings; round it the wall here turns inside out, its drain drawn into a ring; the mouth swallows the screen; light
+// circling the throat shows the wall again in thinner and thinner rings, turned by the spin; then the far side settles into the wall exactly as it was, one more pearl ring round the drain.
 // (Kat, the same night: "if you fall into one hole, it then takes like the whole sink basin ... almost you have to struggle to find your way out. You could keep falling back through the hole")
 // to leave, pull from the drain out to the rim against its pull; let go short and you slide back in. Esc, two fingers, or half a minute alone float you back up to the wall
-const FALL = 3.6, F1 = 0.46, F2 = 0.54;               // seconds, the whole loop; the singularity lies between F1 and F2 of it
-function fallLens(F){                                 // where the fall has got to: the lens's strength (Re^2 in page pixels^2; minus, the white hole; Infinity, the singularity), how round the dots are held, how bright the one point
-  const g = grid.g, f = Math.max(0, Math.min(1, F.s/FALL)), h = 0.046*(BH || 1)*g.S*grid.Z, w = view.w, H = view.h;
-  const far = Math.max(Math.hypot(F.x, F.y), Math.hypot(w - F.x, F.y), Math.hypot(F.x, H - F.y), Math.hypot(w - F.x, H - F.y));
-  const a = Math.max(g.cw, g.ch)*grid.Z, top = Math.log(far*Math.sqrt(a/40)/h), lo = -3;   // ln(Re/h): from a speck in the drain to where the copies left on the screen are too small to hold a dot (measured: by then the screen is dark)
-  let L = top, m = Infinity;
-  if (f < F1) { const u = f/F1; L = lo + (top - lo)*Math.pow(u, 1.3); m = (h*Math.exp(L))**2*kss(0, 0.05, u); }   // in: slow at the lip, then faster
-  else if (f > F2) { const v = (f - F2)/(1 - F2); L = top - (top - lo)*(1 - Math.pow(1 - v, 1.3)); m = -((h*Math.exp(L))**2)*kss(1, 0.95, v); }   // out: fast from the point, slowing as the basin settles
-  return { x:F.x, y:F.y, f, m, round:kss(0, 0.04, f)*kss(1, 0.96, f), pt:kss(top - 1.2, top - 0.1, L), gone:a*far*far/Math.abs(m) < 1.5 };   // gone: every copy on the screen under a pixel or two
+const FALL = 3.6, SPIN = 1.4;                  // seconds, the whole fall; it runs from s = -8 (the mouth a third of a pixel, inside the drain) to +8 (the wall back to within a thousandth of a pixel); how hard the throat drags light round
+const wormF = () => 0.5*Math.min(view.w, view.h);     // 2f: the camera's stereographic scale, and the wall's (page px). The ring sits there as you cross the throat
+const wormSpin = (s) => SPIN/Math.cosh(s/4)**2;      // the spin is felt only near the throat, so both ends are unturned
+function fallLens(F){                                 // where the fall has got to: the camera's place s, slow through the throat and quick at the ends (s = 3x + 5x^5), and how round the dots are held
+  const f = Math.max(0, Math.min(1, F.s/FALL)), x = 2*f - 1;
+  return { x:F.x, y:F.y, f, s:3*x + 5*x**5, round:kss(0, 0.04, f)*kss(1, 0.96, f) };
 }
-function gridLens(){                                  // the lens this frame, if any: the fall's; or, going in or pulling out, the drain bending the space round it
+function gridLens(){                                  // the wormhole this frame, if any: the fall's; or, going in or pulling out, its mouth opening in the drain (as wide as the old bend's ring) and closing again
   if (grid.fall) return fallLens(grid.fall);
-  const t = grid.home, h = 0.046*(BH || 1)*t.S, m = (h*(1.5*Math.sin(Math.PI*kss(0, 1, grid.z)) + 2.6*grid.zc))**2;
-  return m > 0.05 ? { x:t.cx, y:t.cy, m, round:Math.min(1, Math.sqrt(m)/(0.4*h)), pt:0 } : null;
+  const t = grid.home, h = 0.046*(BH || 1)*t.S, re = h*(1.5*Math.sin(Math.PI*kss(0, 1, grid.z)) + 2.6*grid.zc);
+  return re*view.dpr > 0.3 ? { x:t.cx, y:t.cy, s:Math.max(-20, Math.log(re/wormF())), round:Math.min(1, re/(0.4*h)), f:0 } : null;
 }
-function lensSee(l, x, y){                            // the wall point seen at screen x, y through lens l, wrapped back near the copy you are in; the display shader's pre-map in main() does the same per pixel
-  const dx = x - l.x, dy = y - l.y, k = 1 - l.m/Math.max(1e-3, dx*dx + dy*dy), c = grid.home, [PX, PY] = grid.P;
-  if (!Number.isFinite(k) || Math.abs(k) > 1e4) return null;
-  const wx = l.x + dx*k - c.cx, wy = l.y + dy*k - c.cy; return [c.cx + wx - PX*Math.round(wx/PX), c.cy + wy - PY*Math.round(wy/PY)];
+// the physics, once. A null ray in the Ellis metric from a camera at l = b0 sinh(s), at angle psi off the +l axis, has b = sqrt(b0^2 + l^2) sin psi, and
+// (dl/dlam)^2 = 1 - b^2/(b0^2 + l^2), dphi/dlam = b/(b0^2 + l^2). Followed back to whichever side's infinity it reaches, its sweep is a sum of elliptic integrals of the first
+// kind: Carlson's R_F for the stretch from the camera out to its own infinity, sin psi R_F(tanh^2 s, cos^2 psi, 1); 2 kappa K(kappa) for a whole pass through the throat
+// (kappa = b/b0 < 1), 2 K(1/kappa) for a turn short of it; checked against RK4 integration of the geodesic to 2e-7 rad. The camera is stereographic, T = tan(psi/2) =
+// rho/2f. Each side's sky is the wall, stereographically at the same 2f, so far from the throat the map is the identity; this side's sky is seen about the axis ahead, the
+// far side's about the axis behind (inside out), so coming out you see the wall exactly as you left it. kappa near 1 circles the throat: the photon ring, the whole wall
+// again in rings inside rings, each thinner than the last. A spin is added (the Ellis throat has none): a ray is dragged round by the time it spends near the throat,
+// weighted 1/r^2, which comes to its sweep over kappa (pk), so light that circles longest turns most
+const wK = (kp) => { let a = 1, b = Math.max(kp, 1e-20); for (let i = 0; i < 7; i++) { const m = 0.5*(a + b); b = Math.sqrt(a*b); a = m; } return Math.PI/(2*a); };   // K(k), from k' = sqrt(1 - k^2), by the arithmetic-geometric mean
+function wRF(x, y, z){ for (let i = 0; i < 10; i++) { const sx = Math.sqrt(x), sy = Math.sqrt(y), sz = Math.sqrt(z), l = sx*sy + sy*sz + sz*sx; x = 0.25*(x + l); y = 0.25*(y + l); z = 0.25*(z + l); }   // Carlson's R_F
+  const A = (x + y + z)/3, X = 1 - x/A, Y = 1 - y/A, Z = -X - Y, E2 = X*Y - Z*Z, E3 = X*Y*Z; return (1 - E2/10 + E3/14 + E2*E2/24 - 3*E2*E3/44)/Math.sqrt(A); }
+function wormRay(T, s){                               // the ray at T = tan(psi/2), the camera at s: [the sky's angle off its axis, its sweep over kappa (the drag)]
+  const ch = Math.cosh(s), th = Math.tanh(s), es = Math.exp(s), T2 = T*T, cp = (1 - T2)/(1 + T2), kap = ch*2*T/(1 + T2), om = (1 - T*es)*(1 - T/es)/(1 + T2);   // cos psi; kappa; 1 - kappa, exact near the ring
+  const iov = wRF(th*th, cp*cp, 1)/ch; let pk = iov, side = th < 0 ? -1 : 1;   // headed away from the throat: out to the camera's own infinity
+  if (th < 0 ? cp > 0 : cp < 0) { if (om > 0) { pk = 2*wK(Math.sqrt(om*(1 + kap))) - iov; side = -side; } else pk = 2*wK(Math.sqrt(-om*(1 + kap))/kap)/kap - iov; }   // headed for it: through, or turned back
+  return [side < 0 ? Math.PI - pk*kap : pk*kap, pk];
 }
-function lensBox(l, t){                              // where on the screen the lens can show copy t: inside the ring (every far copy's inner picture lies there), and the outer picture of each of its places near the screen
-  const P = grid.P, hw = (t.x1 - t.x0)/2, hh = (t.y1 - t.y0)/2, R = Math.sqrt(Math.abs(l.m)), b = R > 0.5 ? [l.x - R, l.y - R, l.x + R, l.y + R] : [1e9, 1e9, -1e9, -1e9];
-  for (const du of [0, -1, 1]) for (const dv of [0, -1, 1]) { const cx = t.cx + du*P[0], cy = t.cy + dv*P[1];
-    if (Math.max(Math.abs(cx - view.w/2) - hw, Math.abs(cy - view.h/2) - hh) > Math.max(view.w, view.h)) continue;   // far off: its outer picture is farther still
-    for (let k = 0; k < 32; k++) { const e = k >> 3, s = (k & 7)/7*2 - 1, x = cx + (e === 0 ? -hw : e === 1 ? hw : s*hw), y = cy + (e === 2 ? -hh : e === 3 ? hh : s*hh), dx = x - l.x, dy = y - l.y, B = Math.hypot(dx, dy) || 1e-3;   // its edge, 8 points a side
-      const q = B*B + 4*l.m, th = q > 0 ? (B + Math.sqrt(q))/2 : R;   // where its outer picture lies (on the fold, if the white hole hides it)
-      b[0] = Math.min(b[0], l.x + dx/B*th); b[2] = Math.max(b[2], l.x + dx/B*th); b[1] = Math.min(b[1], l.y + dy/B*th); b[3] = Math.max(b[3], l.y + dy/B*th); } }
-  b[0] = Math.max(0, b[0] - 2); b[1] = Math.max(0, b[1] - 2); b[2] = Math.min(view.w, b[2] + 2); b[3] = Math.min(view.h, b[3] + 2);
-  return b[2] > b[0] && b[3] > b[1] ? b : null;
+const wtab = { tex:null, data:new Float32Array(4*WN), s:NaN };
+function wormTable(s){                                // the frame's map, tabled (the shader's worm() reads it): fine near the ring, where each nested ring is thinner than the last
+  if (!wtab.tex) { wtab.tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, wtab.tex); for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, WN, 1, 0, gl.RGBA, gl.FLOAT, null); }
+  if (s === wtab.s) return; wtab.s = s;
+  const spin = wormSpin(s);
+  for (let i = 0; i < WN; i++) { const w = -17 + (i + 0.5)*34/WN, T = Math.exp(s + Math.sign(w)*1e-6*Math.expm1(Math.abs(w))), [P, pk] = wormRay(T, s);
+    wtab.data.set([P - 2*Math.atan(T), Math.cos(spin*pk), Math.sin(spin*pk), 0], 4*i); }
+  gl.bindTexture(gl.TEXTURE_2D, wtab.tex); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, WN, 1, gl.RGBA, gl.FLOAT, wtab.data);
+}
+function lensSee(l, x, y){                            // the wall point seen at screen x, y, wrapped back near the copy you are in, from the closed form (page px, y down, so the drag turns the other way)
+  const F2 = wormF(), dx = x - l.x, dy = y - l.y, rho = Math.hypot(dx, dy), [P, pk] = wormRay(rho/F2, l.s);
+  const R = F2*Math.tan(0.5*P), a = wormSpin(l.s)*pk, ux = rho > 1e-6 ? dx/rho : 1, uy = rho > 1e-6 ? dy/rho : 0;
+  if (!Number.isFinite(R) || Math.abs(R) > 1e6) return null;
+  const c = grid.home, [PX, PY] = grid.P, wx = l.x + R*(ux*Math.cos(a) + uy*Math.sin(a)) - c.cx, wy = l.y + R*(uy*Math.cos(a) - ux*Math.sin(a)) - c.cy;
+  return [c.cx + wx - PX*Math.round(wx/PX), c.cy + wy - PY*Math.round(wy/PY)];
 }
 function gridAt(x, y){ let best = 0, bd = 1e9; grid.tiles.forEach((t, i) => { const d = Math.hypot(Math.max(t.x0 - x, 0, x - t.x1), Math.max(t.y0 - y, 0, y - t.y1)); if (d < bd) { bd = d; best = i; } }); return best; }
 function gridSim(x, y){                               // a hand on the screen reaches into the copy it sees there, through the lens if there is one
@@ -1126,7 +1171,7 @@ function gridOut(slow){                               // back up to the wall; a 
 function gridCursor(x, y){ canvas.style.cursor = grid.fall ? 'none' : grid.climb != null ? 'grabbing' : !grid.zt || (x !== undefined && gridDrain(x, y)) ? 'zoom-in' : 'default'; }
 if (grid) {                                           // on the wall a tap goes in; inside, a tap on the drain falls through, a pull from the drain to the rim climbs out (Esc or two fingers too); a press held elsewhere reaches into the water every copy shares
   canvas.style.cursor = 'zoom-in'; let dn = null; const downs = new Map();
-  canvas.setAttribute('aria-label', 'Forty-eight basins seen from above, one water and one dream, each beating to a heart a step further from order. Tap one to go in. Inside, tap the drain to fall through it: space folds inside out round you, down to one point, and opens again on the same basin. To climb out, pull from the drain to the rim, or press Escape. Press and hold to reach into the water they share.');
+  canvas.setAttribute('aria-label', 'Forty-eight basins seen from above, one water and one dream, each beating to a heart a step further from order. Tap one to go in. Inside, tap the drain to fall through it: it opens into a wormhole whose far mouth is this same wall. Light circling its throat shows the whole wall again in rings inside rings, and you come out where you began. To climb out, pull from the drain to the rim, or press Escape. Press and hold to reach into the water they share.');
   const rim = (x, y) => { const c = grid.home, dx = x - c.cx, dy = y - c.cy, L = Math.hypot(dx, dy) || 1; return 0.92*Math.min(view.w/2/Math.max(1e-3, Math.abs(dx/L)), view.h/2/Math.max(1e-3, Math.abs(dy/L))); };   // how far the rim is that way
   canvas.addEventListener('pointerdown', (ev) => { grid.idle = 0; downs.set(ev.pointerId, performance.now());
     if (downs.size === 2 && [...downs.values()].every((t) => performance.now() - t < 300)) { gridOut(); dn = null; return; }   // two fingers: out
@@ -1148,31 +1193,38 @@ function inkUp(u, t){                                 // a copy's cell and how d
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) INKN[(dy + 1)*3 + dx + 1] = grid.hearts[w(y + dy, rows)*c + w(x + dx, c)].ink || 0;
   gl.uniform1fv(u['uInkN[0]'], INKN); gl.uniform1f(u.uInkSeed, grid.inkSeed || 0); gl.uniform4f(u.uCellE, t.hw/t.S, t.hh/t.S, x, y);
 }
+function wormUp(prog, fl, tu){                        // the mouth, for a program: where it is, the camera's scale and place, and the frame's table (on texture unit tu)
+  const d = view.dpr; gl.uniform4f(prog.u.uWorm, fl.x*d, (view.h - fl.y)*d, wormF()*d, 1); gl.uniform4f(prog.u.uWormS, fl.s, 0, 0, 0); gl.uniform1i(prog.u.uWormT, tu);
+}
 function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each in its own cell of the page, with its own heart; its dots as fine as stay crisp (about 5.5 screen pixels a cell)
-  const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(3/255, 3/255, 4/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);   // the seams stay ink (the screen, not the last water target)
-  const fl = gridLens(), g = grid.g, Z = grid.Z;
-  if (fl) { const k = fl.round; gl.clearColor((3 - 2.7*k)/255, (3 - 2.7*k)/255, (4 - 3.6*k)/255, 1); gl.clear(gl.COLOR_BUFFER_BIT); }   // bent, where no copy reaches is the copies' own black, not the seams' ink: no grey disc where they have all gone
-  if (fl) { gl.uniform4f(u.uLens, fl.x*d, (view.h - fl.y)*d, fl.m*d*d, 1); gl.uniform1f(u.uRound, fl.round); }   // bent: each copy drawn once over the whole screen, wherever the lens shows it
-  const tiles = fl ? grid.tiles.filter((t) => t.own) : grid.tiles;
-  if (!fl || (Number.isFinite(fl.m) && !fl.gone)) for (const t of tiles) {   // at the singularity, no copy at all
+  const d = view.dpr; gridLayout(); const fl = gridLens(), g = grid.g, Z = grid.Z, k = fl ? fl.round : 0;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.disable(gl.SCISSOR_TEST);   // the screen, not the last water target
+  gl.clearColor((3 - 2.7*k)/255, (3 - 2.7*k)/255, (4 - 3.6*k)/255, 1); gl.clear(gl.COLOR_BUFFER_BIT | (fl ? gl.DEPTH_BUFFER_BIT : 0));   // the seams stay ink; falling, where no copy reaches is the copies' own black
+  if (fl) {                                           // falling: first, for every pixel, the copy its ray lands in, kept as depth; then each copy is drawn once over the whole screen, and the depth test keeps only its own pixels
+    wormTable(fl.s); const tu = unit++; gl.activeTexture(gl.TEXTURE0 + tu); gl.bindTexture(gl.TEXTURE_2D, wtab.tex);   // the table on the next free unit, which both programs read
+    gl.useProgram(P.wormIdx.p); wormUp(P.wormIdx, fl, tu); const hm = grid.home, iu = P.wormIdx.u;
+    gl.uniform4f(iu.uIdx, hm.cx*d, (view.h - hm.cy)*d, g.cw*Z*d, g.ch*Z*d); gl.uniform4f(iu.uIdx2, grid.sel % g.c, Math.floor(grid.sel/g.c), g.c, g.r);
+    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.ALWAYS); gl.depthMask(true); gl.colorMask(false, false, false, false); draw(null);
+    gl.colorMask(true, true, true, true); gl.depthMask(false); gl.depthFunc(gl.EQUAL); gl.useProgram(P.display.p);
+    wormUp(P.display, fl, tu); gl.uniform1f(u.uRound, fl.round);
+  } else gl.enable(gl.SCISSOR_TEST);
+  for (const t of fl ? grid.tiles.filter((t) => t.own) : grid.tiles) {
     if (!fl && (t.x1 < 0 || t.x0 > view.w || t.y1 < 0 || t.y0 > view.h)) continue;
-    const box = fl ? lensBox(fl, t) : null; if (fl && !box) continue;
     const h = grid.hearts[t.hi], qn = 4*Math.round(Math.max(24, Math.min(QN, 2*BX*t.S*d/5.5))/4);
-    if (fl) { const x0 = Math.max(0, Math.floor(box[0]*d)), y0 = Math.max(0, Math.floor((view.h - box[3])*d)); gl.scissor(x0, y0, Math.min(canvas.width, Math.ceil(box[2]*d)) - x0, Math.min(canvas.height, Math.ceil((view.h - box[1])*d)) - y0); gl.uniform4f(u.uWrap, view.w*Z*d, view.h*Z*d, (g.cw*Z/2 - 1/d)/t.S, (g.ch*Z/2 - 1/d)/t.S); }   // cut a device pixel in from its cell's edge, as the scissor cuts it unbent
+    if (fl) { gl.uniform1f(u.uZ, (2*t.hi + 1)/64 - 1); gl.uniform4f(u.uWrap, view.w*Z*d, view.h*Z*d, (g.cw*Z/2 - 1/d)/t.S, (g.ch*Z/2 - 1/d)/t.S); }   // at its depth; cut a device pixel in from its cell's edge, as the scissor cuts it unbent
     else { const x0 = Math.max(0, Math.floor(t.x0*d)), y0 = Math.max(0, Math.floor((view.h - t.y1)*d));
       const sw = Math.min(canvas.width, Math.ceil(t.x1*d)) - x0 - 2, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0)*d)) - y0 - 2; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
       gl.scissor(x0 + 1, y0 + 1, sw, sh); }
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, h.rip); orbUp(u, h.orb); inkUp(u, t);
-    if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, qn, Math.max(0, Math.log2(dye.read.w*2*BX/qn)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
+    if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, qn, Math.max(0, Math.log2(dye.read.w*2*BX/qn)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt);
+      gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth + (grid.fall && grid.fall.v > 0 ? kss(0.8, 1, fl.f) : 0) : 0);   // the new ring fades in as you come out
       gl.uniform4f(u.uBH, 0.046*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
       if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/qn*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
     draw(null); }
-  if (fl && fl.pt > 0.001) { const r = 1.6*d, px = fl.x*d, py = (view.h - fl.y)*d;   // the one point: where every copy has gone
-    gl.scissor(Math.floor(px - r - 2), Math.floor(py - r - 2), Math.ceil(2*r + 4), Math.ceil(2*r + 4)); gl.uniform4f(u.uPt, px, py, r, fl.pt); draw(null); gl.uniform4f(u.uPt, 0, 0, 0, 0); }
-  gl.uniform4f(u.uLens, 0, 0, 0, 0); gl.uniform4f(u.uWrap, 0, 0, 0, 0); gl.uniform1f(u.uRound, 0);
-  gl.disable(gl.SCISSOR_TEST);
+  gl.uniform4f(u.uWorm, 0, 0, 0, 0); gl.uniform4f(u.uWrap, 0, 0, 0, 0); gl.uniform1f(u.uRound, 0); gl.uniform1f(u.uZ, 0);
+  gl.disable(gl.SCISSOR_TEST); gl.disable(gl.DEPTH_TEST); gl.depthMask(true); gl.depthFunc(gl.LESS);
 }
 // ?r=sync: seven hearts in one basin, after the heart cells in a dish that beat alone, then, touching, as one (Mukherjee, The Song of the Cell). Six cells round the drain, each its own r and pace; the drain's own heart is the seventh.
 // A ring that reaches a heart late in its beat pulls the next beat early (a pulse-coupled oscillator, after Peskin, Mirollo and Strogatz). How strongly wanders by itself, never on a timer: they drift, lock, slip, lock again. A tap is a beat too
@@ -1214,7 +1266,8 @@ function rTick(dt){ if (grid) { if (THIRST && grid.cr && Math.floor(dayT()) !== 
     if (through || backed) { grid.fall = null; if (through) grid.depth++; if (F.out) gridOut(); else gridCursor(); } }   // through: one more ring round the drain
   grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/(grid.slow ? 2.6 : 0.9))); if (!grid.zt && !grid.z) grid.slow = 0;   // in and out; floated up, slowly
   if (!grid.climbHold) grid.zc += (Math.pow(grid.climb ?? 0, 1.5) - grid.zc)*(1 - Math.exp(-dt/(grid.climb != null ? 0.12 : 0.35)));   // the pull lags the hand; let go, and the basin slides back in
-  grid.idle = grid.fall || grid.climbHold || hand.down ? 0 : grid.idle + dt;   // a hand held still is not alone if (grid.zt && grid.idle > 30 && !grid.fall && grid.climb == null) gridOut(true);   // left alone half a minute, the water floats you back up to the wall
+  grid.idle = grid.fall || grid.climbHold || hand.down ? 0 : grid.idle + dt;   // a hand held still is not alone
+  if (grid.zt && grid.idle > 30 && !grid.fall && grid.climb == null) gridOut(true);   // left alone half a minute, the water floats you back up to the wall
   if (NAV) navTick(dt); const p = dayP(); for (const h of grid.hearts) { h.r = h.r0 + 0.006*(2*kNoise(simTime/23 + h.seed*7.1) - 1); if (hBeat(h, dt, h.rip, 0, 0, true)) h.inkT = dryAt(h, p); h.ink += ((h.inkT ?? 0) - (h.ink ?? 0))*(1 - Math.exp(-dt/0.14)); } } if (sync) syncTick(dt); }   // a copy drinks on its beat   // a grid copy's r wanders a hair round its place
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
@@ -1392,7 +1445,7 @@ window.__basin = { get t(){ return simTime; }, get thirst(){ return grid ? { day
 if (RCON) Object.defineProperty(window.__basin, 'hearts', { get: () => ({ grid, sync, lat }) });
 if (grid) Object.defineProperties(window.__basin, { tap:{ value:(x, y) => gridTap(x, y) }, fallHold:{ value:(f) => { grid.fallHold = f !== undefined; if (grid.fall && f !== undefined) grid.fall.s = f*FALL; } },
   climbHold:{ value:(p) => { grid.climbHold = p !== undefined; if (p !== undefined) grid.zc = Math.pow(p, 1.5); } },
-  fall:{ get: () => { const at = { in:grid.zt ? grid.sel : null, z:+grid.z.toFixed(2), depth:grid.depth, climb:+grid.zc.toFixed(2) }; if (!grid.fall) return { f:null, ...at }; const l = fallLens(grid.fall); return { f:+l.f.toFixed(3), v:grid.fall.v, re2:Number.isFinite(l.m) ? Math.round(l.m) : 'inf', pt:+l.pt.toFixed(2), ...at }; } } });   // for the documents: tap, hold the fall at a point, read where it is   // ?r=<concept>: the other hearts, for the documents and the checks
+  fall:{ get: () => { const at = { in:grid.zt ? grid.sel : null, z:+grid.z.toFixed(2), depth:grid.depth, climb:+grid.zc.toFixed(2) }; if (!grid.fall) return { f:null, ...at }; const l = fallLens(grid.fall); return { f:+l.f.toFixed(3), v:grid.fall.v, s:+l.s.toFixed(3), ring:+(wormF()*Math.exp(l.s)).toFixed(1), ...at }; } } });   // for the documents: tap, hold the fall at a point, read where it is   // ?r=<concept>: the other hearts, for the documents and the checks
 const nextFrame = params.has('snap') ? (f) => setTimeout(() => f(performance.now()), 16) : requestAnimationFrame;   // ?snap runs on timers, so stills render even off screen
 nextFrame(frame);
 netStart();
