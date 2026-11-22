@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One real-time check of [syn[k]]hole, dry season, on any address (a local port, or the public one after a publish). Node 22+, no packages.
+// Two checks of the piece, Node 22+, no packages: the real-time check of the page on any address (a local port, or the public one after a publish), and --thirst (the thirst schedule against the about page).
 // It loads the page in a headless Chrome, lets it pour, puts a hand in, drags, lets go, and fails (exit 1) unless:
 //   the water runs, the look is the default (k 0.25, no line under the basin, the code on the drain's rim), the reservoir pours when no
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
@@ -8,32 +8,35 @@
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
 //      node src/check.mjs "http://127.0.0.1:8806/?spring=nofeed/"     no spring: the reservoir must pour
 //   CHECK_PORT=<port> picks another Chrome; a second argument writes a PNG of the page after the hand has left.
-//   node src/check.mjs --thirst [address of synkhole/]     the thirst schedule instead (index.html dryOf). With no browser: about.html carries index.html's
-//      dawnDay, dryOf and tilt lines character for character, and every clock time and count the about page quotes is solved again from dryOf over the
-//      48 ranks k/47. With an address and the Chrome: days 0.1, 0.3, 0.5, 0.7, 0.9 each leave at least 3/4 of the wall wet (__basin.thirst.wet), GL error 0.
+//   node src/check.mjs --thirst [address of synkhole/]     the thirst schedule instead. With no browser it runs index.html's thirst block (// <thirst> ... </thirst>,
+//      which deploy.py also puts in the about page) and solves, second by second over the 48 ranks k/47: every clock time and count the about page quotes (each must
+//      sit by its anchor words there), and the wet share, which must stay at 3/4 or more all day. With an address and the Chrome it also loads days 0.1, 0.3, 0.5,
+//      0.7 and 0.9 and needs the live page to agree (__basin.thirst.wet at 3/4 or more, GL error 0, nothing logged).
 import fs from 'node:fs';
 const ARGS = process.argv.slice(2), THIRST = ARGS.includes('--thirst'), [url, png] = ARGS.filter((a) => a !== '--thirst');
 const PORT = +process.env.CHECK_PORT || 9396, nap = (ms) => new Promise((r) => setTimeout(r, ms));
 if (!url && !THIRST) { console.log('usage: node src/check.mjs <address> [out.png]   or   node src/check.mjs --thirst [address]'); process.exit(2); }
 const fails = [], need = (ok, what) => { if (!ok) fails.push(what); };
-if (THIRST) {                                                       // the page's numbers, from the code that makes them
+if (THIRST) {                                                       // the about page's numbers, solved from the thirst model itself
   const read = (f) => fs.readFileSync(new URL(f, import.meta.url), 'utf8'), idx = read('index.html'), abt = read('about.html');
-  const line = (text, name) => (text.match(new RegExp(`^const ${name} = .*$`, 'm')) || [''])[0];
-  for (const n of ['dawnDay', 'dryOf', 'tilt']) { const a = line(idx, n); need(a, `index.html has no line "const ${n} = ..."`); need(!a || a === line(abt, n), `about.html's ${n} is not index.html's, character for character`); }
-  const KSS = '(a, b, x) => { const t = Math.max(0, Math.min(1, (x - a)/(b - a))); return t*t*(3 - 2*t); }', kss = eval(KSS);
-  need(idx.includes('const kss = ' + KSS), 'index.html\'s kss is not the smoothstep this check solves with');
-  const dryOf = new Function('kss', line(idx, 'dryOf').replace(/^const dryOf = /, 'return ').replace(/;\s+\/\/.*$/, ';'))(kss);
-  const R = [...Array(48)].map((_, k) => k/47), n = (p, cut) => R.filter((r) => dryOf(r, p) > cut).length, S = 1/86400;   // a second of the day; p 0 is 6 am
-  const clock = (p) => { const m = Math.floor(360 + p*1440 + 1e-9) % 1440, h = Math.floor(m/60); return `${(h + 11) % 12 + 1}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
-  let first = null, last = null, most = 0, untouched = 48; const hrs = R.map(() => 0);
-  for (let k = 0; k < 86400; k++) { const p = k*S, any = n(p, 0); if (any && first === null) first = p; if (any) last = p;
-    most = Math.max(most, n(p, 0.5)); untouched = Math.min(untouched, 48 - any); R.forEach((r, i) => { if (dryOf(r, p) > 0.5) hrs[i] += 24*S; }); }
-  const WORD = ['zero', 'one', 'two', 'three', 'four', 'five', 'six'], lo = Math.round(Math.min(...hrs)), hi = Math.round(Math.max(...hrs));
-  const want = [`from ${clock(first)} the dry passes over it`, `by ${clock(last + S)} every copy is full again`, `for about ${WORD[lo]} to ${WORD[hi]} hours`,
-    `counting a copy dry once half its ink is gone, ${n(0.25, 0.5)} are dry at noon, ${n(0.5, 0.5)} at 6 pm, never more than ${most}`, `at least ${untouched} of the 48 untouched at any hour`];
-  console.log('solved  ', JSON.stringify({ first:clock(first), full:clock(last + S), hours:[+Math.min(...hrs).toFixed(2), +Math.max(...hrs).toFixed(2)], noon:n(0.25, 0.5), six:n(0.5, 0.5), most, untouched }));
-  for (const w of want) need(abt.includes(w), `about.html does not say "${w}"`);
-  if (!url) { console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: about.html matches dryOf, dawnDay and tilt, and its clock times and counts'); process.exit(fails.length ? 1 : 0); }
+  const block = (idx.match(/^\/\/ <thirst>[\s\S]*?^\/\/ <\/thirst>.*$/m) || [''])[0], helpers = (idx.match(/^const kss = .*$/m) || [''])[0];   // the model, and the page's kss and kh it uses
+  if (!block || !helpers) { console.log('FAIL: index.html has no // <thirst> ... // </thirst> block, or no "const kss = ..." line'); process.exit(1); }
+  const { DAWN_H, dryOf } = new Function(helpers + '\n' + block + '\nreturn { DAWN_H, dryOf };')();
+  const R = [...Array(48)].map((_, k) => k/47), n = (p, cut) => R.filter((r) => dryOf(r, p) > cut).length, S = 1/86400;   // a second of the day; p 0 is dawn
+  const clock = (p) => { const m = Math.floor(60*DAWN_H + p*1440 + 1e-9) % 1440, h = Math.floor(m/60); return `${(h + 11) % 12 + 1}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+  let first = null, half = null, last = null, most = 0, untouched = 48, wet = 1; const hrs = R.map(() => 0);
+  for (let k = 0; k < 86400; k++) { const p = k*S, any = n(p, 0), dry = n(p, 0.5); if (any && first === null) first = p; if (dry && half === null) half = p; if (any) last = p;
+    most = Math.max(most, dry); untouched = Math.min(untouched, 48 - any); wet = Math.min(wet, 1 - R.reduce((a, r) => a + dryOf(r, p), 0)/48); R.forEach((r, i) => { if (dryOf(r, p) > 0.5) hrs[i] += 24*S; }); }
+  const WORD = ['zero', 'one', 'two', 'three', 'four', 'five', 'six'], lo = Math.round(Math.min(...hrs)), hi = Math.round(Math.max(...hrs)), at10 = n((10 - DAWN_H)/24, 0.5);
+  const solved = { first:clock(first), firstHalfDry:clock(half), full:clock(last + S), hours:[+Math.min(...hrs).toFixed(2), +Math.max(...hrs).toFixed(2)], at10am:at10, noon:n(0.25, 0.5), six:n(0.5, 0.5), most, untouched, minWet:+wet.toFixed(3) };
+  console.log('solved  ', JSON.stringify(solved));
+  const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), V = (v) => `(?<![\\d:.])${esc(String(v))}(?![\\d:])`;
+  const near = (v, a, after) => new RegExp(after ? `${esc(a)} ${V(v)}` : `${V(v)}[^<,;.]{0,16}${esc(a)}`).test(abt);   // a value just before its anchor words (or just after), in one clause
+  for (const [v, a, after] of [[solved.first, 'the dry passes'], [solved.full, 'full again'], [at10, 'dry by 10 am'], [solved.noon, 'dry at noon'], [solved.six, 'at 6 pm'], [most, 'never more than', 1],
+    [untouched, 'untouched'], [`${WORD[lo]} to ${WORD[hi]}`, 'hours']]) need(near(v, a, after), `about.html has no "${v}" by "${a}"`);
+  need(half <= (8.5 - DAWN_H)/24 && abt.includes('half past eight and the thirstiest copy'), `the page's "come after half past eight and the thirstiest copy" is missing or false: the first copy is half dry at ${solved.firstHalfDry}`);
+  need(wet >= 0.75, `the wet share falls to ${solved.minWet} at its lowest, under 3/4`);
+  if (!url) { console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: every clock time and count on the about page is the thirst model\'s, and 3/4 of the wall stays wet all day'); process.exit(fails.length ? 1 : 0); }
 }
 const page = (await (await fetch(`http://127.0.0.1:${PORT}/json`)).json()).find((t) => t.type === 'page');
 const ws = new WebSocket(page.webSocketDebuggerUrl), wait = new Map(), errors = []; let id = 0;
@@ -60,7 +63,7 @@ try {
       for (let i = 0; i < 30 && !t; i++) { await nap(500); t = await js(`window.__basin && __basin.thirst && __basin.thirst.cols ? JSON.stringify({ ...__basin.thirst, gl:document.querySelector('canvas').getContext('webgl2').getError() }) : null`).catch(() => null); }
       t = t && JSON.parse(t); console.log('day', d, JSON.stringify(t));
       need(t && t.wet >= 0.75, `day ${d}: wet ${t && t.wet}, under 0.75`); need(t && t.gl === 0, `day ${d}: GL error ${t && t.gl}`); need(errors.length === 0, `day ${d}: ${errors.slice(0, 2).join(' | ')}`); }
-    console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: about.html matches dryOf, dawnDay and tilt and its numbers; 3/4 of the wall wet at days 0.1 to 0.9');
+    console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: the about page\'s numbers are the thirst model\'s; the live page keeps 3/4 of the wall wet at days 0.1 to 0.9, GL error 0');
     ws.close(); process.exit(fails.length ? 1 : 0); }
   await send('Runtime.enable'); await send('Log.enable'); await send('Page.enable'); await send('Page.navigate', { url }); errors.length = 0;   // what the page before this one logged is not this page's
   const end = Date.now() + 45000; let s = null;                     // a sleeping spring is given up on after 20 s; then the reservoir pours

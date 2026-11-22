@@ -4,7 +4,7 @@
 # It only writes files. It never commits and never pushes: publishing is Kat's, by hand.
 #   python3 src/deploy.py                 every page
 #   python3 src/deploy.py index.html      the piece only (about.html left as it is, e.g. while the about page is being edited)
-# Writes synkhole/index.html (the piece), synkhole/about.html (the page about the piece), and at the root index.html (sends a visitor
+# Writes synkhole/index.html (the piece), synkhole/about.html (the page about the piece, with index.html's thirst model put in at its // <thirst> line), and at the root index.html (sends a visitor
 # on to synkhole/) and .nojekyll. README.md is written by hand; this only checks that it still names HOME.
 # Binaries live once, in the built folder, never in src/: the about page's pictures in synkhole/doc/ (here only checked: every picture
 # about.html names is there), the reservoir in synkhole/reservoir/ (stored dreams for when the spring sleeps, made by src/reservoir.py
@@ -55,6 +55,12 @@ if 'about.html' in NAMES and not (HERE / 'about.html').exists(): sys.exit('src/a
 SITE.mkdir(parents=True, exist_ok=True)
 print(reservoir())
 pages = {name: (HERE / name).read_text() for name in NAMES}
+THIRST = re.search(r'^// <thirst>.*?^// </thirst>[^\n]*$', (HERE / 'index.html').read_text(), re.S | re.M)   # the thirst model's one home: index.html, between these two lines
+if not THIRST: sys.exit('src/index.html has no // <thirst> ... // </thirst> block (the thirst model); nothing written')
+if 'about.html' in pages:                                     # the about page's days figure draws from that same code: it goes in at the page's own // <thirst> line
+    marks = re.findall(r'^// <thirst>[^\n]*$', pages['about.html'], re.M)
+    if len(marks) != 1 or '// </thirst>' in pages['about.html']: sys.exit('src/about.html needs one // <thirst> line, where the thirst model goes, and no copy of its own; nothing written')
+    pages['about.html'] = pages['about.html'].replace(marks[0], THIRST.group(0), 1)
 stale = [w for w in ['sync.html?', 'dry_season.html', 'github.io/veritas/about'] if w in pages.get('about.html', '')]     # addresses the piece had under veritas on 2026-11-17
 if stale: sys.exit(f'about.html still points at {", ".join(stale)}: the old addresses; nothing written')
 lost = sorted({p for p in re.findall(r'\bdoc/[\w.-]+\.webp', pages.get('about.html', '')) if not (SITE / p).exists()})   # pictures live in synkhole/doc/ only

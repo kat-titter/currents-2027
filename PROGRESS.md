@@ -67,8 +67,12 @@ The live site serves the same `index.json`. The code would still let a woken spr
 
 ### Follow-ups for the piece (index.html, not touched here)
 
-- The thirst's dawn is 6 am in Santa Fe all year (index.html `dawnDay`, America/Denver, daylight time included; was a fixed 13:00 UTC until 2026-11-22). The page says "six each morning, santa fe time".
 - In the grid, the `lost = mm:ss` ring (`kRimDraw`) circles the screen's centre at the single basin's drain size, between copies.
+
+### Done since (2026-11-22, branch `brighter-grid`)
+
+- The thirst's dawn is 6 am in Santa Fe all year (index.html `dawnDay`, `DAWN_H`, America/Denver, daylight time included; was a fixed 13:00 UTC). The page says "six each morning, santa fe time".
+- The thirst model lives once, in index.html's `// <thirst>` block; deploy.py puts it in the about page, and `node src/check.mjs --thirst` solves the page's clock times and counts from it.
 
 ### Check
 
