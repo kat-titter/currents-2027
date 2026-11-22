@@ -530,7 +530,8 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float tD = tdiv*(hash(gc + 3.1) < 0.5 ? 1. : 2.), tick = floor(uQD.z/tD) + 9.*floor(hash(gc)*7.);
       float tE = mod(uQD.z, tD) < 0.5 ? smoothstep(0., 0.14, uKStep) : 1.;   // a dot whose step just came grows or shrinks to its new size over 0.14 s, done before the dub
       float tw8 = 0.72 + 0.28*mix(hash(gc + (tick - 1.)*0.137 + 0.5), hash(gc + tick*0.137 + 0.5), tE);
-      float rad = min(0.47, (0.08 + 0.38*sqrt(lq))*tw8 + 0.1*krip);   // on a ripple's crest each dot swells, a little
+      float rad = min(0.47, (${RCON === 'grid' ? '0.15 + 0.34*pow(lq, 0.35)' : '0.08 + 0.38*sqrt(lq)'})*tw8 + 0.1*krip);   // on a ripple's crest each dot swells, a little
+      // the grid's dots (Kat 2026-11-22: "too much dark ... it should always be like a majority activated, visible black hole"): never under 0.15 of a cell, and dim water drawn larger, on a curve
       float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));
       float ja = dot(jx, jx), jc = dot(jy, jy), jb = dot(jx, jy), sv = sqrt(max(1e-8, 0.5*(ja + jc + sqrt(max(0., (ja - jc)*(ja - jc) + 4.*jb*jb))))), dpx = length(dpc);   // sv: cells per pixel the way the grid is squeezed most
       float rpx = rad/sv, keep = smoothstep(0.45, 0.95, rpx);   // falling in, a dot is a disc on the screen as wide as its cell is narrow: round where the drain stretches the grid, gone (never a smear) where it packs it finer than a pixel
@@ -538,7 +539,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       float g0 = length(gf), gu = g0/max(rad, 0.03), lb = lum(b);
       float x = 1.1*lq + 1.5*dot(ql, vec2(0.78, 0.52)) + 0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;   // one film over the field, in bands that drift: a hologram tilted in the light
       vec3 film = kiri(x + 0.55*gu*(1. - bz) + 2.4*bFc + 1.2*bRc);                                            // over a bubble the film's bands close into rings, thinner toward its edge, as on nacre
-      vec3 core = mix(BONE*lb*1.15 + b*0.35, b*film*1.6, smoothstep(0.15, 1.0, gu));                 // pearl: bone at the heart of each dot, the film's colours toward its edge
+      vec3 core = mix(BONE*${RCON === 'grid' ? 'pow(lb, 0.75)' : 'lb'}*1.15 + b*0.35, b*film*1.6, smoothstep(0.15, 1.0, gu));   // pearl: bone at the heart of each dot, the film's colours toward its edge; in the grid a dim dot's heart is lifted on a curve
       float nac = bz;                                                                                  // the bubble, its rim and the ring where the water curves down to it
       core = mix(core, film*(0.20*lb + 0.38*lq + 0.05), nac); lb *= 1. - 0.35*nac;               // nacre: in a bubble a dot loses its bone heart; its colour is the film's, one flat colour (a gradient across it made a lit bead), its light the cell's own, matte
       float ring = exp(-pow((g0 - min(rad*1.45 + 0.035, 0.44))/0.04, 2.))*(1. - uRound);                                       // and a thin halo round it, the film's colours shifted a step
@@ -591,7 +592,7 @@ vec2 khole(vec2 q, float r){       // 2 inside the ring the basin is seen again,
       put('display', 'uniform vec4 uKH;', `uniform vec4 uOrb[8];             // the heart's last 16 beats, newest first: its value on the logistic map, and how long ago, two to a slot
 float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 e = i % 2 == 0 ? s.xy : s.zw; if (e.y >= back) { vec4 s1 = uOrb[(i + 1)/2]; return mix((i + 1) % 2 == 0 ? s1.x : s1.z, e.x, smoothstep(0., 0.14, e.y - back)); } } return uOrb[7].z; }
 `, 'before');                                         // so a steady heart leaves every dot one size; a two-beat, rings of two sizes; a period of three, three; chaos, no two rings alike
-      put('display', TW, 'float tw8 = 0.15 + 0.85*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));', 'swap');
+      put('display', TW, `float tw8 = ${RCON === 'grid' ? '0.45 + 0.55' : '0.15 + 0.85'}*smoothstep(0.2, 0.95, korb(length((gc + 0.5)/gs*2.*B - B)/0.13));`, 'swap');   // in the grid a dot swings between half and full size, so a low beat never blacks a copy out (Kat 2026-11-22)
     }
     if (RCON === 'grid') {                               // thirst: a copy's dots go dry one by one, in patches, like a silkscreen running out of ink; each leaves a faint point of the grid
       put('display', 'uniform vec4 uKH;', 'uniform float uInkN[9], uInkSeed; uniform vec4 uCellE;   // how dry this copy and its eight neighbours are today (row by row, down the screen); where the patches fall; the cell: its half size in basin units, its column and row\n', 'before');
@@ -600,7 +601,7 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       put('display', 'float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));', `vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot's centre on the screen, in basin units
       vec2 cu = vec2(qs.x, -qs.y)/(2.*uCellE.xy), wq = uCellE.zw + 0.5 + cu, de = abs(qs) - uCellE.xy + 0.05;                           // where in its cell (-0.5 to 0.5, down the screen), and on the wall
       float mE = min(0.05 - length(max(de, 0.)) - min(max(de.x, de.y), 0.), -sdBox(qs)), pit = 2.*B.x/gs.x;                        // pit: one dot's pitch
-      float gEdge = smoothstep(0., 3.5*pit, mE - 0.5*pit - 0.015*vnoise(wq*2.3 + uInkSeed) - 0.5*pit*hash(gc + 4.3));   // about four dots of fade, its line broken dot by dot
+      float gEdge = smoothstep(0., 2.*pit, mE - 0.25*pit - 0.008*vnoise(wq*2.3 + uInkSeed) - 0.5*pit*hash(gc + 4.3));   // about two dots of fade, its line broken dot by dot (Kat 2026-11-22, "too much dark": was four, from half a dot further in, its noise wander shrunk with it, 0.015 to 0.008)
       rad *= sqrt(gEdge);                                 // a dot's area, so its light, goes down with the fade, as a halftone's does
       `, 'before');
       put('display', '*ring*lb*kiri(', '*ring*gEdge*lb*kiri(', 'swap');
@@ -1012,16 +1013,40 @@ const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.
 // ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
 // and every cell's edge is a small bump it sticks on; a stranger beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
 const NAV = !!grid && params.get('nav') === 'lost';
-// thirst (Kat 2026-11-21, "thirsty"; "do both!"): the 48 hearts drink from one water through the day. The day starts at 06:00 in Santa Fe (13:00 UTC) for everyone, so strangers share one level.
+// thirst (Kat 2026-11-21, "thirsty"; "do both!"): the 48 hearts drink from one water through the day. The day starts at 06:00 in Santa Fe (America/Denver, daylight time included) for everyone, so strangers share one level.
 // Which copy goes dry first follows the lie of the land, like puddles drying after rain (Kat 2026-11-21: "I didn't mean yin yang, like literally ... flow, balance, be natural"): a smooth, folded relief over the grid,
 // new each day, a little more thirst where the heart is chaotic, each copy leaning on its neighbours; ranked so the day drains evenly. The shallows go first and the dry spreads from their edges.
-// The grid stays mostly full (Kat: "majority full most of the time"): about nine copies in ten still wet at 3 pm, four in five at 5 pm, half at 10 pm; then the night drinks fast, and it is dry before dawn.
+// The dry passes over the wall like a cloud's shadow over land, and the water comes back behind it (Kat 2026-11-22: "it should always be like a majority activated, visible black hole ... you kind of
+// lose that Warhol effect when it's less than half discernible"): each copy goes dry once a day, in the land's order, then fills again; full from dawn, never more than a fifth of the wall dry at once.
+// The model lives once, in the <thirst> block below; deploy.py puts it in the about page. Every clock time and count the about page quotes is solved from it, second by second
+// over the 48 ranks k/47 (they hold for any land: the ranks are always evenly spaced), by   node src/check.mjs --thirst [address of synkhole/]
+// which fails when a number on the page differs, when the wet share dips under 3/4 at any second, or (given an address) when the live page disagrees at days 0.1 to 0.9.
 // Inside a drying copy the dots go dark one by one, each on that copy's beat, from the side that faces the dry: it drinks as it beats. ?thirst=<speed> (1 unless set; 600: a day in 2.4 minutes; 0: never thirsty)
-const THIRST = grid ? (params.has('thirst') ? Math.max(0, parseFloat(params.get('thirst')) || 0) : 1) : 0, DAY = 864e5, DAWN = 13*36e5;
-const thirst0 = { n:Math.floor((Date.now() - DAWN)/DAY), p:params.has('day') ? Math.max(0, Math.min(0.999, parseFloat(params.get('day')) || 0)) : (((Date.now() - DAWN) % DAY) + DAY) % DAY/DAY, at:performance.now() };   // ?day=<0 to 1>: start at that point of the day (0 dawn, 0.5 midday), for the documents
+const THIRST = grid ? (params.has('thirst') ? Math.max(0, parseFloat(params.get('thirst')) || 0) : 1) : 0, DAY = 864e5;
+// <thirst> the thirst model, its one home: src/deploy.py copies everything from this line to </thirst> into the about page when it builds, so the page's days figure draws from this code.
+// It uses the page's own kss and kh. node src/check.mjs --thirst solves the about page's clock times and counts from it.
+const DAWN_H = 6;                                     // the day turns at 6 am, Santa Fe time
+// dawnDay's fallback, -7 h (Mountain Standard Time), keeps an unattended installation running if Intl ever throws; it is an hour off only in daylight time
+const dawnDay = (t) => { let o = -7*36e5; try { const f = new Intl.DateTimeFormat('en-US', { timeZone:'America/Denver', hourCycle:'h23', year:'numeric', month:'numeric', day:'numeric', hour:'numeric', minute:'numeric', second:'numeric' }).formatToParts(new Date(t)), g = (k) => +f.find((x) => x.type === k).value; o = Date.UTC(g('year'), g('month') - 1, g('day'), g('hour'), g('minute'), g('second')) - Math.floor(t/1000)*1000; } catch (e) {} return (t + o - DAWN_H*36e5)/864e5; };   // days since 1970 counted from DAWN_H in Santa Fe, daylight time included (America/Denver): the whole part is the day, the fraction how far through it
+const dryOf = (th, p) => { const s = 0.1 + 0.76*th, w = 0.08 + 0.08*Math.sin(Math.PI*th); return kss(s - 0.02, s + 0.02, p)*(1 - kss(s + w - 0.02, s + w + 0.02, p)); };   // how dry a copy of thirst rank th is at p of the day: dry at s (the thirstiest first) for w, longest mid-wall, over about an hour each way
+const tilt = (i, c, rows, cs, sn) => 1.5*(cs*(i % c - (c - 1)/2) + sn*(Math.floor(i/c) - (rows - 1)/2))/(Math.max(c, rows) - 1);   // the land tilts the way it turns today, so the dry crosses the wall from its low side as one or two curved patches
+function thirstRanks(n, c, rows, r0s){               // each copy's thirst rank (0 first dry, 1 last) on day n, the copies c across and rows down, r0s their r: the land for the day is value noise over the grid,
+  const sd = kh(n*0.618 + 0.37)*97, F = 0.46, th = 6.28318*kh(n*0.31 + 0.71), cs = Math.cos(th), sn = Math.sin(th);   // folded by more noise (a domain warp), so its hills wander like a coastline; F: about two copies to a hill;
+  const vn = (x, y) => { const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, a = (u*u*(3 - 2*u)), b = (v*v*(3 - 2*v)), q = (di, dj) => kh((i + di)*17.31 + (j + dj)*311.7 + sd);   // turned a new way each day
+    return q(0, 0) + (q(1, 0) - q(0, 0))*a + (q(0, 1) - q(0, 0))*b + (q(0, 0) - q(1, 0) - q(0, 1) + q(1, 1))*a*b; };
+  const fb = (x, y) => (vn(x, y) + 0.5*vn(2.03*x + 5.2, 2.03*y + 1.3))/1.5;
+  const land = r0s.map((_, i) => { const X = (i % c)*F, Y = Math.floor(i/c)*F, x = cs*X - sn*Y, y = sn*X + cs*Y, wx = fb(x + 1.7, y + 9.2), wy = fb(x + 8.3, y + 2.8);
+    return fb(x + 2*wx, y + 2*wy) + tilt(i, c, rows, cs, sn); });   // and tilted
+  const at = (x, y) => land[Math.max(0, Math.min(rows - 1, y))*c + Math.max(0, Math.min(c - 1, x))];
+  const rank = (v) => { const o = v.map((_, i) => i).sort((x, y) => v[x] - v[y]), r = []; o.forEach((i, k) => { r[i] = k/Math.max(1, v.length - 1); }); return r; };
+  const lean = rank(land.map((f, i) => { const x = i % c, y = Math.floor(i/c); let m = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) m += at(x + dx, y + dy); return 0.55*f + 0.45*m/8; }));   // each copy leans on its neighbours
+  return rank(r0s.map((r0, i) => 0.87*lean[i] + 0.08*kss(3.45, 4.0, r0) + 0.05*kh(i*7.7 + sd)));   // a little more thirst where the heart is chaotic, a little chance; ranked, so the day drains evenly
+}
+// </thirst>
+const dawn0 = dawnDay(Date.now());
+const thirst0 = { n:Math.floor(dawn0), p:params.has('day') ? Math.max(0, Math.min(0.999, parseFloat(params.get('day')) || 0)) : dawn0 - Math.floor(dawn0), at:performance.now() };   // ?day=<0 to 1>: start at that point of the day (0 dawn, 0.5 midday), for the documents
 const dayT = () => thirst0.n + thirst0.p + (performance.now() - thirst0.at)*THIRST/DAY, dayP = () => dayT() % 1;   // which day (its number sets the land), and how far through its water, 0 at dawn
-const drunk = (p) => { const t = Math.min(1, p/0.95); return 0.5*t + 0.5*t*t*t*t; };   // how much of the day's water is gone: slow by day, fast by night, all of it by 4:48 am
-const dryAt = (h, p) => THIRST ? kss(0.7*(1 - h.thirst), 0.7*(1 - h.thirst) + 0.3, drunk(p)) : 0;   // each copy dries while three tenths of the water go, the thirstiest first, so neighbours are half dry together: a soft front
+const dryAt = (h, p) => THIRST ? dryOf(h.thirst, p) : 0;   // neighbours are half dry together: a soft front that moves on
 function navTick(dt){
   const g = grid, cw = view.w/Math.max(1, g.cr), ch = view.h/Math.max(1, GRID_N/Math.max(1, g.cr));
   if (g.zt || g.z > 0 || g.fall) { g.vx *= Math.exp(-dt/0.15); g.vy *= Math.exp(-dt/0.15); }   // inside one universe, the field holds still
@@ -1040,17 +1065,8 @@ function gridAssign(c, rows){                         // which copy steps which 
     h.r0 = gridR(na > 1 ? a/(na - 1) : 0.5); h.tf = 1 + 0.06*(nb > 1 ? b/(nb - 1) - 0.5 : 0); });
   grid.cr = c; gridThirst();
 }
-function gridThirst(){                                // the land for today: value noise over the grid, folded by more noise (a domain warp), so its hills and hollows wander like a coastline
-  const c = grid.cr, rows = GRID_N/c, n = Math.floor(dayT()), sd = kh(n*0.618 + 0.37)*97, F = 0.46, th = 6.28318*kh(n*0.31 + 0.71), cs = Math.cos(th), sn = Math.sin(th);   // F: about two copies to a hill; the land turned a new way each day, so no hill lines up with the grid
-  const vn = (x, y) => { const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, a = (u*u*(3 - 2*u)), b = (v*v*(3 - 2*v)), q = (di, dj) => kh((i + di)*17.31 + (j + dj)*311.7 + sd);
-    return q(0, 0) + (q(1, 0) - q(0, 0))*a + (q(0, 1) - q(0, 0))*b + (q(0, 0) - q(1, 0) - q(0, 1) + q(1, 1))*a*b; };
-  const fb = (x, y) => (vn(x, y) + 0.5*vn(2.03*x + 5.2, 2.03*y + 1.3))/1.5;
-  const land = grid.hearts.map((_, i) => { const X = (i % c)*F, Y = Math.floor(i/c)*F, x = cs*X - sn*Y, y = sn*X + cs*Y, wx = fb(x + 1.7, y + 9.2), wy = fb(x + 8.3, y + 2.8);
-    return fb(x + 2*wx, y + 2*wy); });
-  const at = (x, y) => land[Math.max(0, Math.min(rows - 1, y))*c + Math.max(0, Math.min(c - 1, x))];
-  const rank = (v) => { const o = v.map((_, i) => i).sort((x, y) => v[x] - v[y]), r = []; o.forEach((i, k) => { r[i] = k/Math.max(1, v.length - 1); }); return r; };
-  const lean = rank(land.map((f, i) => { const x = i % c, y = Math.floor(i/c); let m = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) m += at(x + dx, y + dy); return 0.55*f + 0.45*m/8; }));   // each copy leans on its neighbours
-  const t = rank(grid.hearts.map((h, i) => 0.87*lean[i] + 0.08*kss(3.45, 4.0, h.r0) + 0.05*kh(i*7.7 + sd)));   // a little more thirst where the heart is chaotic, a little chance; ranked, so the day drains evenly
+function gridThirst(){                                // today's land decides who drinks first (thirstRanks, in the thirst block above)
+  const c = grid.cr, n = Math.floor(dayT()), t = thirstRanks(n, c, GRID_N/c, grid.hearts.map((h) => h.r0));
   grid.hearts.forEach((h, i) => { h.thirst = t[i]; h.ink = h.inkT = dryAt(h, dayP()); });
   grid.inkSeed = kh(n*0.29 + 0.13)*61;                // the patches' noise is laid on the wall, one for all the copies, new each day
   grid.dn = n;
