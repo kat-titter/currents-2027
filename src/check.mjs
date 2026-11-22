@@ -4,7 +4,8 @@
 //   the water runs, the look is the default (k 0.25, no line under the basin, the code on the drain's rim), the reservoir pours when no
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
 //   On the grid (?r=grid, the bare address) it checks the fall instead: a tap goes in, a drain tap falls through to depth 1, a short pull
-//   slides back, a pull to the rim climbs out, a hold grips and the rim tells its time, past 30 s alone (set by __basin.idle(s)) it floats up, two fingers go out.
+//   slides back, a pull to the rim climbs out, a hold grips and the rim tells its time, past 30 s alone (set by __basin.idle(s)) it floats up, two fingers go out;
+//   then the hearts, run 30 minutes ahead: all 48 still beating, neighbours both in step (over 0.55 of pairs) and out of it (under 0.3) at some time.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
@@ -102,6 +103,13 @@ try {
     await js('window.__basin.idle(30.1), 1'); await expect((f) => f.in === null, 3000, 'past 30 s alone, it did not float up');
     await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
     await expect((f) => f.in === null, 3000, 'two fingers did not go out');
+    // the hearts: 30 minutes run ahead (__basin.beats). Neighbours must fall into step and slip out of it, and every heart must keep beating at about its own pace
+    const hs = await js(`(() => { const g = __basin.hearts.grid, n0 = g.hearts.map((h) => h.nb), s = __basin.beats(1800), nb = g.hearts.map((h, i) => h.nb - n0[i]);
+      return { lo:Math.min(...s), hi:Math.max(...s), least:Math.min(...nb), most:Math.max(...nb), alive:__basin.thirst.beating }; })()`);
+    console.log('hearts  ', JSON.stringify(hs));
+    need(hs.alive === 48 && hs.least > 1200, `a heart stopped or stalled in 30 minutes: ${hs.alive} of 48 beating, the slowest ${hs.least} beats`);
+    need(hs.lo < 0.3, `the hearts never fall out of step: the share of neighbours in step stays at ${hs.lo} or more (0.2 is chance)`);
+    need(hs.hi > 0.55, `the hearts never fall into step: the share of neighbours in step never passes ${hs.hi}`);
   } else {                                                         // one basin: a hand in the water, then the rim tells its time
     await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
     for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
@@ -112,6 +120,6 @@ try {
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
   const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; hearts in and out of step; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
 } finally { ws.close(); }
 process.exit(fails.length ? 1 : 0);

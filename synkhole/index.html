@@ -1026,10 +1026,10 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
     const pi = h.nb % 32, pn = Math.floor(h.nb/32);
     h.ba = (0.3 + 0.7*kss(0, 8, pi)*(1 - 0.8*kss(22, 32, pi)))*(pn % 4 === 3 ? 0.35 : 0.75 + 0.35*kh(pn + 0.17))*(0.85 + 0.3*h.lx)*(pi % 8 === 0 ? 1.25 : 1)*(1 + 0.4*kq.tq)*kLawBa(h);
     const oa = 6.28318*kh(h.nb*0.37 + 0.1 + h.seed), or = 0.022*Math.sqrt(kh(h.nb*0.71 + 0.3 + h.seed)), ox = or*Math.cos(oa), oy = or*Math.sin(oa);
-    rip.push([simTime, dub ? h.ba : 0.8*h.ba, x0 + ox, y0 + oy]);
-    if (dub && !h.ect) rip.push([simTime + h.dub*h.bl, 0.45*h.ba, x0 + ox*0.8, y0 + oy*0.8]);
-    h.orb.unshift([h.lx, simTime]); h.orb.length = Math.min(h.orb.length, 16);
-    if (h.wv) { h.wv.unshift([simTime, 0.45 + 0.55*Math.min(1.3, h.ba), h.ect ? -1 : 2*h.dub*h.bl]); h.wv.length = Math.min(h.wv.length, 4); } }   // the beat as the wall draws it: a weak beat still shows; a stranger has no second sound
+    if (!h.wv) { rip.push([simTime, dub ? h.ba : 0.8*h.ba, x0 + ox, y0 + oy]);   // a heart on the wall keeps its beats in h.wv alone: no ripple rings, no orbit, are drawn there
+      if (dub && !h.ect) rip.push([simTime + h.dub*h.bl, 0.45*h.ba, x0 + ox*0.8, y0 + oy*0.8]);
+      h.orb.unshift([h.lx, simTime]); h.orb.length = Math.min(h.orb.length, 16); }
+    if (h.wv) { h.wv.unshift([simTime, (0.3 + 0.7*kss(0.2, 0.95, h.lx))*(0.55 + 0.45*Math.min(1.2, h.ba)), h.ect ? -1 : 2*h.dub*h.bl]); h.wv.length = Math.min(h.wv.length, 4); } }   // the beat as the wall draws it: its crest as high as the beat's value on the map, so a steady heart sends every crest one height, a doubling heart two by turns, chaos no two alike; quieter in a quiet phrase; a stranger has no second sound
   if (!h.dubDone && h.bt >= h.dub*h.bl) { h.steps++; h.stepAt = simTime; h.dubDone = true; }
   while (rip.length && (simTime - rip[0][0] > RLIFE || rip.length > NR)) rip.shift();
   h.ph = 6.28318*h.bt/h.bl; h.pulse = kheartJ(h.bt/h.bl, h.dub);
@@ -1040,6 +1040,8 @@ function hBeat(h, dt, rip, x0, y0, dub){              // one heart that is not t
 // along the short side each beats a hair faster than the one before (6% end to end), so a line of identical rhythms drifts out of step, as in phase music. Every copy's r also wanders a hair on its own,
 // so the copies at an edge of order flicker across it. Every neighbour is almost the same, never quite. No words on the page, not even under a pointer (Kat 2026-11-21: "show dont tell. no hover to reveal paramaters"): the about page names the axes
 const GRID_N = 48, GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0];
+const GRID_MARGIN = 0.3;                              // how far a copy reaches past its cell, as a share of the cell's smaller half: there its dots and its neighbour's interleave. Wider, and each copy is cropped more
+const GRID_EPS = 0.5;                                 // the most a neighbour's beat can pull a heart's next beat nearer (times f squared, f how far through its own beat it is)
 const gridR = (f) => { const x = f*(GRID_RS.length - 1), i = Math.min(GRID_RS.length - 2, Math.floor(x)); return GRID_RS[i] + (GRID_RS[i + 1] - GRID_RS[i])*(x - i); };
 const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618, { wv:[], bt:1.1*kh(i + 0.6), lx:0.2 + 0.6*kh(i*1.31 + 0.2) })),   /* every heart starts at its own place in its beat */ z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, slow:0, fall:null, fallHold:false, climbHold:false, home:null, P:null, Z:1, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading, slow: floating up; zc: the pull's stretch, eased; climb: the pull as the hand has it; drag: where it began; depth: falls through this drain; idle: seconds alone; fall: {s, v, x, y}; home: sel's own tile; P: the wall's period on screen; Z: its scale */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
 // ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
@@ -1105,7 +1107,7 @@ function gridThirst(){                                // today's land decides wh
 }
 function gridLayout(){                                // as many columns as make each basin largest, packed tight; then the camera, in or out of one of them
   const w = view.w, h = view.h; let g = null;
-  for (const c of [1, 2, 3, 4, 6, 8, 12, 16, 24, 48]) { const r = GRID_N/c, cw = w/c, ch = h/r, m = GRID_M*Math.min(cw, ch)/2, S = Math.max((cw/2 + m)/(BX - 0.045), (ch/2 + m)/(BY - 0.045)); if (!g || S < g.S) g = { c, r, cw, ch, S, m }; }
+  for (const c of [1, 2, 3, 4, 6, 8, 12, 16, 24, 48]) { const r = GRID_N/c, cw = w/c, ch = h/r, m = GRID_MARGIN*Math.min(cw, ch)/2, S = Math.max((cw/2 + m)/(BX - 0.045), (ch/2 + m)/(BY - 0.045)); if (!g || S < g.S) g = { c, r, cw, ch, S, m }; }
   // no borders: each copy covers its cell and m beyond it on every side, where its dots and its neighbour's interleave (gridDraw, uCW). The columns that crop the basin least win
   if (g.c !== grid.cr) gridAssign(g.c, g.r);
   g.full = 1.02*Math.max(w/(2*BX), h/(2*BY));         // inside, a copy fills the screen
@@ -1289,7 +1291,7 @@ function gridTick(dt){                                // the camera's state, onc
 // the hearts feel each other (Kat 2026-11-22: "every individual hole is like a different heartbeat, and like sometimes they're in sync and sometimes it's out of tune, like Edge of Chaos"):
 // a beat pulls each of its four neighbours' next beat nearer, more the later that neighbour is in its own beat (pulse-coupled oscillators, after Peskin, Mirollo and Strogatz, as ?r=sync).
 // How strongly is a slow weather over the wall (eps): where it is high a patch of hearts falls into step, where it ebbs they slip apart, each back to its own r and pace. Never on a timer
-const GRID_M = 0.3, GRID_EPS = 0.5, NB4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const NB4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 function gridHearts(dt){
   const p = dayP(), c = grid.cr, rows = c ? GRID_N/c : 0;
   grid.hearts.forEach((h, i) => { const x = c ? i % c : 0, y = c ? Math.floor(i/c) : 0;
@@ -1306,7 +1308,7 @@ function gridSync(){                                  // how many neighbours are
 }
 function rTick(dt){ if (grid) { if (THIRST && grid.cr && Math.floor(dayT()) !== grid.dn) gridThirst();
   gridTick(dt);
-  if (NAV) navTick(dt); gridHearts(dt); } if (sync) syncTick(dt); }   // a copy drinks on its beat   // a grid copy's r wanders a hair round its place
+  if (NAV) navTick(dt); gridHearts(dt); } if (sync) syncTick(dt); }
 function kLate(now){                                  // 6: the water feels the hand where it was up to a second ago
   kq.late.push({ at:now + 1000*K, u:hand.u, v:hand.v, vx:hand.vx, vy:hand.vy, g:grip, d:hand.down, sx:stir.x, sy:stir.y, svx:stir.vx, svy:stir.vy });
   kq.ls.vx = kq.ls.vy = 0;
@@ -1375,6 +1377,7 @@ const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.rando
 const POP = 2.8;                                      // a gooey pop: two breaths to melt back (Kat 2026-11-22, on the wall: "they appear and pop ... a little bit fast and sudden ... more slow and smooth"; it was 1.6 s after 2026-11-20's "too slow and awkward")
 let bubNb = -1;                                       // ?k: the last heartbeat the bubbles answered
 const bubNow = () => K > 0 ? kq.bub : performance.now()/1000;   // ?k: the bubbles keep the water's clock, so they can run backwards
+const bubLife = (R) => 4 + 34*R + 3*Math.random();   // a small one lives 4 to 7 s, the biggest 7 to 10
 function popBub(b, t){ if (b.pop) return; b.pop = t;
   const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
   stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.03*b.x/dl + 0.012*(Math.random() - 0.5); stir.vy += 0.03*b.y/dl + 0.012*(Math.random() - 0.5); }
@@ -1388,13 +1391,13 @@ function blow(){
   if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a bigger one; often a glob of two or three
     const R = 0.010 + 0.072*Math.pow(Math.random(), 2.4), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
     const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
-    const life = 4 + 34*R + 3*Math.random(), n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;   // a small one lives about 3 s, the biggest about 9
+    const life = bubLife(R), n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;
     bubs.push(mk(x, y, R, t, life));
     for (let k = 0; k < n && bubs.length < NB; k++) { const r2 = R*(0.3 + 0.5*Math.random()), a2 = Math.random()*6.283;
       bubs.push(mk(x + Math.cos(a2)*(R + r2)*0.8, y + Math.sin(a2)*(R + r2)*0.8, r2, t + 0.3 + 0.9*Math.random(), life*(0.5 + 0.5*Math.random()))); }
     nextBub = t + 0.7 + 1.6*Math.random(); }
   if (dt < 0 && BUBBLES && t < kq.unpop && bubs.length < NB && water > 0.5) {   // ?k, backwards: a bubble un-pops. Goo gathers into a skin, the dome shrinks and sinks
-    const R = 0.012 + 0.06*Math.pow(Math.random(), 2), life = 2.5 + 30*R + 3*Math.random();
+    const R = 0.012 + 0.06*Math.pow(Math.random(), 2), life = bubLife(R);
     bubs.push(Object.assign(mk((Math.random()*2-1)*(BX-R)*0.8, (Math.random()*2-1)*(BY-R)*0.8, R, t - POP - life*(0.6 + 0.35*Math.random()), life), { pop:t - POP + 0.02 }));
     kq.unpop = t - 0.6 - 1.2*Math.random(); }
   if (dt >= 0) kq.unpop = t;
