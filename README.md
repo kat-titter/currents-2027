@@ -1,3 +1,4 @@
+<!-- built by src/deploy.py from src/README.md: edit that file, not this one -->
 # currents-2027
 
 Kat Titterton's work for CURRENTS 2027, Santa Fe.
@@ -24,9 +25,7 @@ The piece is also an experiment: how much of a work of art can AI make, and how 
 
 The [about page](https://kat-titter.github.io/currents-2027/synkhole/about.html) marks each step of the making as AI, AI-assisted or not AI.
 
-## Sources the about page cites
-
-Indra's net, as drawn in Mumford, Series and Wright's *Indra's Pearls*; Warhol's *Marilyn Diptych* (1962); Li et al. on AI's water use, [arXiv:2304.03271](https://arxiv.org/abs/2304.03271); Ho, Jain and Abbeel's diffusion models, [arXiv:2006.11239](https://arxiv.org/abs/2006.11239); Steve Reich's 1967 note on *Piano Phase*; Siddhartha Mukherjee's *The Song of the Cell*; Scholkmann, Zohdi and Wolf on heartbeats per breath, doi:10.33549/physiolres.934232.
+The sources, from Indra's net to Warhol's Marilyn Diptych and the numbers on AI's water, are cited on the [about page](https://kat-titter.github.io/currents-2027/synkhole/about.html).
 
 ## The repository
 
