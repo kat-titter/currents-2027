@@ -43,6 +43,10 @@ try {
   need(s.about && s.about.startsWith('about.html') && !s.about.endsWith('none'), 'no about link');
   need(/^\[s\[i\/y\]n\[k\]\[w\]hole/.test(s.title), `title is "${s.title}"`);
   if (/spring=nofeed/.test(url)) need(s.res && s.res.on && s.res.runs > 0, 'no spring, and the reservoir is not pouring');
+  const handIn = (held) => { console.log('hand in ', JSON.stringify(held)); need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`); };
+  const handOut = (out) => { console.log('hand out', JSON.stringify(out));   // both modes: the hand's time told on the rim, in a clear breath
+    need(/^lost = \d\d:\d\d$/.test(out.lost) && out.rim === out.lost, `the rim does not tell the hand's time ("${out.rim}")`); need(out.clear > 0.5, `no clear breath (${out.clear})`);
+    need(out.rimOpacity > 0.4, `the rim's line is not showing in the clear breath (${out.rimOpacity})`); };
   const isGrid = await js('!!(window.__basin.hearts && window.__basin.hearts.grid)');
   if (isGrid) {   // ?r=grid, the default: the fall's flows, by real pointer events on the canvas
     const P = (t, x, y, id) => js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${x}, clientY:${y}, pointerId:${id || 1}, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
@@ -57,20 +61,17 @@ try {
     await drag(cx, cy, cx, cy + 0.2*H); f = await until((f) => f.climb > 0.1, 3000); need(f.climb > 0.1, `a pull from the drain did not grip (${JSON.stringify(f)})`);
     await P('pointerup', cx, cy + 0.2*H); f = await until((f) => f.climb === 0, 5000); need(f.in !== null && f.climb === 0, `a short pull did not slide back in (${JSON.stringify(f)})`);
     await drag(cx, cy, cx, H - 2); f = await until((f) => f.in === null, 3000); await P('pointerup', cx, H - 2); need(f.in === null, `a pull to the rim did not climb out (${JSON.stringify(f)})`);
-    await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(600); const held = await js(STATE); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
-    need(held.grip > 0.3 && f.in !== null, `a hold away from the drain did not grip the water and stay in (grip ${held.grip}, ${JSON.stringify(f)})`);
+    await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(1200); handIn(await js(STATE)); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
+    need(f.in !== null, `a hold away from the drain did not stay in (${JSON.stringify(f)})`); await nap(1500); handOut(await js(STATE));
     await js('window.__basin.idle(1e3), 1'); f = await until((f) => f.in === null, 3000); need(f.in === null, `left alone, it did not float up (${JSON.stringify(f)})`);
     await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
     f = await until((f) => f.in === null, 3000); need(f.in === null, `two fingers did not go out (${JSON.stringify(f)})`);
   } else {                                                         // one basin: a hand in the water, then the rim tells its time
     await js(HAND('pointermove', 0.62, 0.60)); await js(HAND('pointerdown', 0.62, 0.60));
     for (let i = 1; i <= 30; i++) { await js(HAND('pointermove', 0.62 - 0.004*i, 0.60 - 0.002*i)); await nap(33); }
-    const held = await js(STATE); console.log('hand in ', JSON.stringify(held));
-    need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`);
+    handIn(await js(STATE));
     await nap(1200); await js(HAND('pointerup', 0.50, 0.54)); await nap(1500);
-    const out = await js(STATE); console.log('hand out', JSON.stringify(out));
-    need(/^lost = \d\d:\d\d$/.test(out.lost) && out.rim === out.lost, `the rim does not tell the hand's time ("${out.rim}")`); need(out.clear > 0.5, `no clear breath (${out.clear})`);
-    need(out.rimOpacity > 0.4, `the rim's line is not showing in the clear breath (${out.rimOpacity})`);
+    handOut(await js(STATE));
   }
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
   const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
