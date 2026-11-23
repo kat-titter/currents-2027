@@ -83,7 +83,8 @@
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
   .hero .sub { margin:calc(clamp(42px, 10.4vw, 190px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
   .hero .lede { margin:calc(clamp(42px, 10.4vw, 190px)*.3) 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
-  .hero .sync { margin:1.4em 0 0 .15em; }
+  /* the first screen: the title, one sentence, one line that says what you found, the eye and its heartbeat. The page's furniture (who and where, the counter, the clock, the trace's label) waits until you scroll */
+  @media screen { .bar, #lost, #ekgl { transition:opacity 1.4s ease; } .at-top .bar, .at-top #lost, .at-top #ekgl { opacity:0; } .at-top .bar a, .at-top .bar span { pointer-events:none; } .at-top .bar a:focus-visible { opacity:1; } }
   .hero .cue { position:absolute; left:50%; bottom:calc(var(--hb) - 44px); transform:translateX(-50%); margin:0; }
   .hero .cue::after { content:""; display:block; width:1px; height:34px; margin:10px auto 0; background:linear-gradient(var(--dim), transparent); animation:fall 2.6s ease-in-out infinite; }
   @keyframes fall { 0% { transform:scaleY(0); transform-origin:top; } 50% { transform:scaleY(1); transform-origin:top; } 51% { transform-origin:bottom; } 100% { transform:scaleY(0); transform-origin:bottom; } }
@@ -335,7 +336,7 @@
 <body>
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<nav class="bar mono"><span>made for <a href="https://currentsnewmedia.org/">currents 2027</a><span class="far">, el museo cultural de santa fe, june 2027</span></span><span id="count" aria-hidden="true">00 / 10</span></nav>
+<nav class="bar mono"><span>katherine titterton, for <a href="https://currentsnewmedia.org/">currents 2027</a><span class="far">, el museo cultural de santa fe, june 2027</span></span><span id="count" aria-hidden="true">00 / 10</span></nav>
 <p id="lost" class="mono" aria-hidden="true">lost = <b>00:00</b></p>
 <div class="monitor" aria-hidden="true"></div>
 <p id="ekgl" class="mono" aria-hidden="true">rest</p>
@@ -345,8 +346,7 @@
 <section class="hero" id="top">
   <h1>[s[i/y]n[<span class="k">k</span>][w]hole</h1>
   <p class="lede">inside this basin, the water is a machine's dream.<br>every day, each copy runs dry.</p>
-  <p class="mono sync">sync == sink</p>
-  <p class="cue mono">katherine titterton</p>
+  <p class="cue mono">you found the back of the water. this is how it was made.</p>
 </section>
 
 <section class="thesis">
@@ -665,6 +665,7 @@ const tunedR = () => performance.now() < RT.until ? RT.r : 3.71;
 const countEl = document.getElementById('count'), secs = [...document.querySelectorAll('section[data-n]')];
 function where(){ const mid = innerHeight*0.5; let n = '00'; for (const s of secs) if (s.getBoundingClientRect().top < mid) n = s.dataset.n; countEl.textContent = `${n} / 10`; }
 addEventListener('scroll', where, { passive:true }); where();
+const atTop = () => document.body.classList.toggle('at-top', scrollY < 0.3*innerHeight); addEventListener('scroll', atTop, { passive:true }); atTop();   // the first screen stays bare: see .at-top
 
 // reveals
 if (!STILL && 'IntersectionObserver' in window) {
