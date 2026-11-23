@@ -60,7 +60,7 @@ if (ABOUT) {                                                        // node src/
   console.log('about   ', JSON.stringify({ top, down }));
   need(top.bare && top.bar === 0 && top.clock === 0, `the first screen is not bare: bar ${top.bar}, clock ${top.clock}`);
   need(!down.bare && down.bar === 1 && down.clock === 1, `a screen down, the bar or the clock has not come back: bar ${down.bar}, clock ${down.clock}`);
-  need(top.cue > 0 && top.wide <= 0, `the first screen has no found-it line, or the page is ${top.wide} px wider than the window`);
+  need(top.cue === 0 && top.wide <= 0, `the first screen carries a line of text under the title (${top.cue} characters; it shows, it does not tell), or the page is ${top.wide} px wider than the window`);
   console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: the about page opens bare and furnishes itself on scroll'); ws.close(); process.exit(fails.length ? 1 : 0);
 }
 const STATE = `(() => { const b = window.__basin, q = b.kq, code = document.getElementById('code'), rim = document.querySelector('svg text'), about = document.getElementById('about');
