@@ -17,7 +17,7 @@
 //      sit by its anchor words there), and the wet share, which must stay at 3/4 or more all day. With an address and the Chrome it also loads days 0.1, 0.3, 0.5,
 //      0.7 and 0.9 and needs the live page to agree (__basin.thirst.wet at 3/4 or more, GL error 0, nothing logged).
 import fs from 'node:fs';
-const ARGS = process.argv.slice(2), THIRST = ARGS.includes('--thirst'), [url, png] = ARGS.filter((a) => a !== '--thirst');
+const ARGS = process.argv.slice(2), THIRST = ARGS.includes('--thirst'), ABOUT = ARGS.includes('--about'), [url, png] = ARGS.filter((a) => a !== '--thirst' && a !== '--about');
 const PORT = +process.env.CHECK_PORT || 9396, nap = (ms) => new Promise((r) => setTimeout(r, ms));
 if (!url && !THIRST) { console.log('usage: node src/check.mjs <address> [out.png]   or   node src/check.mjs --thirst [address]'); process.exit(2); }
 const fails = [], need = (ok, what) => { if (!ok) fails.push(what); };
@@ -53,6 +53,16 @@ ws.onmessage = (m) => { const d = JSON.parse(m.data), p = wait.get(d.id);
 const send = (method, params = {}) => new Promise((r, j) => { wait.set(++id, { r, j }); ws.send(JSON.stringify({ id, method, params })); });
 const js = async (expression) => { const r = await send('Runtime.evaluate', { expression, awaitPromise:true, returnByValue:true });
   if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text); return r.result.value; };
+if (ABOUT) {                                                        // node src/check.mjs --about <address of about.html>: the first screen is bare, and the bar comes back once you scroll
+  await send('Page.enable'); await send('Runtime.enable'); await send('Page.navigate', { url }); await nap(4000);
+  const look = () => js(`JSON.stringify({ bare:document.body.classList.contains('at-top'), bar:+getComputedStyle(document.querySelector('.bar')).opacity, clock:+getComputedStyle(document.getElementById('lost')).opacity, cue:document.querySelector('.hero .cue').textContent.length, wide:document.documentElement.scrollWidth - innerWidth })`).then(JSON.parse);
+  const top = await look(); await js('scrollTo(0, innerHeight), 1'); await nap(2500); const down = await look();
+  console.log('about   ', JSON.stringify({ top, down }));
+  need(top.bare && top.bar === 0 && top.clock === 0, `the first screen is not bare: bar ${top.bar}, clock ${top.clock}`);
+  need(!down.bare && down.bar === 1 && down.clock === 1, `a screen down, the bar or the clock has not come back: bar ${down.bar}, clock ${down.clock}`);
+  need(top.cue > 0 && top.wide <= 0, `the first screen has no found-it line, or the page is ${top.wide} px wider than the window`);
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : 'PASS: the about page opens bare and furnishes itself on scroll'); ws.close(); process.exit(fails.length ? 1 : 0);
+}
 const STATE = `(() => { const b = window.__basin, q = b.kq, code = document.getElementById('code'), rim = document.querySelector('svg text'), about = document.getElementById('about');
   return { water:+b.water.toFixed(3), k:b.k, grip:+b.grip.toFixed(3), soft:+q.soft.toFixed(2), clear:+q.clear.toFixed(2), lost:q.lost, clock:+q.w.toFixed(2), seq:b.seq, prompt:b.prompt.slice(0, 40),
     res:b.res, line:getComputedStyle(code).display, rim:rim ? rim.textContent : null, rimOpacity:rim ? +rim.ownerSVGElement.style.opacity : null,
