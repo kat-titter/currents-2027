@@ -82,12 +82,13 @@
   .hero { --hb:13vh; min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px var(--hb); }
   .hero h1 { margin:0; font:300 clamp(42px, 10.4vw, 190px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
   /* the title reads many ways, and shows it: its brackets sit back and breathe on the page's heart; the letters they hide wear the pearl; and now and then the title closes round one of its words
-     (sink, synk, sinkhole, whole, hole) lights while the rest dims, a glimmer passing over it. No letter moves or changes size, so every moment of it holds as a still: the page prints to a PDF
+     (sin, sink, synk, who, whole, hole, sinkhole) lights while the rest dims: a dance of meanings (Kat 2026-11-23: "sin ... should pop out at some point ... whole, H-O-L-E ... this kind of like dance of meaning"). No letter moves or changes size, so every moment of it holds as a still: the page prints to a PDF
      (Kat 2026-11-23: letters closing up was "moving a bit too much ... the live to static PDF should be possible ... change the alpha on some brackets and make certain elements pop out") */
-  .hero h1 .ch { transition:opacity 2.6s ease; }
+  .hero h1 .ch { transition:opacity 1.8s ease, text-shadow 1.8s ease; }
   .hero h1 .br { opacity:calc(.24 + .22*var(--fl, 0)); }
   .hero h1 .hid { -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero h1 .out { opacity:.3; } .hero h1 .br.out { opacity:.1; }
+  .hero h1 .out { opacity:.2; } .hero h1 .br.out { opacity:.08; } .hero h1 .br.take { opacity:.85; }   /* the word's letters stay full; brackets that take a letter out of it light; the rest steps back */
+  .hero h1 .on { text-shadow:0 0 .3em rgba(207,196,251,.28); }
   @media print { .hero h1 .ch { opacity:1 !important; } .hero h1 .br { opacity:.4 !important; } }
   @media (prefers-reduced-motion:reduce) { .hero h1 .ch { transition:none; } }
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
@@ -678,13 +679,19 @@ const countEl = document.getElementById('count'), secs = [...document.querySelec
 function where(){ const mid = innerHeight*0.5; let n = '00'; for (const s of secs) if (s.getBoundingClientRect().top < mid) n = s.dataset.n; countEl.textContent = `${n} / 10`; }
 addEventListener('scroll', where, { passive:true }); where();
 // the title's readings: it rests whole, one word lights, it rests, the next lights (see .hero h1 .ch)
-(() => { const TITLE = document.querySelector('.hero h1'), txt = '[s[i/y]n[k][w]hole', words = { sink:[1, 3, 7, 9], synk:[1, 5, 7, 9], sinkhole:[1, 3, 7, 9, 14, 15, 16, 17], whole:[12, 14, 15, 16, 17], hole:[14, 15, 16, 17] }, order = ['sink', 'synk', 'sinkhole', 'whole', 'hole'];
+(() => { const TITLE = document.querySelector('.hero h1'), txt = '[s[i/y]n[k][w]hole';
+  // each word the title holds, by the places of its letters: [ s [ i / y ] n [ k ] [ w ] h o l e  =  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
+  const words = { sin:[1, 3, 7], sink:[1, 3, 7, 9], synk:[1, 5, 7, 9], who:[12, 14, 15], whole:[12, 14, 15, 16, 17], hole:[14, 15, 16, 17], sinkhole:[1, 3, 7, 9, 14, 15, 16, 17] };
+  const order = ['sin', 'sink', 'synk', 'who', 'whole', 'hole', 'sinkhole'], pairs = [[2, 6, [3, 5]], [8, 10, [9]], [11, 13, [12]]];   // each pair of brackets and the letters it holds
   TITLE.setAttribute('aria-label', txt); TITLE.textContent = '';
   const ch = [...txt].map((c, i) => { const el = document.createElement('span'); el.textContent = c; el.setAttribute('aria-hidden', 'true');
     el.className = 'ch' + ('[]/'.includes(c) ? ' br' : '') + ([3, 5, 12].includes(i) ? ' hid' : '') + (c === 'k' ? ' k' : ''); TITLE.append(el); return el; });
   if (new URLSearchParams(location.search).has('still') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // still: the title rests whole
-  let n = 0; const REST = 6800, HOLD = 5200;   // ms: whole between words, and with one word lit
-  const step = () => { const w = n % 2 ? order[(n >> 1) % order.length] : null; n++; ch.forEach((el, i) => el.classList.toggle('out', !!w && !words[w].includes(i))); setTimeout(step, w ? HOLD : REST); };
+  let n = 0; const REST = 3200, HOLD = 3800;   // ms: whole between words, and with one word lit
+  const step = () => { const w = n % 2 ? words[order[(n >> 1) % order.length]] : null; n++;
+    const takes = new Set(); if (w) for (const [a, b, inside] of pairs) if (inside.some((i) => !w.includes(i))) { takes.add(a); takes.add(b); }   // a pair of brackets lights when it takes a letter out of the word: [w]hole is hole
+    ch.forEach((el, i) => { const lit = !!w && w.includes(i); el.classList.toggle('on', lit); el.classList.toggle('take', takes.has(i)); el.classList.toggle('out', !!w && !lit && !takes.has(i)); });
+    setTimeout(step, w ? HOLD : REST); };
   setTimeout(step, REST);
 })();
 const BARE = 0.3;   // the first screen stays bare until this share of a screen has scrolled by: far enough that a nudge does not flash the bar, well before the first section's text
