@@ -49,6 +49,16 @@
     --film:conic-gradient(from 210deg, var(--cy), var(--vi), var(--ro), var(--cy)); }
   * { box-sizing:border-box; }
   html { background:var(--ink); scroll-behavior:smooth; }
+  /* the far side (index.html cornerLens): the piece goes dark round its bottom right corner and this page opens behind it, so its first frame is dark and the dark draws back into the corner
+     you came through, seen from behind: the bottom left. The way back closes the same dark over the page before it leaves. Light alone moves; nothing is scaled. */
+  @property --far { syntax:'<percentage>'; inherits:false; initial-value:-70%; }
+  html::before { content:''; position:fixed; inset:0; z-index:99; pointer-events:none; background:radial-gradient(circle at 0% 100%, #000 var(--far), transparent calc(var(--far) + 60%)); animation:farside 2.8s cubic-bezier(.5,0,.25,1) both; }
+  html.leaving::before { animation:nearside 2s cubic-bezier(.5,0,.25,1) both; }
+  @keyframes farside { from { --far:170%; } to { --far:-70%; } }
+  @keyframes nearside { from { --far:-70%; } to { --far:170%; } }
+  html.still::before { display:none; }
+  @media (prefers-reduced-motion:reduce) { html::before { display:none; } }
+  @media print { html::before { display:none; } }
   body { margin:0; background:var(--ink); color:var(--text); font:400 20px/1.62 var(--serif); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
   main p, main li, main h2, main dt, main dd, main .note, .bar, #lost { text-shadow:0 0 1px var(--ink), 0 0 3px var(--ink), 0 0 6px var(--ink), 0 0 12px var(--ink), 0 0 22px rgba(3,3,4,.9); }   /* a black glow: the dots stay behind the words */
   a { color:var(--bone); text-decoration:underline; text-decoration-color:rgba(158,122,255,.75); text-decoration-thickness:1px; text-underline-offset:4px; }
@@ -605,6 +615,12 @@
 'use strict';
 const PIECE = { frame:'index.html', home:'https://kat-titter.github.io/currents-2027/synkhole/', code:'https://github.com/kat-titter/currents-2027' };
 document.querySelectorAll('[data-piece]').forEach((el) => { el[el.tagName === 'IFRAME' ? 'src' : 'href'] = PIECE[el.getAttribute('data-piece')]; });
+// the way back falls the other way: the dark closes over this page from the corner, and the piece opens out of its own (index.html, pageshow)
+document.querySelectorAll('a[data-piece="home"]').forEach((a) => a.addEventListener('click', (e) => { const root = document.documentElement;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || root.classList.contains('still') || !window.CSS || !CSS.registerProperty) return;
+  e.preventDefault(); if (root.classList.contains('leaving')) return; try { sessionStorage.setItem('synkhole.back', '1'); } catch (err) {}
+  root.classList.add('leaving'); setTimeout(() => { location.href = a.href; }, 2050); }));
+addEventListener('pageshow', (e) => { if (e.persisted) document.documentElement.classList.remove('leaving'); });   // back here by the browser's own button: the dark draws off again
 
 const STILL = new URLSearchParams(location.search).has('still') || matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (STILL) document.documentElement.classList.add('still');

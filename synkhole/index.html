@@ -40,6 +40,8 @@
   body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
   #about { position:fixed; right:28px; bottom:22px; font-size:11.5px; color:rgba(138,141,147,.2); text-decoration:none; padding:8px 0 8px 13px; text-shadow:0 0 6px var(--ink), 0 0 2px var(--ink); transition:color .5s; }   /* the one way out of the water, barely there: the page about the piece */
   #about:hover, #about:focus-visible { color:var(--bone); transition-duration:.2s; }   /* found by a hand or a key, it reads; a tap goes straight through */
+  body.wall #about { opacity:0; pointer-events:none; }   /* on the wall the way to the about page is the heavy corner itself (cornerLens); the link stays for a key or a screen reader, unseen until it has focus */
+  body.wall #about:focus-visible { opacity:1; }
   body.sink #about, body.doc #about, body.framed #about { display:none; }   /* in the stone, in a document, or framed by another page: only the water */
   @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } #about { right:16px; bottom:13px; } }
 </style>
@@ -306,7 +308,7 @@ display: `
 uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
 uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass;
-uniform vec4 uLens, uWrap, uPt;    // the fall into a hole: the lens (its centre in pixels, its strength Re^2 in pixels^2, minus for the white hole, 1 when on); the wall's period in pixels and this copy's cell, half size in basin units, where it is cut; the one point (centre, radius, how bright). All 0: none
+uniform float uOwn; uniform vec4 uLens, uLens2, uWrap, uPt;    // the fall into a hole: the lens (its centre in pixels, its strength Re^2 in pixels^2, minus for the white hole, 1 when on); the wall's period in pixels and this copy's cell, half size in basin units, where it is cut; the one point (centre, radius, how bright). All 0: none
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
 uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
@@ -324,11 +326,15 @@ float caustic(vec2 p, float t){                 // light focused by the moving s
 }
 void main(){
   if (uPt.w > 0.) { float d = length(gl_FragCoord.xy - uPt.xy); if (d > uPt.z + 1.) discard; o = vec4(pearl(0.04*uTime)*uPt.w*smoothstep(uPt.z + 0.5, uPt.z - 0.5, d), 1.); return; }   // the singularity: one point of light
-  vec2 fc = gl_FragCoord.xy; float lpx = 1.;   // lpx: how many of the wall's pixels one pixel on the screen spans, the way space squeezes it most
+  vec2 fc = gl_FragCoord.xy; float lpx = 1., cdim = 1.;   // cdim: how much light the corner's mass lets through here
+  if (uLens2.w > 0.) { vec2 t = fc - uLens2.xy; float m = uLens2.z/max(dot(t, t), 1e-3);   // the mass off the bottom right corner (cornerLens): the same point lens, seen through first; near it the wall is bent toward it and goes dark, softly, to black at its ring
+    cdim = 1. - smoothstep(0.05, 0.9, m); if (cdim <= 0.001 && uOwn <= 0.) discard;
+    lpx = max(1. + m, abs(1. - m)); fc = uLens2.xy + t*(1. - m); }   // lpx: how many of the wall's pixels one pixel on the screen spans, the way space squeezes it most
   if (uLens.w > 0.) { vec2 t = fc - uLens.xy; float m = uLens.z/max(dot(t, t), 1e-3);   // a point lens on the whole wall: what is seen here lies at t(1 - Re^2/t^2) from it
-    lpx = max(1. + m, abs(1. - m));                 // squeezed along the radius by 1 + m, round it by 1 - m (0 on the ring, where the drain is drawn out into a circle)
+    lpx *= max(1. + m, abs(1. - m));                // squeezed along the radius by 1 + m, round it by 1 - m (0 on the ring, where the drain is drawn out into a circle)
+    fc = uLens.xy + t*(1. - m); }
+  if (uLens.w + uLens2.w > 0.) {
     if (uWrap.z*uS < 2.5*lpx) discard;              // a copy here would be a few pixels across, its dots and ring all under a pixel: nothing, never a smear
-    fc = uLens.xy + t*(1. - m);
     vec2 w = fc - uCenter; fc = uCenter + w - uWrap.xy*floor(w/uWrap.xy + 0.5); }   // the wall is a torus: wherever the lens reaches, it finds this copy again, one period on
   vec2 q = (fc-uCenter)/uS, q0 = q;     // basin units, origin at the drain; q0 kept unbent, for where a dot sits in its cell
   if (uWrap.z > 0. && (abs(q.x) > uWrap.z || abs(q.y) > uWrap.w)) discard;   // each copy cut at its own cell's edge, wherever the lens has bent it
@@ -418,7 +424,7 @@ void main(){
   float sheen = 0.35 + 0.65*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
   vec3 steel = vec3(0.10,0.105,0.11)*(0.7 + 0.6*sheen) + BONE*0.10*sheen*smoothstep(0.009, 0.0, abs(sd2 - 0.0012)/0.0012*0.009);
   col = mix(col, steel, lip*0.9);                        // dark brushed steel, catching the light on the upper left
-  o = vec4(max(col,0.),1.);
+  o = vec4(max(col,0.)*cdim,1.);
 }`,
 };
 if (K > 0) {                                           // ?k: the k lines join the shaders here, so with no flag every shader is today's, letter for letter
@@ -599,7 +605,7 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       // one wall, no borders (Kat 2026-11-22: "no black borders, they should all kind of be into each other and almost share dots in the matrix at the edges"; inside a copy "I can actually see the border").
       // The dots sit on one lattice laid on the wall (uGS), and every copy is drawn past its cell's edge. Out there its dots thin out among its neighbour's, which thin out the other way: each dot
       // belongs to exactly one copy (uCW), so nothing is drawn twice, no seam is dark or bright, and no line says where one copy ends. Inside a copy every dot on the screen is its own: no edge at all.
-      put('display', 'uniform vec4 uKH;', `uniform float uOwn; uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
+      put('display', 'uniform vec4 uKH;', `uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
 vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*B.x/uGS.x;   // pw: the rim is about a dot and a half wide, whatever the scale
     // the heartbeat as a speaker gives it (Kat 2026-11-22: "it used to feel more like a speaker with the borders and the ring being emitted"): round each drain a cone, its rim a thin ring of
   for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;   // light (Rs, the surround: a border drawn in light, not in black, so the copies stay one field). On a beat the rim's light swells and a crest leaves the rim; inside the rim nothing moves, and no dot of the rim changes size (Kat 2026-11-22: "this pulsing thing where it feels like you're zooming in and out ... avoid that": a whole disc of dots swelling at once read as a zoom):
@@ -1046,7 +1052,7 @@ const GRID_N = 48, GRID_RS = [2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0];
 const GRID_MARGIN = 0.3;                              // how far a copy reaches past its cell, as a share of the cell's smaller half: there its dots and its neighbour's interleave. Wider, and each copy is cropped more
 const GRID_EPS = 0.5;                                 // the most a neighbour's beat can pull a heart's next beat nearer (times f squared, f how far through its own beat it is)
 const gridR = (f) => { const x = f*(GRID_RS.length - 1), i = Math.min(GRID_RS.length - 2, Math.floor(x)); return GRID_RS[i] + (GRID_RS[i + 1] - GRID_RS[i])*(x - i); };
-const grid = RCON === 'grid' ? { hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618, { wv:[], bt:1.1*kh(i + 0.6), lx:0.2 + 0.6*kh(i*1.31 + 0.2) })),   /* every heart starts at its own place in its beat */ z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, slow:0, fall:null, fallHold:false, climbHold:false, home:null, P:null, Z:1, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading, slow: floating up; zc: the pull's stretch, eased; climb: the pull as the hand has it; drag: where it began; depth: falls through this drain; idle: seconds alone; fall: {s, v, x, y}; home: sel's own tile; P: the wall's period on screen; Z: its scale */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
+const grid = RCON === 'grid' ? { cn:{ a:0, b:0, pa:1, pb:1, fall:null },   /* the heavy corner: the hand's pull and the mass's presence, each eased twice; its fall */ hearts:[...Array(GRID_N)].map((_, i) => hNew(3.71, i*0.618, { wv:[], bt:1.1*kh(i + 0.6), lx:0.2 + 0.6*kh(i*1.31 + 0.2) })),   /* every heart starts at its own place in its beat */ z:0, zt:0, zc:0, climb:null, drag:null, sel:0, depth:0, idle:0, slow:0, fall:null, fallHold:false, climbHold:false, home:null, P:null, Z:1, hover:-1,   /* z: how far into copy sel (0 wall, 1 in), zt: where it is heading, slow: floating up; zc: the pull's stretch, eased; climb: the pull as the hand has it; drag: where it began; depth: falls through this drain; idle: seconds alone; fall: {s, v, x, y}; home: sel's own tile; P: the wall's period on screen; Z: its scale */ tiles:[], cr:0, label:null, ox:0, oy:0, vx:0, vy:0, hx:null, hy:null, gh:0 } : null;
 // ?nav=lost (with the grid; Kat 2026-11-21, "bumpy, hard to navigate multiverse. lost"): the copies sit on a loop that wraps past every edge. The hand's motion pushes the field, friction slows it,
 // and every cell's edge is a small bump it sticks on; a stranger beat of the drain's heart kicks it a cell aside; alone, it drifts. With no words, you cannot tell which universe you are in
 const NAV = !!grid && params.get('nav') === 'lost';
@@ -1147,6 +1153,42 @@ function gridLens(){                                  // the lens this frame, if
   const t = grid.home, h = drainPx(t.S), m = (h*(1.5*Math.sin(Math.PI*kss(0, 1, grid.z)) + 2.6*grid.zc))**2;
   return m > 0.05 ? { x:t.cx, y:t.cy, m, round:Math.min(1, Math.sqrt(m)/(0.4*h)), pt:0 } : null;
 }
+// the heavy corner (Kat 2026-11-22: "at the bottom right corner, imagine like a peeling of the corner of the screen ... like maybe it feels like gravity's a little bit stronger there. It's dark ...
+// and then you could slip down it, and oh, all of a sudden you flip on the backside, and it's documentation"). A second, small mass lies just off the wall's bottom right corner, the same
+// point lens as a drain's: at rest the lattice near the corner is bent toward it and goes dark. A hand near it and it pulls harder. A tap there, or a drag into it, and the mass grows as a
+// drain's does in a fall, the wall bent round the corner until the screen is dark: there the page about the piece opens, the far side. No word and no mark on the wall says so.
+const CORNER_T = 2.8;                                 // seconds, from the tap to the dark
+const ease5 = (x) => { x = Math.max(0, Math.min(1, x)); return x*x*x*(x*(6*x - 15) + 10); };   // slow in, slow out
+const cornerZone = (x, y) => !grid.zt && !grid.fall && Math.hypot(view.w - x, view.h - y) < Math.max(64, 0.13*Math.min(view.w, view.h));   // on the wall: is this in the heavy corner?
+function cornerLens(){                                // the corner's lens this frame, if any: where its mass is (page pixels, off the screen) and its strength Re^2
+  const c = grid.cn, u = Math.min(view.w, view.h), x = view.w + 0.07*u, y = view.h + 0.07*u, far = Math.hypot(x, y);
+  let R = u*(0.095 + 0.07*c.b)*c.pb;                   // at rest its ring lies just off the screen; under a hand it comes a little way on
+  if (c.fall) R = Math.exp(Math.log(Math.max(1, R)) + (Math.log(1.06*far) - Math.log(Math.max(1, R)))*ease5(c.fall.p));   // falling, it grows in equal ratios, to past the far corner
+  return R > 0.5 ? { x, y, m:R*R, gone:R > 1.05*far, busy:!!c.fall || c.pb < 0.999 } : null;
+}
+function cornerFall(){                                // into the corner: the wall bends round it and goes dark, and the about page is the far side
+  const c = grid.cn; if (c.fall || grid.zt || grid.fall) return false;
+  c.fall = { p:0, v:1 }; gridCursor(); setTimeout(cornerThrough, 1000*CORNER_T + 1500); return true;   // the timer: a tab that stops drawing still arrives
+}
+function cornerThrough(){ const f = grid.cn.fall; if (!f || f.v < 0 || f.gone) return; f.gone = true; f.p = 1; try { sessionStorage.setItem('synkhole.fell', '1'); } catch (e) {} location.href = document.getElementById('about').href; }
+function cornerTick(dt){                              // once a frame: the hand's pull eased in and out, the mass there only on the wall, the fall
+  const c = grid.cn, k = 1 - Math.exp(-dt/0.45), on = !grid.zt && !grid.fall ? 1 : 0;
+  const near = hand.on && on ? kss(1, 0, Math.hypot(view.w - hand.x, view.h - hand.y)/(0.34*Math.min(view.w, view.h))) : 0;
+  c.a += (near - c.a)*k; c.b += (c.a - c.b)*k;         // eased twice: no start and no stop to see
+  c.pa += (on - c.pa)*k; c.pb += (c.pa - c.pb)*k; if (on && c.pb > 0.9995) c.pb = 1;
+  const f = c.fall; if (f) { f.p = Math.max(0, Math.min(1, f.p + dt*f.v/CORNER_T)); if (f.p >= 1 && f.v > 0) cornerThrough(); if (f.p <= 0 && f.v < 0) { c.fall = null; gridCursor(); } }
+}
+function cornerBox(l, t){                             // where on the screen the corner's lens shows tile t (outside the ring; inside it is black): its edge, each point pushed straight out from the mass
+  const hw = (t.x1 - t.x0)/2 + t.m, hh = (t.y1 - t.y0)/2 + t.m, cx = t.cx, cy = t.cy;
+  if (cx - hw > l.x || cy - hh > l.y || cx + hw < 0 || cy + hh < 0) return null;   // what is seen at a point lies between it and the mass: nothing past the mass, nothing past the screen's far edges
+  if (l.busy) return [0, 0, view.w, view.h];          // falling, or the mass coming and going: the whole screen
+  const R = Math.sqrt(l.m), b = Math.abs(l.x - cx) < hw && Math.abs(l.y - cy) < hh ? [Math.min(cx - hw, l.x - R), Math.min(cy - hh, l.y - R), Math.max(cx + hw, l.x + R), Math.max(cy + hh, l.y + R)] : [1e9, 1e9, -1e9, -1e9];   // the mass lies in this tile: its picture runs from the ring out
+  for (let k = 0; k < 64; k++) { const e = k >> 4, q = (k & 15)/15*2 - 1, x = cx + (e === 0 ? -hw : e === 1 ? hw : q*hw), y = cy + (e === 2 ? -hh : e === 3 ? hh : q*hh), dx = x - l.x, dy = y - l.y, B = Math.hypot(dx, dy) || 1e-3;
+    const th = (B + Math.sqrt(B*B + 4*l.m))/2;         // a point at B from the mass is seen at th
+    b[0] = Math.min(b[0], l.x + dx/B*th); b[2] = Math.max(b[2], l.x + dx/B*th); b[1] = Math.min(b[1], l.y + dy/B*th); b[3] = Math.max(b[3], l.y + dy/B*th); }
+  b[0] = Math.max(0, b[0] - 3); b[1] = Math.max(0, b[1] - 3); b[2] = Math.min(view.w, b[2] + 3); b[3] = Math.min(view.h, b[3] + 3);
+  return b[2] > b[0] && b[3] > b[1] ? b : null;
+}
 function lensSee(l, x, y){                            // the wall point seen at screen x, y through lens l, wrapped back near the copy you are in; the display shader's pre-map in main() does the same per pixel
   const dx = x - l.x, dy = y - l.y, k = 1 - l.m/Math.max(1e-3, dx*dx + dy*dy), c = grid.home, [PX, PY] = grid.P;
   if (!Number.isFinite(k) || Math.abs(k) > 1e4) return null;
@@ -1165,26 +1207,29 @@ function lensBox(l, t){                              // where on the screen the 
 function gridAt(x, y){ let best = 0, bd = 1e9; grid.tiles.forEach((t, i) => { const d = Math.hypot(Math.max(t.x0 - x, 0, x - t.x1), Math.max(t.y0 - y, 0, y - t.y1)); if (d < bd) { bd = d; best = i; } }); return best; }
 function gridSim(x, y){                               // a hand on the screen reaches into the copy it sees there, through the lens if there is one
   if (!grid.tiles.length) gridLayout(); if (!grid.tiles.length) return [0.5, 0.5];
-  const l = gridLens();
+  const l = gridLens(), cl = cornerLens();
+  if (cl) { const dx = x - cl.x, dy = y - cl.y, k = 1 - cl.m/Math.max(1e-3, dx*dx + dy*dy); x = cl.x + dx*k; y = cl.y + dy*k; }   // through the corner's lens first, as the shader does
   if (l) { const p = lensSee(l, x, y); if (!p) return [0.5, 0.5]; [x, y] = p; }
   const t = grid.tiles[gridAt(x, y)]; grid.hover = t.hi; return [0.5 + (x - t.cx)/t.S, 0.5 + (t.cy - y)/t.S];
 }
 const gridDrain = (x, y) => grid.zt && grid.z > 0.99 && !grid.fall && grid.zc < 0.02 && Math.hypot(x - grid.home.cx, y - grid.home.cy)/grid.home.S < 0.16;   // inside a copy: is this on its drain?
-function gridTap(x, y){                               // on the wall a tap goes into that copy; inside, a tap on the drain falls through it, and back into this basin
-  if (grid.fall) return;
+function gridTap(x, y){                               // on the wall a tap goes into that copy (in the heavy corner, into the corner); inside, a tap on the drain falls through it, and back into this basin
+  if (grid.fall || grid.cn.fall) return;
+  if (cornerZone(x, y)) { cornerFall(); return; }
   grid.idle = 0;
   if (!grid.zt) { const t = grid.tiles[gridAt(x, y)]; grid.sel = t.hi; grid.depth = 0; grid.slow = 0; grid.fall = { x:t.cx, y:t.cy, s:0, v:1, to:1 }; }   // you fall into that copy's drain, there on the wall, and come out inside it (to: where the fall lets you out, 1 in the copy, 0 on the wall)
   else if (gridDrain(x, y)) grid.fall = { x:grid.home.cx, y:grid.home.cy, s:0, v:1 };
   gridCursor(x, y);
 }
 function gridOut(slow){                               // back up to the wall; a fall under way turns round first
+  if (grid.cn.fall) { if (!grid.cn.fall.gone) grid.cn.fall.v = -1.5; return; }   // falling into the corner: back out, unless already through
   if (grid.fall) { if (grid.fall.to === 0) return; grid.fall.v = grid.fall.s < 0.5*FALL ? -3 : 3; grid.fall.out = 1; return; }   // already on the way out; else back up the way it came, or on out, whichever is nearer
   if (!grid.zt) return;
   if (grid.climb == null && grid.zc < 0.05) { grid.fall = { x:grid.home.cx, y:grid.home.cy, s:0, v:slow ? 0.75 : 1, to:0 }; gridCursor(); return; }   // out the way you came in: through the drain, and the far side is the wall. Only a pull to the rim still rises (the hand's own climb)
   grid.climb = null; grid.drag = null;               // a pull under way ends; its stretch eases off by itself as you rise, so the camera and the lens both stay continuous
   grid.zt = 0; grid.depth = 0; grid.slow = slow ? 1 : 0; gridCursor();
 }
-function gridCursor(x, y){ canvas.style.cursor = grid.fall ? 'none' : grid.climb != null ? 'grabbing' : !grid.zt || (x !== undefined && gridDrain(x, y)) ? 'zoom-in' : 'default'; }
+function gridCursor(x, y){ canvas.style.cursor = grid.fall || grid.cn.fall ? 'none' : x !== undefined && cornerZone(x, y) ? 'pointer' : grid.climb != null ? 'grabbing' : !grid.zt || (x !== undefined && gridDrain(x, y)) ? 'zoom-in' : 'default'; }
 if (grid) {                                           // on the wall a tap goes in; inside, a tap on the drain falls through, a pull from the drain to the rim climbs out (Esc or two fingers too); a press held elsewhere reaches into the water every copy shares
   canvas.style.cursor = 'zoom-in'; let dn = null; const downs = new Map();
   canvas.setAttribute('aria-label', 'Forty-eight basins seen from above, one water and one dream, each beating to a heart a step further from order. Tap one to go in. Inside, tap the drain to fall through it: space folds inside out round you, down to one point, and opens again on the same basin. To climb out, pull from the drain to the rim, or press Escape. Press and hold to reach into the water they share.');
@@ -1196,11 +1241,16 @@ if (grid) {                                           // on the wall a tap goes 
     const D = grid.drag; if (D && grid.zt && !grid.fall) { const d = Math.hypot(ev.clientX - view.w/2, ev.clientY - view.h/2), R = rim(ev.clientX, ev.clientY);
       if (grid.climb != null || Math.hypot(ev.clientX - D.x, ev.clientY - D.y) > 10) { grid.climb = Math.max(0, Math.min(1, (d - D.d0)/Math.max(20, R - D.d0)));
         if (grid.climb >= 0.98) { dn = null; gridOut(); } } }   // the rim: out
+    if (dn && Math.hypot(ev.clientX - dn.x, ev.clientY - dn.y) > 24 && Math.hypot(view.w - ev.clientX, view.h - ev.clientY) < 0.6*Math.max(64, 0.13*Math.min(view.w, view.h)) && cornerFall()) dn = null;   // a drag into the heavy corner slips down it
     gridCursor(ev.clientX, ev.clientY); });
   const up = (ev) => { downs.delete(ev.pointerId); const d = dn; dn = null; grid.drag = null; if (grid.climb != null) { grid.climb = null; gridCursor(ev.clientX, ev.clientY); return; }   // let go short: back in
     if (d && performance.now() - d.t < 300 && Math.hypot(ev.clientX - d.x, ev.clientY - d.y) < 10) gridTap(ev.clientX, ev.clientY); };
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', (ev) => { downs.delete(ev.pointerId); dn = null; grid.drag = null; grid.climb = null; });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { grid.idle = 0; gridOut(); } });
+  document.body.classList.add('wall');                // the about link: unseen, for a key or a screen reader; on the wall Enter falls through the corner as a tap does
+  document.getElementById('about').addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || matchMedia('(prefers-reduced-motion: reduce)').matches) return; if (cornerFall() || (grid.cn.fall && !grid.cn.fall.gone)) e.preventDefault(); });
+  addEventListener('pageshow', (e) => { const c = grid.cn; let back = e.persisted; try { if (sessionStorage.getItem('synkhole.back')) { back = true; sessionStorage.removeItem('synkhole.back'); } } catch (err) {}
+    if (back) { c.pa = c.pb = 1; c.fall = { p:1, v:-1 }; } });   // back from the far side (its own way back, or the browser's): out of the corner, the way you went in
 }
 const INKN = new Float32Array(9);
 function inkUp(u, t){                                 // a copy's cell and how dry it and its eight neighbours are (the wall is a torus, so the edge copies' neighbours are on the far side)
@@ -1218,18 +1268,20 @@ function wvUp(u, t){                                  // the last four beats of 
 }
 function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each over its cell and a margin beyond it, with its own heart; in the margin a copy keeps only the dots that are its own, on one lattice of dots about 5.5 screen pixels apart
   const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);
-  const fl = gridLens(), g = grid.g, Z = grid.Z, kin = kss(0.25, 0.85, grid.e)*(grid.fall && fl ? 1 - fl.round : 1);
-  const probe = grid.probe && (grid.probe.mid ? kin > 0.2 && kin < 0.8 : kin === 0 && !fl) ? grid.probe : null;   // src/check.mjs asks: is every dot drawn exactly once? One frame in half grey, the copies added
+  const fl = gridLens(), cl = cornerLens(), bent = fl || cl, g = grid.g, Z = grid.Z, kin = kss(0.25, 0.85, grid.e)*(grid.fall && fl ? 1 - fl.round : 1);
+  const probe = grid.probe && (grid.probe.mid ? kin > 0.2 && kin < 0.8 : kin === 0 && !fl && cl && !cl.busy) ? grid.probe : null;   // on the wall the corner's lens is in the probe frame, at rest   // src/check.mjs asks: is every dot drawn exactly once? One frame in half grey, the copies added
   if (probe) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); } gl.uniform1f(u.uOwn, probe ? 1 : 0);   // kin: how far in you are: 1, the copy you are in is the whole screen; a fall bends the others back into view
-  if (fl) { gl.uniform4f(u.uLens, fl.x*d, (view.h - fl.y)*d, fl.m*d*d, 1); gl.uniform1f(u.uRound, fl.round); }   // bent: each copy drawn once over the whole screen, wherever the lens shows it
-  const tiles = fl ? grid.tiles.filter((t) => t.own) : grid.tiles;
-  if (!fl || (Number.isFinite(fl.m) && !fl.gone)) for (const t of tiles) {   // at the singularity, no copy at all
+  if (fl) { gl.uniform4f(u.uLens, fl.x*d, (view.h - fl.y)*d, fl.m*d*d, 1); gl.uniform1f(u.uRound, fl.round); }
+  if (cl) gl.uniform4f(u.uLens2, cl.x*d, (view.h - cl.y)*d, cl.m*d*d, 1);   // the corner's mass: seen through first   // bent: each copy drawn once over the whole screen, wherever the lens shows it
+  const tiles = fl ? grid.tiles.filter((t) => t.own) : grid.tiles;   // the fall's lens finds a copy's torus repeats itself (uWrap); the corner's alone leaves them as tiles of their own, so a dot at the wall's outer edge keeps the owner it has unbent
+  if (!(cl && cl.gone) && (!fl || (Number.isFinite(fl.m) && !fl.gone))) for (const t of tiles) {   // at the singularity, no copy at all
     const sel = t.own && t.hi === grid.sel, whole = sel && kin > 0, M = t.m;
     if (!sel && kin >= 1) continue;
-    if (!fl && !whole && (t.x1 + M < 0 || t.x0 - M > view.w || t.y1 + M < 0 || t.y0 - M > view.h)) continue;
-    const box = fl ? lensBox(fl, t) : null; if (fl && !box) continue;
+    if (!bent && !whole && (t.x1 + M < 0 || t.x0 - M > view.w || t.y1 + M < 0 || t.y0 - M > view.h)) continue;
+    const box = !bent ? null : !fl ? cornerBox(cl, t) : cl ? [0, 0, view.w, view.h] : lensBox(fl, t); if (bent && !box) continue;
     const h = grid.hearts[t.hi], pit = Math.max(5.5, 2*BX*t.S*d/QN), Nx = Math.max(2, Math.round(2*t.hw*d/pit)), Ny = Math.max(2, Math.round(2*t.hh*d/pit)), gsx = Nx*BX*t.S/t.hw, gsy = Ny*BY*t.S/t.hh;   // a whole number of dots to a cell, each way: the lattice runs on unbroken from copy to copy
-    if (fl) { const x0 = Math.max(0, Math.floor(box[0]*d)), y0 = Math.max(0, Math.floor((view.h - box[3])*d)); gl.scissor(x0, y0, Math.min(canvas.width, Math.ceil(box[2]*d)) - x0, Math.min(canvas.height, Math.ceil((view.h - box[1])*d)) - y0); gl.uniform4f(u.uWrap, view.w*Z*d, view.h*Z*d, (t.hw + M)/t.S, (t.hh + M)/t.S); }
+    const cut = (box) => { const x0 = Math.max(0, Math.floor(box[0]*d)), y0 = Math.max(0, Math.floor((view.h - box[3])*d)); gl.scissor(x0, y0, Math.min(canvas.width, Math.ceil(box[2]*d)) - x0, Math.min(canvas.height, Math.ceil((view.h - box[1])*d)) - y0); };
+    if (bent) { cut(box); gl.uniform4f(u.uWrap, fl ? view.w*Z*d : 1e9, fl ? view.h*Z*d : 1e9, (t.hw + M)/t.S, (t.hh + M)/t.S); }
     else if (whole) gl.scissor(0, 0, canvas.width, canvas.height);
     else { const x0 = Math.max(0, Math.floor((t.x0 - M)*d)), y0 = Math.max(0, Math.floor((view.h - t.y1 - M)*d));
       const sw = Math.min(canvas.width, Math.ceil((t.x1 + M)*d)) - x0, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0 + M)*d)) - y0; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
@@ -1244,11 +1296,11 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
     draw(null); }
   if (fl && fl.pt > 0.001) { const r = 1.6*d, px = fl.x*d, py = (view.h - fl.y)*d;   // the one point: where every copy has gone
     gl.scissor(Math.floor(px - r - 2), Math.floor(py - r - 2), Math.ceil(2*r + 4), Math.ceil(2*r + 4)); gl.uniform4f(u.uPt, px, py, r, fl.pt); draw(null); gl.uniform4f(u.uPt, 0, 0, 0, 0); }
-  gl.uniform4f(u.uLens, 0, 0, 0, 0); gl.uniform4f(u.uWrap, 0, 0, 0, 0); gl.uniform1f(u.uRound, 0);
+  gl.uniform4f(u.uLens, 0, 0, 0, 0); gl.uniform4f(u.uLens2, 0, 0, 0, 0); gl.uniform4f(u.uWrap, 0, 0, 0, 0); gl.uniform1f(u.uRound, 0);
   gl.disable(gl.SCISSOR_TEST);
   // the probe's answer: the darkest and brightest pixel; gaps, twice: how many pixels no copy drew, or two did, and the box they lie in (device pixels, from the bottom left)
   if (probe) { const px = new Uint8Array(4*canvas.width*canvas.height); gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, px); let lo = 255, hi = 0, gaps = 0, twice = 0, bx = [1e9, 1e9, -1, -1]; for (let i = 0; i < px.length; i += 4) { const v = px[i]; if (v < lo) lo = v; if (v > hi) hi = v; if (v < 100 || v > 160) { v < 100 ? gaps++ : twice++; const k = i/4, x = k % canvas.width, y = Math.floor(k/canvas.width); bx = [Math.min(bx[0], x), Math.min(bx[1], y), Math.max(bx[2], x), Math.max(bx[3], y)]; } }
-    gl.disable(gl.BLEND); gl.uniform1f(u.uOwn, 0); grid.probe = null; probe.done({ lo, hi, gaps, twice, of:px.length/4, box:gaps + twice ? bx : null, kin:+kin.toFixed(2), lens:!!fl }); }
+    gl.disable(gl.BLEND); gl.uniform1f(u.uOwn, 0); grid.probe = null; probe.done({ lo, hi, gaps, twice, of:px.length/4, box:gaps + twice ? bx : null, kin:+kin.toFixed(2), lens:!!fl, corner:!!cl }); }
 }
 // ?r=sync: seven hearts in one basin, after the heart cells in a dish that beat alone, then, touching, as one (Mukherjee, The Song of the Cell). Six cells round the drain, each its own r and pace; the drain's own heart is the seventh.
 // A ring that reaches a heart late in its beat pulls the next beat early (a pulse-coupled oscillator, after Peskin, Mirollo and Strogatz). How strongly wanders by itself, never on a timer: they drift, lock, slip, lock again. A tap is a beat too
@@ -1285,7 +1337,7 @@ function latStep(){
   draw(lat.write); lat.swap(); lat.init = 0; lat.steps = kq.steps;
 }
 function gridTick(dt){                                // the camera's state, once a frame: the fall, in and out, the pull, the time alone
-  const F = grid.fall;
+  const F = grid.fall; cornerTick(dt);
   if (F && !grid.fallHold) {
     F.s += dt*F.v;
     if (F.to != null && !F.swapped && F.s >= 0.5*FALL) {   // at the singularity nothing is on the screen: there the far side becomes where you are
@@ -1497,7 +1549,7 @@ window.__basin = { get t(){ return simTime; }, get thirst(){ return grid ? { day
   get res(){ return RES ? { on:res.on, runs:res.runs ? res.runs.length : 0, order:res.order.join(' '), run:res.order[res.i], frame:res.j } : null; } };
 if (RCON) Object.defineProperty(window.__basin, 'hearts', { get: () => ({ grid, sync, lat }) });
 if (grid) Object.defineProperties(window.__basin, { tap:{ value:(x, y) => gridTap(x, y) }, fallHold:{ value:(f) => { grid.fallHold = f !== undefined; if (grid.fall && f !== undefined) grid.fall.s = f*FALL; } },
-  idle:{ value:(sec) => { grid.idle = sec; } },   // for the checks: as if left alone this long
+  idle:{ value:(sec) => { grid.idle = sec; } }, corner:{ get: () => { const c = grid.cn, l = cornerLens(); return { p:c.fall ? +c.fall.p.toFixed(3) : null, v:c.fall ? c.fall.v : 0, near:+c.b.toFixed(3), on:+c.pb.toFixed(3), re:l ? Math.round(Math.sqrt(l.m)) : 0 }; } },   // for the checks: the corner's fall, the hand's pull, its ring's radius in pixels   // for the checks: as if left alone this long
   sync:{ get: () => gridSync() }, own:{ value:(mid) => new Promise((done) => { grid.probe = { mid:!!mid, done }; }) },   // for the checks: the darkest and brightest pixel of one probe frame (128 and 128 when every dot is drawn once); mid: on the way into a copy
   beats:{ value:(secs, dt = 1/60) => { const out = []; for (let s = 0, k = 0; s < secs; s += dt, k++) { simTime += dt; gridHearts(dt); if (k % 30 === 0) out.push(+gridSync().toFixed(2)); } return out; } },   // for the checks: the hearts alone, run ahead; how in step they were, twice a second. It moves the page's clock on with them, so a check calls it last
 
