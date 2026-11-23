@@ -85,6 +85,7 @@
   .hero .sub { margin:calc(clamp(42px, 10.4vw, 190px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
   .hero .lede { margin:calc(clamp(42px, 10.4vw, 190px)*.3) 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
   /* the first screen: the title, one sentence, one line that says what you found, the eye and its heartbeat. The page's furniture (who and where, the counter, the clock, the trace's label) waits until you scroll */
+  .hero .sync { margin:1.4em 0 0 .15em; } @media screen { .hero .sync { display:none; } }   /* the epigraph: printed in the description, off the bare first screen */
   @media screen { .bar, #lost, #ekgl { transition:opacity 1.4s ease; } .at-top .bar, .at-top #lost, .at-top #ekgl { opacity:0; } .at-top .bar a, .at-top .bar span { pointer-events:none; } .at-top .bar:focus-within { opacity:1; } }   /* a keyboard that lands on the bar's link sees the whole bar */
   .hero .cue { position:absolute; left:50%; bottom:calc(var(--hb) - 44px); transform:translateX(-50%); margin:0; }
   .hero .cue::after { content:""; display:block; width:1px; height:34px; margin:10px auto 0; background:linear-gradient(var(--dim), transparent); animation:fall 2.6s ease-in-out infinite; }
@@ -347,6 +348,7 @@
 <section class="hero" id="top">
   <h1>[s[i/y]n[<span class="k">k</span>][w]hole</h1>
   <p class="lede">inside this basin, the water is a machine's dream.<br>every day, each copy runs dry.</p>
+  <p class="mono sync">sync == sink</p>
   <p class="cue mono" aria-hidden="true"></p>
 </section>
 
