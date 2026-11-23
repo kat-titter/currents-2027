@@ -1249,8 +1249,9 @@ if (grid) {                                           // on the wall a tap goes 
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { grid.idle = 0; gridOut(); } });
   document.body.classList.add('wall');                // the about link: unseen, for a key or a screen reader; on the wall Enter falls through the corner as a tap does
   document.getElementById('about').addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || matchMedia('(prefers-reduced-motion: reduce)').matches) return; if (cornerFall() || (grid.cn.fall && !grid.cn.fall.gone)) e.preventDefault(); });
-  addEventListener('pageshow', (e) => { const c = grid.cn; let back = e.persisted; try { if (sessionStorage.getItem('synkhole.back')) { back = true; sessionStorage.removeItem('synkhole.back'); } } catch (err) {}
-    if (back) { c.pa = c.pb = 1; c.fall = { p:1, v:-1 }; } });   // back from the far side (its own way back, or the browser's): out of the corner, the way you went in
+  const cornerBack = () => { const c = grid.cn; c.pa = c.pb = 1; c.fall = { p:1, v:-1 }; };   // back from the far side: out of the corner, the way you went in
+  try { if (sessionStorage.getItem('synkhole.back')) { sessionStorage.removeItem('synkhole.back'); cornerBack(); } } catch (err) {}   // by the about page's own way back: read before the first frame, so the wall is never seen unbent first
+  addEventListener('pageshow', (e) => { if (e.persisted) cornerBack(); });   // by the browser's back button, the page kept as it was left: dark
 }
 const INKN = new Float32Array(9);
 function inkUp(u, t){                                 // a copy's cell and how dry it and its eight neighbours are (the wall is a torus, so the edge copies' neighbours are on the far side)
