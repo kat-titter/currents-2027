@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>[s[i/y]n[k][w]hole, CURRENTS 2027</title>
-<meta name="description" content="[s[i/y]n[k][w]hole, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
+<title>[s[i|y]n[k][w]hole, CURRENTS 2027</title>
+<meta name="description" content="[s[i|y]n[k][w]hole, for CURRENTS 2027 in Santa Fe: a basin whose water is a machine dreaming. Every frame pours from the tap to the drain. Reach in and it follows your hand, then slips away.">
 <style>
   :root { --bone:#e4dfd2; --pearl:linear-gradient(90deg, #bfe6ee, #cfc9f2, #f2c9dd); --ink:#030304; --dim:#8a8d93;
     --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
@@ -35,14 +35,14 @@
 </head>
 <body>
 <canvas id="c" aria-label="A basin seen from above. Water runs from the tap to the drain, carrying a dream. Press to reach in; the space bar is the plug."></canvas>
-<h1 id="title">[s[i/y]n[k][w]hole</h1>
+<h1 id="title">[s[i|y]n[k][w]hole</h1>
 <div id="dry"></div>
 <pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span></pre>
 <a id="about" href="about.html">about</a>
 <script>
 (() => {
 'use strict';
-// [s[i/y]n[k][w]hole (sync == sink): a basin whose water is a machine dreaming. A spring (code/sink.py, on a GPU) writes a new prompt, dreams it, and walks the
+// [s[i|y]n[k][w]hole (sync == sink): a basin whose water is a machine dreaming. A spring (code/sink.py, on a GPU) writes a new prompt, dreams it, and walks the
 // latent space to the next, frame by frame; every frame pours in at the tap and runs to the drain. When no spring answers, stored dreams pour from the reservoir.
 // Reach in, and the water under your hand goes where your hand goes, for a moment; then it slips through your fingers, down the drain.
 // The water engine began as veritas (verse/sync.html, the web basin of Vanitas Veritas, a separate piece that keeps its own page and its gold).
