@@ -23,7 +23,14 @@
      Indra's pearls ... a keynote"). Source read 22 nov 2026: the frontmatter of Mumford, Series and Wright, Indra's Pearls (assets.cambridge.org; Indra's net, p. ii).
      2026-11-22 later: the fall rebuilt as space folding, not a camera moving (Kat: "still feeling a little bit basic and almost like you're flying ... what would falling into a singularity look
      or feel like? ... you actually end up kind of back where you started"): one point lens on the whole wall grows to a singularity, then comes back as a white hole (index.html fallLens).
-     Then (Kat: "if you fall into one hole, it then takes like the whole sink basin ... almost you have to struggle to find your way out"): tap goes in, the drain falls through, a pull to the rim climbs out. -->
+     Then (Kat: "if you fall into one hole, it then takes like the whole sink basin ... almost you have to struggle to find your way out"): tap goes in, the drain falls through, a pull to the rim climbs out.
+     2026-11-22, the seamless wall (index.html kwave, gridHearts): no borders, one lattice of dots shared by all 48, a soft crest and a smaller one behind it on each beat, a ring of pearl
+     breathing round each drain, hearts that pull their neighbours in and out of step (Kat: borders "too much like Warhol ... not immersive"; "sometimes they're in sync and sometimes
+     it's out of tune, like Edge of Chaos"). Section 06 and step 09 rewritten for it.
+     2026-11-22 evening: the eye (Kat: the wall "is now really looking like an eye, like a camera"): drain as pupil, pearl ring as iris, dots as a retina, in 02, 07, note 12a and the
+     glossary (see[n]; the title's i). The piece has no camera, and the page says the eye sees nothing. The wave a beat throws is a "crest" in the words and in the 06 figures' code;
+     "ring" stays for the pearl ring, the lens ring, and wherever this page draws the one basin (the opening's hole, the hand figure, the tuner): the one basin's ripples are rings,
+     the wall's are crests (index.html: "the wall's beats are kwave's crests: the one basin's ripple rings are not drawn here"). -->
 
 <style>
   :root { --ink:#030304; --bone:#e4dfd2; --text:#ddd8cb; --dim:#a3a6ac; --cy:#59e6ff; --vi:#9e7aff; --ro:#ff73b8;
@@ -459,7 +466,7 @@
   <aside class="note" data-r><b>10</b>after siddhartha mukherjee's the song of the cell: a body as a citizenship of cells, each one alive, all of them cooperating.</aside>
   <figure class="score wide" data-r><ol aria-hidden="true"><li>heart</li><li>crests</li><li>glyphs</li><li>twist</li><li>thirst</li><li>bubbles</li></ol><canvas class="g" data-g="score" role="img" aria-label="a score of one 32-beat phrase: the heart's beats swell, hold and ebb; each beat throws a crest, each dub a smaller one; the glyphs re-read every second beat; the twist breathes once a phrase; a drying copy loses dots on its beats; bubbles pop on some beats of the water's heart. A playhead moves with this page's heart."></canvas><figcaption class="mono">for (part of copy) heart.on(part.step);</figcaption></figure>
   <p data-r>each beat throws a soft crest from the ring round its drain, a smaller one just behind, as high as the beat's value, and a dot swells as it passes. a steady heart sends every crest one height; a heart that doubles, two heights by turns; chaos, no two alike. the crests roll on through the neighbouring copies. a phrase is 32 beats, as a dj counts one, and every fourth phrase goes quiet.</p>
-  <figure class="gfig wide" data-r><canvas class="g" data-g="rings" role="img" aria-label="four copies of dots, each with crests as high as its heart's last beats: at r = 2.9 every crest one height, at 3.2 two heights alternating, at 3.83 three, at 4.0 no two alike"></canvas><figcaption class="mono">crest.height = x</figcaption></figure>
+  <figure class="gfig wide" data-r><canvas class="g" data-g="crests" role="img" aria-label="four copies of dots, each with crests as high as its heart's last beats: at r = 2.9 every crest one height, at 3.2 two heights alternating, at 3.83 three, at 4.0 no two alike"></canvas><figcaption class="mono">crest.height = x</figcaption></figure>
   <p data-r>warhol pulled 50 marilyns from one photograph in 1962, and the ink never landed the same way twice.<sup class="fn">11</sup> his trick was insistence, the way techno insists: repeat a thing until it turns beautiful. the piece insists on one heart, 48 times over one water. along the long side, r climbs from a steady beat into chaos, a lineage; along the short side, the pace quickens 6%, so twin rhythms drift out of step, as in phase music. each copy's r also wanders a hair, so copies at an edge of order flicker across it. the uncanny lives between neighbours: one small step, and the system behaves like someone else.</p>
   <p data-r>the piece names nothing on the screen. its two axes, here:</p>
   <figure class="gfig axes wide" data-r><canvas class="g" data-g="axes" role="img" aria-label="the 48 copies as eight columns by six rows. Across the long side r steps 2.9, 3.2, 3.45, 3.56, 3.71, 3.83, 3.92, 4.0, and each copy's heart loops every 1, 2, 4 and 8 beats, then never, then every 3 in the window at 3.83, then never. Down the short side the pace runs from 3% slower to 3% faster, 0.873 to 0.927 beats a second at rest."></canvas><figcaption class="mono">r = gridR(x);  pace = 0.97 + 0.06*y</figcaption></figure>
@@ -875,7 +882,7 @@ const kNoise = (t) => { const i = Math.floor(t), f = t - i; return kh(i) + (kh(i
 // <thirst> src/deploy.py puts index.html's thirst model here when it builds (DAWN_H, dawnDay, dryOf, tilt, thirstRanks): the days figure draws from the piece's own code
 const DAY_TH = thirstRanks(Math.floor(dawnDay(Date.now())), 8, 6, [...Array(48)].map((_, i) => GRID_RS[i % 8]));   // each copy's thirst rank today on an 8 x 6 wall, as a wide screen lays it (index.html gridAssign: r along the long side)
 const WALL = [];
-const RINGS = { n:-1, xs:[2.9, 3.2, 3.83, 4.0].map((r) => { let x = 0.37; for (let i = 0; i < 400; i++) x = r*x*(1 - x); const o = []; for (let i = 0; i < 12; i++) { x = r*x*(1 - x); o.unshift(x); } return { r, x, o }; }) };   // each heart's last beats, newest first
+const CRESTS = { n:-1, xs:[2.9, 3.2, 3.83, 4.0].map((r) => { let x = 0.37; for (let i = 0; i < 400; i++) x = r*x*(1 - x); const o = []; for (let i = 0; i < 12; i++) { x = r*x*(1 - x); o.unshift(x); } return { r, x, o }; }) };   // each heart's last beats, newest first
 function beatAge(){ for (let i = RIP.length - 1; i >= 0; i--) if (RIP[i][1] >= 1) return HT - RIP[i][0]; return 9; }
 const GLY = {
   // 01: the piece, to scale (30 x 25 in, rim at 34 in, plinth to 30; the screen a 4:3 opening in its top, from floor_plan.html)
@@ -896,7 +903,7 @@ const GLY = {
     const c = P(hx, hy, 34); x.fillStyle = '#030304'; x.beginPath(); x.ellipse(c[0], c[1], RH*1.2247*s, RH*0.7071*s, 0, 0, 6.2832); x.fill();
     x.strokeStyle = 'rgba(207,196,251,' + (0.7 + 0.3*fl) + ')'; x.lineWidth = 0.8 + 0.8*fl; x.beginPath(); x.ellipse(c[0], c[1], RH*1.37*s, RH*0.79*s, 0, 0, 6.2832); x.stroke(); },
   // 02
-  // a dot's size: as large as its patch of water is bright, times the last ring that rolled past it. Light across, beat up; no light, no dot
+  // a dot's size: as large as its patch of water is bright, times the last crest that rolled past it. Light across, beat up; no light, no dot
   size(D, O, T, w, h){ const L = 46, top = 4, bot = 24, NC = 12, NR = 5, cw = (w - L - 8)/NC, rh = (h - top - bot)/NR, R = Math.min(cw, rh)*0.46;
     for (let i = 0; i < NC; i++) for (let j = 0; j < NR; j++) { const li = i/(NC - 1), be = (NR - j)/NR; D(L + (i + 0.5)*cw, top + (j + 0.5)*rh, R*li*be, 0.15 + 0.25*li*be, 0); }   // cyan to violet: rose means the hole
     T('1', L - 8, top + 0.5*rh + 4, 'right'); T('beat', L - 8, top + 2.5*rh + 4, 'right'); T('0.2', L - 8, top + 4.5*rh + 4, 'right');
@@ -946,21 +953,21 @@ const GLY = {
       for (const [T0, lx] of H.bs) { if (T0 < now - W) continue; if (T0 > now) break; D(x0 + (T0 - now + W)/W*(x1 - x0), y, Math.max(0.35, rp*0.5*(0.15 + 0.85*kss(0.2, 0.95, lx))), 0.15 + H.a/8*0.6, 0); } }
     for (let a = 0; a < 8; a++) T(String(GRID_RS[a]), L - 8, top + a*(6*rp + gg) + 3*rp + 4, 'right');
     T('r', L - 8, h - 6, 'right'); T('−20 s', x0, h - 6, 'left'); T('now', x1, h - 6, 'right'); },
-  // 06: the period drawn. Each beat drops a ring at the drain carrying the beat's value x; a dot takes the size the last ring to pass it said (index.html korb):
-  // 0.15 + 0.85 smoothstep(0.2, 0.95, x). Four hearts from the piece's line of r; a new ring on each of this page's beats
-  // names: 'ring' in this drawer, RINGS and data-g="rings" is the wave the page's words call a crest (one beat's wave, as high as the beat's value).
-  // The tuner below keeps 'ring' on purpose: there a ring is the whole train a beat sends at the ripple speed, and crests are the wavelets that roll through it.
-  rings(D, O, T, w, h, b){ const n = RINGS.xs.length, gap = w/n, R = Math.min(gap*0.42, (h - 20)/2), cy = R + 2, nb = Math.floor(b/2);
-    if (nb !== RINGS.n) { if (RINGS.n >= 0) for (const q of RINGS.xs) { q.x = q.r*q.x*(1 - q.x); q.o.unshift(q.x); q.o.length = 12; } RINGS.n = nb; }
+  // 06: the period drawn. Each beat throws a crest from the drain carrying the beat's value x; here a dot takes the size the last crest to pass it said, by the one
+  // basin's curve (index.html korb): 0.15 + 0.85 smoothstep(0.2, 0.95, x). On the wall the crests are soft and summed with the neighbours' (index.html kwave), each as high
+  // as its beat's value; this figure keeps them apart as bands so the period can be counted. Four hearts from the piece's line of r; a new crest on each of this page's beats.
+  // The tuner below says 'ring' on purpose: there a ring is the whole train a beat sends at the ripple speed, and crests are the wavelets that roll through it.
+  crests(D, O, T, w, h, b){ const n = CRESTS.xs.length, gap = w/n, R = Math.min(gap*0.42, (h - 20)/2), cy = R + 2, nb = Math.floor(b/2);
+    if (nb !== CRESTS.n) { if (CRESTS.n >= 0) for (const q of CRESTS.xs) { q.x = q.r*q.x*(1 - q.x); q.o.unshift(q.x); q.o.length = 12; } CRESTS.n = nb; }
     const RW = R/5.2;
-    RINGS.xs.forEach((q, k) => { const cx = (k + 0.5)*gap;
+    CRESTS.xs.forEach((q, k) => { const cx = (k + 0.5)*gap;
       each(2*R, 2*R, 4.4, (x, y) => { const dx = x - R, dy = y - R, d = Math.hypot(dx, dy); if (d > R || d < RW*0.7) return;
         const v = q.o[Math.min(11, Math.floor((d - RW*0.7)/RW))], sz = 0.15 + 0.85*kss(0.2, 0.95, v);
         D(cx + dx, cy + dy, 2.1*sz, 0.15 + k*0.18 + 0.2*d/R, 0); });
       O(cx, cy, RW*0.55); T('r = ' + q.r, cx, h - 4); }); },
   // 03
   // 06: one phrase of the score, every part of a copy on its heart. Rows: the heart (each beat's strength swells, holds and ebbs over the phrase, a downbeat every 8, every
-  // fourth phrase quiet, as in the piece), the rings (one on each lub, a smaller one on each dub), the glyphs (each row of letters re-read every second beat), the twist
+  // fourth phrase quiet, as in the piece), the crests (one on each lub, a smaller one on each dub), the glyphs (each row of letters re-read every second beat), the twist
   // (one breath a phrase), thirst (a drying copy loses dots on its beats), the bubbles (pops on some beats of the water's own heart, more where the phrase is strong).
   // The playhead is this page's heart: retune r in the figure below and the playhead keeps the new groove.
   score(D, O, T, w, h, b, t, fl, x){
@@ -972,7 +979,7 @@ const GLY = {
     for (let c = 0; c < n; c++) {
       const L = c === now ? 1.5 - 0.4*ph : 1, tone = 0.12 + 0.55*c/n;
       D(X(c), Yr(0), (0.8 + 3.4*ba(c))*k*L, tone, 0);                                                 // heart
-      D(X(c) - 0.2*cw, Yr(1), 1.6*k*L, tone + 0.1, 0); D(X(c) + 0.2*cw, Yr(1), 1.0*k*L, tone + 0.1, 0);   // rings: on lub, and a smaller one on dub
+      D(X(c) - 0.2*cw, Yr(1), 1.6*k*L, tone + 0.1, 0); D(X(c) + 0.2*cw, Yr(1), 1.0*k*L, tone + 0.1, 0);   // crests: on lub, and a smaller one on dub
       if (c % 2 === 0) D(X(c), Yr(2), 1.7*k*L, tone + 0.2, 0); else F(X(c), Yr(2));                   // the glyphs re-read every second beat
       D(X(c), Yr(3), (0.7 + 1.5*(0.5 + 0.5*Math.sin(6.28318*c/n)))*k*(c === now ? 1.25 : 1), tone + 0.3, 0);   // the twist breathes once a phrase
       if (hash(c + 0.3, pn) < 0.5) D(X(c), Yr(4), 1.5*k*L, tone + 0.4, 0); else F(X(c), Yr(4));       // thirst: a dot goes dry on a beat
