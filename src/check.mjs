@@ -106,6 +106,9 @@ try {
     // the hearts: 30 minutes run ahead (__basin.beats). Neighbours must fall into step and slip out of it, and every heart must keep beating at about its own pace
     // no borders: every dot of the wall's lattice drawn by exactly one copy. One probe frame, each kept dot half grey and the copies added: 128 everywhere, never 0 (a gap) or 255 (drawn twice)
     const own = await js('__basin.own()');
+    await send('Emulation.setDeviceMetricsOverride', { width:960, height:721, deviceScaleFactor:1, mobile:false }); await nap(900);   // an odd height: a cell edge on a row of pixel centres, where one row was once drawn twice or not at all
+    const odd = await js('__basin.own()'); await send('Emulation.clearDeviceMetricsOverride'); await nap(900);
+    need(odd.gaps === 0 && odd.twice === 0 && own.gaps === 0 && own.twice === 0, `a row of the wall is drawn by no copy or by two: at an odd height ${odd.gaps} gaps, ${odd.twice} twice, in ${JSON.stringify(odd.box)}`);
     need(own.lo >= 126 && own.hi <= 130, `on the wall a dot is drawn ${own.lo < 126 ? 'by no copy' : 'by two copies'}: probe pixels run ${own.lo} to ${own.hi}, not 128`);
     await js('__basin.tap(innerWidth*0.3, innerHeight*0.3)'); const mid = await js('__basin.own(true)');   // going in, the copy you enter takes dots over: still never two copies on one dot (the drain's lens may leave gaps)
     need(mid.hi <= 130, `on the way into a copy a dot is drawn by two copies: probe pixels reach ${mid.hi} at ${mid.kin} of the way`);

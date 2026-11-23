@@ -600,15 +600,15 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       // The dots sit on one lattice laid on the wall (uGS), and every copy is drawn past its cell's edge. Out there its dots thin out among its neighbour's, which thin out the other way: each dot
       // belongs to exactly one copy (uCW), so nothing is drawn twice, no seam is dark or bright, and no line says where one copy ends. Inside a copy every dot on the screen is its own: no edge at all.
       put('display', 'uniform vec4 uKH;', `uniform float uOwn; uniform vec2 uGW; uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
-vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*B.x/uGS.x;   // pw: the rim is about a dot and a half wide, whatever the scale
+vec3 kwave(vec2 p){ float w = 0., kr = 0., ks = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*B.x/uGS.x;   // pw: the rim is about a dot and a half wide, whatever the scale
     // the heartbeat as a speaker gives it (Kat 2026-11-22: "it used to feel more like a speaker with the borders and the ring being emitted"): round each drain a cone, its rim a thin ring of
   for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;   // light (Rs, the surround: a border drawn in light, not in black, so the copies stay one field). On a beat the rim's light swells and a crest leaves the rim; inside the rim nothing moves, and no dot of the rim changes size (Kat 2026-11-22: "this pulsing thing where it feels like you're zooming in and out ... avoid that": a whole disc of dots swelling at once read as a zoom):
     float gone = max(0., d - Rs), far = clamp(gone/0.3, 0., 1.), sl = 0.15 + 0.03*far, sd = 0.12 + 0.03*far, s = 0., sr = 0.;   // slow in, slow out (Kat 2026-11-22: "pearl ring is way too fast": it flashed in under a tenth of a second): the rim swells over about a third of a second and eases back                         // crisp where it is thrown, softer the further it rolls, on through the neighbours; a smaller crest just behind (lub, dub)
     for (int i = 0; i < 4; i++) { vec4 e = uWv[4*j + i]; float tau = e.x - 0.32 - gone/0.18, ag = e.x - 0.6; if (e.y > 0. && ag < 1.1) sr += e.y*exp(-ag*ag/0.1156);   // the rim itself breathes: one slow swell a beat, over a second from dark to dark, never a flash (Kat 2026-11-22: "they read like flashing lights. need to be much slower and maybe less bright")
       if (e.y <= 0. || tau < -0.45 || tau > 0.85) continue;
       s += e.y*(exp(-tau*tau/(sl*sl)) + (e.z > 0. ? 0.5*exp(-(tau - e.z)*(tau - e.z)/(sd*sd)) : 0.)); }
-    w += inversesqrt(1. + d/0.25)*(1. - smoothstep(0.4, 0.64, d))*smoothstep(Rs - 0.03, Rs, d)*s; kr += exp(-(d - Rs)*(d - Rs)/(pw*pw))*(0.42 + 0.5*sr); }
-  return vec2(w + kr, kr); }   // y: the rim alone, which also shows where the water is dark
+    w += inversesqrt(1. + d/0.25)*(1. - smoothstep(0.4, 0.64, d))*smoothstep(Rs - 0.03, Rs, d)*s; { float rim = exp(-(d - Rs)*(d - Rs)/(pw*pw)); ks += rim; kr += rim*(0.42 + 0.5*sr); } }
+  return vec3(w, kr, ks); }   // x: the travelling crests; y: the rim's light, which breathes; z: the rim's shape, which never changes: sizes read the shape, brightness reads the light
 `, 'before');
       put('display', 'void main(){', 'float ign(vec2 c){ return fract(52.9829189*fract(dot(c, vec2(0.06711056, 0.00583715)))); }   // an even scatter of thresholds over the lattice, the same for every copy\n', 'before');
       put('display', 'float r = length(q), aa = 1.5/uS;', `float coreF = 1.;
@@ -628,7 +628,7 @@ vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*
       if (!FS.display.includes('(gc + 0.5)/gs')) throw new Error('k: display has no "(gc + 0.5)/gs"'); FS.display = FS.display.split('(gc + 0.5)/gs').join('(gc + 0.5 - uGS.zw)/gs');   // every place a dot's centre is read back from its index
       // the pulse (Kat 2026-11-22: "too big and too sparse", "a ring with a hard edge"; "less hard edges, more seamless"; "more clear that this is that kind of alien heartbeat ... a big peak and a little peak"):
       // a dot swells as a crest passes it and settles again, read at the dot's own centre on the wall, so a crest has no edge and runs on into the next copy
-      put('display', TW, 'vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot\'s centre on the screen, in basin units\n      vec2 kwv = kwave(qs); float kw = kwv.x, kr = kwv.y, tw8 = 0.6 + 0.4*(1. - exp(-1.5*kw));', 'swap');
+      put('display', TW, 'vec2 qs = q0 + dFdx(q0)*dpc.x + dFdy(q0)*dpc.y;   // this dot\'s centre on the screen, in basin units\n      vec3 kwv = kwave(qs); float kw = kwv.x + kwv.y, kr = kwv.y, ks = kwv.z, tw8 = 0.6 + 0.4*(1. - exp(-1.5*(kwv.x + 0.42*ks)));', 'swap');
       put('display', '0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime;', '0.35*vnoise(gc*0.06 + 0.03*uTime) + 0.05*uTime + 0.16*kw;', 'swap');   // and the film's colours shift a step on the crest
       // a copy still fades toward its own basin's edge as a halftone print does, its dots smaller and smaller, never cut (seen only from inside a copy, at the screen's edge)
       put('display', 'float dotm = smoothstep(rad + 0.5*fw, rad - 0.5*fw, length(gf));', `vec2 cu = vec2(qs.x, -qs.y)/(2.*uCellE.xy), wq = uCellE.zw + 0.5 + cu;                           // where in its cell (-0.5 to 0.5, down the screen), and on the wall
@@ -644,7 +644,7 @@ vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*
       float inkL = mix(mix(uInkN[4], uInkN[4 + sx.x], fa.x), mix(uInkN[4 + 3*sx.y], uInkN[4 + sx.x + 3*sx.y], fa.x), fa.y);
       float kthr = 0.42*hash(gc + 9.7) + 0.58*vnoise(wq*3.1 + uInkSeed + 7.3), kdry = smoothstep(kthr - 0.015, kthr, inkL*1.02); dq *= 1. - 0.96*kdry;
       `, 'before');
-      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float r0 = (0.085*(0.85 + 0.3*tw8) + min(0.2, 0.11*kr))*gEdge;', 'swap');
+      put('display', 'float r0 = 0.085*(0.85 + 0.3*tw8);', 'float r0 = (0.085*(0.85 + 0.3*tw8) + 0.05*ks)*gEdge;', 'swap');   // the faint grid's dots are a little larger on the rim, always the same
       put('display', 'dq *= 1. - 0.85*smoothstep(0.2, 0.8, bMc);', ' dq *= 1. + 0.4*min(kr, 2.5); { float rr = 0.27; dq = max(dq, 0.4*min(kr, 2.2)*pearl(0.3 + 0.04*uTime + 0.5*kw)*smoothstep(rr + 0.5*fw, rr - 0.5*fw, g0)); }', 'after');   // every dot on the rim gives more light, and holds a pearl dot of its own whatever the dream is there (in the dream's light alone the ring was lost in its texture): larger and brighter on the beat
       put('display', 'dq = max(dq, uBH.w*mix(BONE, film, 0.5)*', 'dq = max(dq, uBH.w*(1. + 2.*min(kr, 2.5))*mix(BONE, film, 0.5)*', 'swap');   // on the rim the faint grid's dots are larger and brighter, so the ring reads over dark water too   // the faint grid fades with the rest
       put('display', '+ uGX.z);', '+ uGX.z + 0.9*kdry);', 'swap');                      // a dry dot turns into a letter of the bracket words, faint: when the water is gone, the meaning shows
@@ -1210,6 +1210,7 @@ function inkUp(u, t){                                 // a copy's cell and how d
   gl.uniform1fv(u['uInkN[0]'], INKN); gl.uniform1f(u.uInkSeed, grid.inkSeed || 0); gl.uniform4f(u.uCellE, t.hw/t.S, t.hh/t.S, x, y);
 }
 const WV = new Float32Array(144), NORIP = [];
+const LATTICE_OFF_PX = 0.2371;                        // how far the lattice sits off the cells' edges, in device pixels: not 0, 0.25 or 0.5, which a cell edge at a whole, quarter or half pixel would meet again
 function wvUp(u, t){                                  // the last four beats of a copy's heart and of its eight neighbours' (the wall is a torus), row by row down the screen
   const c = grid.cr, rows = GRID_N/c, x = t.hi % c, y = Math.floor(t.hi/c), w = (v, n) => ((v % n) + n) % n; let k = 0;
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const wv = grid.hearts[w(y + dy, rows)*c + w(x + dx, c)].wv;
@@ -1235,7 +1236,7 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
       const sw = Math.min(canvas.width, Math.ceil((t.x1 + M)*d)) - x0, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0 + M)*d)) - y0; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
       gl.scissor(x0, y0, sw, sh); }
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
-    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform2f(u.uGW, Nx*g.c, Ny*g.r); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2 + 0.2371*Nx/(2*t.hw*d), Ny*(0.5 - t.v) - gsy/2 + 0.2371*Ny/(2*t.hh*d));   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
+    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform2f(u.uGW, Nx*g.c, Ny*g.r); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2 + LATTICE_OFF_PX*Nx/(2*t.hw*d), Ny*(0.5 - t.v) - gsy/2 + LATTICE_OFF_PX*Ny/(2*t.hh*d));   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, NORIP); wvUp(u, t); inkUp(u, t);   // the wall's beats are kwave's crests: the one basin's ripple rings are not drawn here
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, gsx, Math.max(0, Math.log2(dye.read.w*2*BX/gsx)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
@@ -1290,9 +1291,9 @@ function gridTick(dt){                                // the camera's state, onc
     F.s += dt*F.v;
     if (F.to != null && !F.swapped && F.s >= 0.5*FALL) {   // at the singularity nothing is on the screen: there the far side becomes where you are
       F.swapped = true; grid.z = grid.zt = F.to; grid.zc = 0; grid.climb = null; grid.drag = null; if (!F.to) { grid.depth = 0; grid.slow = 0; }
-      const c = grid.cr; F.x = F.to ? view.w/2 : (grid.sel % c + 0.5)*view.w/c; F.y = F.to ? view.h/2 : (Math.floor(grid.sel/c) + 0.5)*view.h/(GRID_N/c); }
+      gridLayout(); F.x = grid.home.cx; F.y = grid.home.cy; }   // the layout owns where a copy's drain is, on the wall or inside (and under ?nav=lost)
     const through = F.s >= FALL, backed = F.s <= 0;   // came out the far side (forward, or sped on by Esc), or went back up the way it came
-    if (through || backed) { grid.fall = null; if (through && F.to == null) grid.depth++; if (F.out) gridOut(); else gridCursor(); }   // through: one more ring round the drain
+    if (through || backed) { grid.fall = null; if (through && F.to == null) grid.depth++; if (F.out) gridOut(); gridCursor(); }   // through: one more ring round the drain
   }
   grid.z = Math.max(0, Math.min(1, grid.z + Math.sign(grid.zt - grid.z)*dt/(grid.slow ? 2.6 : 0.9)));   // in and out; floated up, slowly
   if (!grid.zt && !grid.z) grid.slow = 0;
@@ -1428,9 +1429,9 @@ function blow(){
   bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = age/b.life;
     const x = Math.min(1, age/b.rise), up = x*x*x*(x*(6*x - 15) + 10);   // surfacing: from nothing, slow in and slow out, never past its size
     b.r = b.R*(0.1 + 0.9*up)*(1 + 0.12*Math.min(1, a))*(1 + 0.06*kss(0.85, 1.05, a));         // then it grows slowly, and swells a touch as its skin thins, just before it goes
-    const rk = K > 0 ? kRip(b.x, b.y) : [0, 0], rl = Math.hypot(b.x, b.y) || 1, bob = 0.007*rk[1];   // it rides the heart's ripples: lifted and moved with the grid under it
+    const rk = K > 0 && !grid ? kRip(b.x, b.y) : [0, 0],   /* on the wall no ripple ring is drawn, so a bubble rides none: it keeps its size and place */ rl = Math.hypot(b.x, b.y) || 1, bob = 0.007*rk[1];   // it rides the heart's ripples: lifted and moved with the grid under it
     if (b.pop) { const k = Math.min(1, (t - b.pop)/POP), m = k*k*(3 - 2*k); BUB.set([b.x, b.y, b.r*(1 + 0.18*m), -(1 - m)], i*4); }
-    else BUB.set([b.x - b.x/rl*bob, b.y - b.y/rl*bob, b.r*(1 + (grid ? 0 : 0.6)*rk[0]), up], i*4); });   // on the wall a bubble keeps its size: no ripple ring is drawn there for it to ride, and a bubble pulsing by itself reads as a zoom
+    else BUB.set([b.x - b.x/rl*bob, b.y - b.y/rl*bob, b.r*(1 + 0.6*rk[0]), up], i*4); });
 }
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
