@@ -308,7 +308,7 @@ display: `
 uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
 uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass;
-uniform float uOwn, uTw; uniform vec4 uLens, uLens2, uWrap, uPt;    // the fall into a hole: the lens (its centre in pixels, its strength Re^2 in pixels^2, minus for the white hole, 1 when on); the wall's period in pixels and this copy's cell, half size in basin units, where it is cut; the one point (centre, radius, how bright). All 0: none
+uniform float uOwn, uTw; uniform vec2 uLatN; uniform vec4 uLens, uLens2, uWrap, uPt, uLat;    // the fall into a hole: the lens (its centre in pixels, its strength Re^2 in pixels^2, minus for the white hole, 1 when on); the wall's period in pixels and this copy's cell, half size in basin units, where it is cut; the one point (centre, radius, how bright). All 0: none
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
 uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
@@ -334,6 +334,7 @@ void main(){
   if (uLens.w > 0.) { vec2 t = fc - uLens.xy; float m = uLens.z/max(dot(t, t), 1e-3);   // a point lens on the whole wall: what is seen here lies at t(1 - Re^2/t^2) from it
     lpx *= max(1. + m, abs(1. - m));                // squeezed along the radius by 1 + m, round it by 1 - m (0 on the ring, where the drain is drawn out into a circle)
     fc = uLens.xy + t*(1. - m); }
+  vec2 fcw = fc;                         // where on the wall this pixel looks, in pixels, before any copy's own arithmetic: every copy drawn here computes exactly this
   if (uLens.w + uLens2.w > 0.) {
     if (uWrap.z*uS < 2.5*lpx) discard;              // a copy here would be a few pixels across, its dots and ring all under a pixel: nothing, never a smear
     vec2 w = fc - uCenter; fc = uCenter + w - uWrap.xy*floor(w/uWrap.xy + 0.5); }   // the wall is a torus: wherever the lens reaches, it finds this copy again, one period on
@@ -620,7 +621,7 @@ vec3 kwave(vec2 p){ float w = 0., kr = 0., ks = 0., Rs = 0.8*min(uCW.x, uCW.y), 
       put('display', 'void main(){', 'float ign(vec2 c){ return fract(52.9829189*fract(dot(c, vec2(0.06711056, 0.00583715)))); }   // an even scatter of thresholds over the lattice, the same for every copy\n', 'before');
       put('display', 'float r = length(q), aa = 1.5/uS;', `float coreF = 1.;
   if (uCW.z > 0.) {                                   // whose dot is this? Each dot of the wall's lattice belongs to one copy: wholly its own cell's near the middle, and toward the edge more and more often its neighbour's
-    vec2 gU = floor((q0 + B)/(2.*B)*uGS.xy + uGS.zw), qc = (gU + 0.5 - uGS.zw)/uGS.xy*2.*B - B, e = smoothstep(0., 1., (uCW.xy + uCW.z - abs(qc))/(2.*uCW.z)), gH = mod(gU, uGW), hh = vec2(ign(gH), ign(gH.yx + 37.));   // gH: the dot's place counted round the wall, which is a torus: through the lens a copy is seen a whole wall away, and must still ask the same question of the same dot
+    vec2 gU = uLat.x > 0. ? floor(fcw*uLat.xy + uLat.zw) + uLatN : floor((q0 + B)/(2.*B)*uGS.xy + uGS.zw), qc = (gU + 0.5 - uGS.zw)/uGS.xy*2.*B - B, e = smoothstep(0., 1., (uCW.xy + uCW.z - abs(qc))/(2.*uCW.z)), gH = mod(gU, uGW), hh = vec2(ign(gH), ign(gH.yx + 37.));   // gH: the dot's place counted round the wall, which is a torus: through the lens a copy is seen a whole wall away, and must still ask the same question of the same dot
     bool ownX = qc.x >= 0. ? hh.x < e.x : 1. - hh.x <= e.x, ownY = qc.y >= 0. ? hh.y < e.y : 1. - hh.y <= e.y, own = ownX && ownY;   // the copy across an edge asks the same question the other way round, so exactly one of them answers yes
     bool isSel = uCW.w >= 0., taken = ign(gH + 71.) < abs(uCW.w), keep = isSel ? own || taken : own && !taken;   // going in, the copy you enter takes the others' dots, one by one
     if (!keep) { o = vec4(0.); discard; return; }
@@ -1275,7 +1276,7 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
   if (probe) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); } gl.uniform1f(u.uOwn, probe ? 1 : 0);   // kin: how far in you are: 1, the copy you are in is the whole screen; a fall bends the others back into view
   if (fl) { gl.uniform4f(u.uLens, fl.x*d, (view.h - fl.y)*d, fl.m*d*d, 1); gl.uniform1f(u.uRound, fl.round); }
   if (cl) { gl.uniform4f(u.uLens2, cl.x*d, (view.h - cl.y)*d, cl.m*d*d, 1); gl.uniform1f(u.uTw, cl.tw); }   // the corner's mass: seen through first   // bent: each copy drawn once over the whole screen, wherever the lens shows it
-  const wrapIt = fl || (cl && cl.busy), tiles = wrapIt ? grid.tiles.filter((t) => t.own) : grid.tiles;   // a fall's lens (a drain's, or the corner's as it winds the wall in from every side) finds a copy's torus repeats itself (uWrap); the corner at rest leaves them as tiles of their own
+  let lat = null; const wrapIt = fl || (cl && cl.busy), tiles = wrapIt ? grid.tiles.filter((t) => t.own) : grid.tiles;   // a fall's lens (a drain's, or the corner's as it winds the wall in from every side) finds a copy's torus repeats itself (uWrap); the corner at rest leaves them as tiles of their own
   if (!(cl && cl.gone) && (!fl || (Number.isFinite(fl.m) && !fl.gone))) for (const t of tiles) {   // at the singularity, no copy at all
     const sel = t.own && t.hi === grid.sel, whole = sel && kin > 0, M = t.m;
     if (!sel && kin >= 1) continue;
@@ -1290,6 +1291,10 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
       gl.scissor(x0, y0, sw, sh); }
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
     gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform2f(u.uGW, Nx*g.c, Ny*g.r); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2 + LATTICE_OFF_PX*Nx/(2*t.hw*d), Ny*(0.5 - t.v) - gsy/2 + LATTICE_OFF_PX*Ny/(2*t.hh*d));   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
+    if (wrapIt) gl.uniform4f(u.uLat, 0, 0, 0, 0);   // which dot of the lattice a pixel lies in is asked once for the whole wall (uLat, from the first copy drawn) and each copy only counts on from there in whole dots (uLatN):
+    else { const ax = gsx/(2*BX*t.S*d), ay = gsy/(2*BY*t.S*d), bx = (BX - t.cx/t.S)/(2*BX)*gsx + Nx*(t.u + 0.5) - gsx/2 + LATTICE_OFF_PX*Nx/(2*t.hw*d), by = (BY - (view.h - t.cy)/t.S)/(2*BY)*gsy + Ny*(0.5 - t.v) - gsy/2 + LATTICE_OFF_PX*Ny/(2*t.hh*d);
+      if (!lat) lat = [ax, ay, bx, by];              // each copy working it out from its own centre could round a pixel on a dot's edge two ways, and through the corner's lens a pixel was then drawn by two copies
+      gl.uniform4f(u.uLat, lat[0], lat[1], lat[2], lat[3]); gl.uniform2f(u.uLatN, Math.round(bx - lat[2]), Math.round(by - lat[3])); }
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, NORIP); wvUp(u, t); inkUp(u, t);   // the wall's beats are kwave's crests: the one basin's ripple rings are not drawn here
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, gsx, Math.max(0, Math.log2(dye.read.w*2*BX/gsx)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
