@@ -64,6 +64,7 @@ The live site serves the same `index.json`. The code would still let a woken spr
 | 44 | 09: "within 40 seconds the page notices and pours stored dreams instead" | S | true mechanism (`STALE` `:646` = 40 s at 5 s frames), but the spring has slept since 17 Nov | "it has slept since 17 nov 2026, so the page pours what it stored that day ... wake the spring and it takes the tap back" |
 | 45 | glossary: "when the basin runs dry, its dots spell these" | F | the dry line is `GX_WORDS` (`:118`), 8 of the 13 entries | "a dry copy's dots spell `[s]ink [d]rain s[pace] [k]now [c]lock [h]old pe[a]rl [w]hole`" |
 | 46 | small drawn marks (01 basin, 08 plan, 06 prints, hand, pictures) stepped dots at half/quarter/eighth time near the hole | S | as 10 | they step once a beat; the slow clock stays as rose |
+| 47 | 02, 06, note 12: "rings" for the wave a beat throws (rows 30-32 quote the old word) | S | on the wall each beat throws a soft crest, no hard ring (`kwave`); the single basin and the tuner keep rings | "crests" in 02's three clocks, 06's parts, score row and caption `crest.height = x`, note 12; "ring" kept for the pearl ring, the lens ring and the tuner |
 
 ### Follow-ups for the piece (index.html, not touched here)
 
