@@ -594,7 +594,7 @@ float korb(float back){ for (int i = 0; i < 15; i++) { vec4 s = uOrb[i/2]; vec2 
       // one wall, no borders (Kat 2026-11-22: "no black borders, they should all kind of be into each other and almost share dots in the matrix at the edges"; inside a copy "I can actually see the border").
       // The dots sit on one lattice laid on the wall (uGS), and every copy is drawn past its cell's edge. Out there its dots thin out among its neighbour's, which thin out the other way: each dot
       // belongs to exactly one copy (uCW), so nothing is drawn twice, no seam is dark or bright, and no line says where one copy ends. Inside a copy every dot on the screen is its own: no edge at all.
-      put('display', 'uniform vec4 uKH;', `uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
+      put('display', 'uniform vec4 uKH;', `uniform vec2 uGW; uniform vec4 uCW, uGS, uWv[36];   // the cell in basin units: half width, half height, how far past its edge a copy fades, how far in you are (this copy +, the others -); the wall's dot lattice: dots across the basin, its offset; the beats of this heart and its eight neighbours, four each: how old, how strong, how long after it the second sound (none below 0)
 vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*B.x/uGS.x;   // pw: the rim is about a dot and a half wide, whatever the scale
     // the heartbeat as a speaker gives it (Kat 2026-11-22: "it used to feel more like a speaker with the borders and the ring being emitted"): round each drain a cone, its rim a thin ring of
   for (int j = 0; j < 9; j++) { float d = length(p - vec2(float(j % 3 - 1)*2.*uCW.x, -float(j/3 - 1)*2.*uCW.y)); if (d > 0.64) continue;   // light (Rs, the surround: a border drawn in light, not in black, so the copies stay one field). On a beat the rim's light swells and a crest leaves the rim; inside the rim nothing moves, and no dot of the rim changes size (Kat 2026-11-22: "this pulsing thing where it feels like you're zooming in and out ... avoid that": a whole disc of dots swelling at once read as a zoom):
@@ -608,9 +608,9 @@ vec2 kwave(vec2 p){ float w = 0., kr = 0., Rs = 0.8*min(uCW.x, uCW.y), pw = 2.6*
       put('display', 'void main(){', 'float ign(vec2 c){ return fract(52.9829189*fract(dot(c, vec2(0.06711056, 0.00583715)))); }   // an even scatter of thresholds over the lattice, the same for every copy\n', 'before');
       put('display', 'float r = length(q), aa = 1.5/uS;', `float coreF = 1.;
   if (uCW.z > 0.) {                                   // whose dot is this? Each dot of the wall's lattice belongs to one copy: wholly its own cell's near the middle, and toward the edge more and more often its neighbour's
-    vec2 gU = floor((q0 + B)/(2.*B)*uGS.xy + uGS.zw), qc = (gU + 0.5 - uGS.zw)/uGS.xy*2.*B - B, e = smoothstep(0., 1., (uCW.xy + uCW.z - abs(qc))/(2.*uCW.z)), hh = vec2(ign(gU), ign(gU.yx + 37.));
+    vec2 gU = floor((q0 + B)/(2.*B)*uGS.xy + uGS.zw), qc = (gU + 0.5 - uGS.zw)/uGS.xy*2.*B - B, e = smoothstep(0., 1., (uCW.xy + uCW.z - abs(qc))/(2.*uCW.z)), gH = mod(gU, uGW), hh = vec2(ign(gH), ign(gH.yx + 37.));   // gH: the dot's place counted round the wall, which is a torus: through the lens a copy is seen a whole wall away, and must still ask the same question of the same dot
     bool ownX = qc.x >= 0. ? hh.x < e.x : 1. - hh.x <= e.x, ownY = qc.y >= 0. ? hh.y < e.y : 1. - hh.y <= e.y, own = ownX && ownY;   // the copy across an edge asks the same question the other way round, so exactly one of them answers yes
-    bool isSel = uCW.w >= 0., taken = ign(gU + 71.) < abs(uCW.w), keep = isSel ? own || taken : own && !taken;   // going in, the copy you enter takes the others' dots, one by one
+    bool isSel = uCW.w >= 0., taken = ign(gH + 71.) < abs(uCW.w), keep = isSel ? own || taken : own && !taken;   // going in, the copy you enter takes the others' dots, one by one
     if (!keep) { o = vec4(0.); discard; return; }
     if (uOwn > 0.) { o = vec4(0.5, 0.5, 0.5, 1.); return; }   // the check's probe: every kept dot half grey, the copies added, so a dot drawn twice is white and one never drawn is black
     float rc = max(min(uCW.x, uCW.y) - uCW.z, 0.11); coreF = mix(1. - smoothstep(0.6*rc, rc, length(q0)), 1., max(uCW.w, 0.)); }   // coreF: on the wall the hole bends the dots only near itself, so the lattice lies true where copies meet
@@ -1126,16 +1126,16 @@ function gridLayout(){                                // as many columns as make
 // that point, folded along a ring that closes in on the drain you fell into, and you are where you began, one more pearl ring round the drain. The way out is through, and through again:
 // (Kat, the same night: "if you fall into one hole, it then takes like the whole sink basin ... almost you have to struggle to find your way out. You could keep falling back through the hole")
 // to leave, pull from the drain out to the rim against its pull; let go short and you slide back in. Esc, two fingers, or half a minute alone float you back up to the wall
-const FALL = 3.6, F1 = 0.46, F2 = 0.54;               // seconds, the whole loop; the singularity lies between F1 and F2 of it
+const FALL = 5.2, F1 = 0.46, F2 = 0.54;               // seconds, the whole loop (3.6 until Kat, 2026-11-22: "a little bit too fast"); the singularity lies between F1 and F2 of it
 const drainPx = (S) => HOLE*(BH || 1)*S;            // the drain's radius on the screen for a copy drawn at scale S (the lens bends space, so it leaves out the plug, which only closes the drawn hole)
 function fallLens(F){                                 // where the fall has got to: the lens's strength (Re^2 in page pixels^2; minus, the white hole; Infinity, the singularity), how round the dots are held, how bright the one point
   const g = grid.g, f = Math.max(0, Math.min(1, F.s/FALL)), h = drainPx(g.S*grid.Z), w = view.w, H = view.h;
   const far = Math.max(Math.hypot(F.x, F.y), Math.hypot(w - F.x, F.y), Math.hypot(F.x, H - F.y), Math.hypot(w - F.x, H - F.y));
   const a = Math.max(g.cw, g.ch)*grid.Z, top = Math.log(far*Math.sqrt(a/40)/h), lo = -3;   // ln(Re/h): from a speck in the drain to where the copies left on the screen are too small to hold a dot (measured: by then the screen is dark)
   let L = top, m = Infinity;
-  if (f < F1) { const u = f/F1; L = lo + (top - lo)*Math.pow(u, 1.3); m = (h*Math.exp(L))**2*kss(0, 0.05, u); }   // in: slow at the lip, then faster
-  else if (f > F2) { const v = (f - F2)/(1 - F2); L = top - (top - lo)*(1 - Math.pow(1 - v, 1.3)); m = -((h*Math.exp(L))**2)*kss(1, 0.95, v); }   // out: fast from the point, slowing as the basin settles
-  return { x:F.x, y:F.y, f, m, round:kss(0, 0.04, f)*kss(1, 0.96, f), pt:kss(top - 1.2, top - 0.1, L), gone:a*far*far/Math.abs(m) < 1.5 };   // gone: every copy on the screen under a pixel or two
+  if (f < F1) { const u = f/F1; L = lo + (top - lo)*kss(0, 1, u); m = (h*Math.exp(L))**2*kss(0, 0.3, u); }   // in: slow at the lip, faster, and slow again into the point. Nothing in the fall starts or stops at once (Kat 2026-11-22: "very jumpy ... I want this to be smooth, slippery"): the lens took hold in a twentieth of the way and the far copies cut in over a fifth of a second
+  else if (f > F2) { const v = (f - F2)/(1 - F2); L = top - (top - lo)*kss(0, 1, v); m = -((h*Math.exp(L))**2)*kss(1, 0.7, v); }   // out: the same, turned round
+  return { x:F.x, y:F.y, f, m, round:kss(0, 0.2, f)*kss(1, 0.8, f), pt:kss(top - 1.2, top - 0.1, L), gone:a*far*far/Math.abs(m) < 1.5 };   // gone: every copy on the screen under a pixel or two
 }
 function gridLens(){                                  // the lens this frame, if any: the fall's; or, going in or pulling out, the drain bending the space round it
   if (grid.fall) return fallLens(grid.fall);
@@ -1214,7 +1214,7 @@ function gridOut(slow){                               // back up to the wall; a 
   if (grid.cn.fall) { if (!grid.cn.fall.gone) grid.cn.fall.v = -1.5; return; }   // falling into the corner: back out, unless already through
   if (grid.fall) { if (grid.fall.to === 0) return; grid.fall.v = grid.fall.s < 0.5*FALL ? -3 : 3; grid.fall.out = 1; return; }   // already on the way out; else back up the way it came, or on out, whichever is nearer
   if (!grid.zt) return;
-  if (grid.climb == null && grid.zc < 0.05) { grid.fall = { x:grid.home.cx, y:grid.home.cy, s:0, v:slow ? 0.75 : 1, to:0 }; gridCursor(); return; }   // out the way you came in: through the drain, and the far side is the wall. Only a pull to the rim still rises (the hand's own climb)
+  if (grid.climb == null && grid.zc < 0.05) { grid.fall = { x:grid.home.cx, y:grid.home.cy, s:0, v:1, to:0 }; gridCursor(); return; }   // out the way you came in: through the drain, and the far side is the wall. Only a pull to the rim still rises (the hand's own climb)
   grid.climb = null; grid.drag = null;               // a pull under way ends; its stretch eases off by itself as you rise, so the camera and the lens both stay continuous
   grid.zt = 0; grid.depth = 0; grid.slow = slow ? 1 : 0; gridCursor();
 }
@@ -1276,12 +1276,12 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
       const sw = Math.min(canvas.width, Math.ceil((t.x1 + M)*d)) - x0, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0 + M)*d)) - y0; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
       gl.scissor(x0, y0, sw, sh); }
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
-    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2 + 0.2371*Nx/(2*t.hw*d), Ny*(0.5 - t.v) - gsy/2 + 0.2371*Ny/(2*t.hh*d));   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
+    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform2f(u.uGW, Nx*g.c, Ny*g.r); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2 + 0.2371*Nx/(2*t.hw*d), Ny*(0.5 - t.v) - gsy/2 + 0.2371*Ny/(2*t.hh*d));   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, NORIP); wvUp(u, t); inkUp(u, t);   // the wall's beats are kwave's crests: the one basin's ripple rings are not drawn here
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, gsx, Math.max(0, Math.log2(dye.read.w*2*BX/gsx)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
       gl.uniform4f(u.uBH, HOLE*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
-      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/gsx*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
+      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/gsx*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/32) % 991); }   // on the wall the rows of letters re-read once a phrase: every second beat was a jump
     draw(null); }
   if (fl && fl.pt > 0.001) { const r = 1.6*d, px = fl.x*d, py = (view.h - fl.y)*d;   // the one point: where every copy has gone
     gl.scissor(Math.floor(px - r - 2), Math.floor(py - r - 2), Math.ceil(2*r + 4), Math.ceil(2*r + 4)); gl.uniform4f(u.uPt, px, py, r, fl.pt); draw(null); gl.uniform4f(u.uPt, 0, 0, 0, 0); }

@@ -99,12 +99,12 @@ try {
     await expect((f) => f.f === null && f.depth === 1 && f.in !== null, 20000, 'the fall did not come back to the same basin, one ring deeper');
     await drag(cx, cy, cx, cy + 0.2*H); await expect((f) => f.climb > 0.1, 3000, 'a pull from the drain did not grip');
     await P('pointerup', cx, cy + 0.2*H); await expect((f) => f.in !== null && f.climb === 0, 5000, 'a short pull did not slide back in');
-    await drag(cx, cy, cx, H - 2); await expect((f) => f.in === null, 3000, 'a pull to the rim did not climb out'); await P('pointerup', cx, H - 2);
+    await drag(cx, cy, cx, H - 2); await expect((f) => f.in === null, 6000, 'a pull to the rim did not climb out'); await P('pointerup', cx, H - 2);
     await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(1200); handIn(await js(STATE)); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
     need(f.in !== null, `a hold away from the drain did not stay in (${JSON.stringify(f)})`); await nap(1500); handOut(await js(STATE));
-    await js('window.__basin.idle(30.1), 1'); await expect((f) => f.in === null, 3000, 'past 30 s alone, it did not float up');
+    await js('window.__basin.idle(30.1), 1'); await expect((f) => f.in === null, 6000, 'past 30 s alone, it did not float up');
     await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
-    await expect((f) => f.in === null, 3000, 'two fingers did not go out');
+    await expect((f) => f.in === null, 6000, 'two fingers did not go out');
     // the hearts: 30 minutes run ahead (__basin.beats). Neighbours must fall into step and slip out of it, and every heart must keep beating at about its own pace
     // no borders: every dot of the wall's lattice drawn by exactly one copy. One probe frame, each kept dot half grey and the copies added: 128 everywhere, never 0 (a gap) or 255 (drawn twice)
     const own = await js('__basin.own()');
