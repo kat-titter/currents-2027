@@ -187,6 +187,10 @@
   /* bracket words: a bracket hides a letter; take it out and the word says something else. hover or focus shows both readings */
   .kick .bw { font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; outline-offset:6px; }
   .kick .bw .br { font-style:normal; color:var(--dim); }
+  /* each heading's double reading breathes: the bracketed letter and its brackets sink almost out of sight and come back, about once every nine seconds, so [w]hole is hole for a breath.
+     Only light changes; each heading keeps its own time (--i), so the page never pulses as one (Kat 2026-11-23: "double entendres to pop out at me, but kind of like slow, pulsy, breathy") */
+  @media screen and (prefers-reduced-motion:no-preference) { .kick .bw .h, .kick .bw .br { animation:bwbreath 9s ease-in-out infinite; animation-delay:calc(var(--i, 0)*-2.3s); } }
+  @keyframes bwbreath { 0%, 22%, 100% { opacity:1; } 50%, 68% { opacity:.1; } }
   .kick .alt { display:inline-grid; text-align:left; }
   .kick .alt > span { grid-area:1/1; font:300 11px/1 var(--mono); letter-spacing:.08em; color:var(--dim); transition:opacity .6s; }
   .kick .alt .two { opacity:0; color:#cfc4fb; }
@@ -565,7 +569,7 @@
 
 <section class="foot">
   <ul data-r>
-    <li><a data-piece="home" href="index.html">back into the water</a></li>
+    <li><a data-piece="home" href="index.html">dive back into the water</a></li>
     <li><a data-piece="code" href="https://github.com/kat-titter/currents-2027"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>code, on github</a></li>
   </ul>
   <p class="mono" data-r>body of work</p>
@@ -694,6 +698,7 @@ addEventListener('scroll', where, { passive:true }); where();
     setTimeout(step, w ? HOLD : REST); };
   setTimeout(step, REST);
 })();
+document.querySelectorAll('.kick .bw').forEach((b, i) => b.style.setProperty('--i', i));
 const BARE = 0.3;   // the first screen stays bare until this share of a screen has scrolled by: far enough that a nudge does not flash the bar, well before the first section's text
 const atTop = () => document.body.classList.toggle('at-top', scrollY < BARE*innerHeight); addEventListener('scroll', atTop, { passive:true }); atTop();   // the first screen stays bare: see .at-top
 
