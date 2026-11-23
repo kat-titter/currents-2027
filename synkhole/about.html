@@ -198,6 +198,10 @@
   /* bracket words: a bracket hides a letter; take it out and the word says something else. hover or focus shows both readings */
   .kick .bw { font:300 italic 26px/1 var(--serif); color:var(--bone); letter-spacing:.01em; outline-offset:6px; }
   .kick .bw .br { font-style:normal; color:var(--dim); }
+  /* each heading's double reading breathes: the bracketed letter and its brackets sink almost out of sight and come back, about once every nine seconds, so [w]hole is hole for a breath.
+     Only light changes; each heading keeps its own time (--i), so the page never pulses as one (Kat 2026-11-23: "double entendres to pop out at me, but kind of like slow, pulsy, breathy") */
+  @media screen and (prefers-reduced-motion:no-preference) { .kick .bw .h, .kick .bw .br { animation:bwbreath 9s ease-in-out infinite; animation-delay:calc(var(--i, 0)*-2.3s); } }
+  @keyframes bwbreath { 0%, 22%, 100% { opacity:1; } 50%, 68% { opacity:.1; } }
   .kick .alt { display:inline-grid; text-align:left; }
   .kick .alt > span { grid-area:1/1; font:300 11px/1 var(--mono); letter-spacing:.08em; color:var(--dim); transition:opacity .6s; }
   .kick .alt .two { opacity:0; color:#cfc4fb; }
@@ -705,6 +709,7 @@ addEventListener('scroll', where, { passive:true }); where();
     setTimeout(step, w ? HOLD : REST); };
   setTimeout(step, REST);
 })();
+document.querySelectorAll('.kick .bw').forEach((b, i) => b.style.setProperty('--i', i));
 const BARE = 0.3;   // the first screen stays bare until this share of a screen has scrolled by: far enough that a nudge does not flash the bar, well before the first section's text
 const atTop = () => document.body.classList.toggle('at-top', scrollY < BARE*innerHeight); addEventListener('scroll', atTop, { passive:true }); atTop();   // the first screen stays bare: see .at-top
 
