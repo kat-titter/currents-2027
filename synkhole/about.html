@@ -93,12 +93,13 @@
   .hero { --hb:13vh; min-height:100vh; margin:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px var(--hb); }
   .hero h1 { margin:0; font:300 clamp(42px, 10.4vw, 190px)/.86 var(--serif); letter-spacing:-.025em; color:var(--bone); white-space:nowrap; }
   /* the title reads many ways, and shows it: its brackets sit back and breathe on the page's heart; the letters they hide wear the pearl; and now and then the title closes round one of its words
-     (sink, synk, sinkhole, whole, hole: everything else fades and its space closes, so the word stands alone) and opens again. Slow in, slow out; a letter never changes size */
-  .hero h1 .ch { display:inline-block; max-width:1.2em; transition:opacity 2.4s ease, max-width 2.8s cubic-bezier(.45,0,.25,1); }
+     (sink, synk, sinkhole, whole, hole) lights while the rest dims, a glimmer passing over it. No letter moves or changes size, so every moment of it holds as a still: the page prints to a PDF
+     (Kat 2026-11-23: letters closing up was "moving a bit too much ... the live to static PDF should be possible ... change the alpha on some brackets and make certain elements pop out") */
+  .hero h1 .ch { transition:opacity 2.6s ease; }
   .hero h1 .br { opacity:calc(.24 + .22*var(--fl, 0)); }
   .hero h1 .hid { -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero h1 .out { opacity:0; max-width:0; }
-  @media print { .hero h1 .ch { opacity:1 !important; max-width:none !important; } .hero h1 .br { opacity:.4 !important; } }
+  .hero h1 .out { opacity:.3; } .hero h1 .br.out { opacity:.1; }
+  @media print { .hero h1 .ch { opacity:1 !important; } .hero h1 .br { opacity:.4 !important; } }
   @media (prefers-reduced-motion:reduce) { .hero h1 .ch { transition:none; } }
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
   .hero .sub { margin:calc(clamp(42px, 10.4vw, 190px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
@@ -687,13 +688,13 @@ const tunedR = () => performance.now() < RT.until ? RT.r : 3.71;
 const countEl = document.getElementById('count'), secs = [...document.querySelectorAll('section[data-n]')];
 function where(){ const mid = innerHeight*0.5; let n = '00'; for (const s of secs) if (s.getBoundingClientRect().top < mid) n = s.dataset.n; countEl.textContent = `${n} / 10`; }
 addEventListener('scroll', where, { passive:true }); where();
-// the title's readings: it rests whole, closes round one word, opens, closes round the next (see .hero h1 .ch)
+// the title's readings: it rests whole, one word lights, it rests, the next lights (see .hero h1 .ch)
 (() => { const TITLE = document.querySelector('.hero h1'), txt = '[s[i/y]n[k][w]hole', words = { sink:[1, 3, 7, 9], synk:[1, 5, 7, 9], sinkhole:[1, 3, 7, 9, 14, 15, 16, 17], whole:[12, 14, 15, 16, 17], hole:[14, 15, 16, 17] }, order = ['sink', 'synk', 'sinkhole', 'whole', 'hole'];
   TITLE.setAttribute('aria-label', txt); TITLE.textContent = '';
   const ch = [...txt].map((c, i) => { const el = document.createElement('span'); el.textContent = c; el.setAttribute('aria-hidden', 'true');
     el.className = 'ch' + ('[]/'.includes(c) ? ' br' : '') + ([3, 5, 12].includes(i) ? ' hid' : '') + (c === 'k' ? ' k' : ''); TITLE.append(el); return el; });
   if (new URLSearchParams(location.search).has('still') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // still: the title rests whole
-  let n = 0; const REST = 6800, HOLD = 5200;   // ms: whole between words, and closed round one
+  let n = 0; const REST = 6800, HOLD = 5200;   // ms: whole between words, and with one word lit
   const step = () => { const w = n % 2 ? order[(n >> 1) % order.length] : null; n++; ch.forEach((el, i) => el.classList.toggle('out', !!w && !words[w].includes(i))); setTimeout(step, w ? HOLD : REST); };
   setTimeout(step, REST);
 })();
