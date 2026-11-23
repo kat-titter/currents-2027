@@ -155,12 +155,24 @@ try {
     need(c && c.re > 0 && c.on === 1, `on the wall the corner's mass is not there at rest (${JSON.stringify(c)})`);
     await enter(); await falling('Enter on the about link'); await there('Enter on the about link');
     await wall(); const W = await js('innerWidth'), H = await js('innerHeight');
-    for (const t of ['pointerdown', 'pointerup']) await js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${W - 14}, clientY:${H - 14}, pointerId:1, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
-    await falling('a tap in the bottom right corner'); await there('a tap in the bottom right corner');
+    const cornerTap = async () => { for (const t of ['pointerdown', 'pointerup']) await js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${W - 14}, clientY:${H - 14}, pointerId:1, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`); };
+    const settle = async (what) => { let c = null; for (let i = 0; i < 80 && !(c && c.p === null); i++) { await nap(100); c = await js('window.__basin ? __basin.corner : null').catch(() => null); }   // a fall turned round, or the way back: the corner lets go and the wall is as it was
+      need(c && c.p === null && /\/$|index\.html$/.test(await js('location.pathname')), `${what}: the corner did not let go on the wall (${JSON.stringify(c)})`); };
+    await cornerTap(); await falling('a tap in the bottom right corner'); await nap(500);   // Escape part of the way down: back out, and still on this page
+    await js(`dispatchEvent(new KeyboardEvent('keydown', { key:'Escape', bubbles:true })), 1`);   // made in the page, as the taps are: a real Escape through the debugger hides a headless tab, and a hidden tab draws no frames
+    await settle('Escape during the fall into the corner');
+    await cornerTap(); await falling('a tap in the bottom right corner'); await there('a tap in the bottom right corner');
+    // the way back: the about page's own link (pointed at this build, where it names the live one), the dark closing over the page, and the wall opening out of its corner
+    let home = false; for (let i = 0; i < 40 && !home; i++) { await js('scrollTo(0, document.documentElement.scrollHeight), 1'); await nap(150); home = await js(`!!document.querySelector('a[data-piece="home"]')`); }   // the page furnishes itself on a scroll: its links are there after one
+    need(home, 'the about page has no way back to the piece');
+    if (home) await js(`document.querySelectorAll('a[data-piece="home"]').forEach((a) => { a.href = ${JSON.stringify(url)}; }), document.querySelector('a[data-piece="home"]').click(), 1`);
+    let back = null; for (let i = 0; i < 80 && !(back && back.p > 0); i++) { await nap(100); back = await js('window.__basin ? __basin.corner : null').catch(() => null); }
+    need(back && back.p > 0.3, `back from the about page the wall did not open out of the corner (${JSON.stringify(back)})`);
+    await settle('the way back from the about page');
   } else { await enter(); await there('Enter on the about link'); }
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
-  const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
+  const bad = errors.filter((e) => !/\/nofeed\//.test(e) && !/\/feed\/now\.json/.test(e));   // and the about page's live frame asks the real spring, which may be down: not this build's error          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; every dot drawn once; hearts in and out of step; the corner and the about link both reach the about page; no errors' : 'PASS: water, the default look, the hand, the rim, the about link by a key, no errors');
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; every dot drawn once; hearts in and out of step; the corner and the about link both reach the about page, Escape backs out of the corner, and the way back opens out of it; no errors' : 'PASS: water, the default look, the hand, the rim, the about link by a key, no errors');
 } finally { ws.close(); }
 process.exit(fails.length ? 1 : 0);
