@@ -326,9 +326,9 @@ float caustic(vec2 p, float t){                 // light focused by the moving s
 }
 void main(){
   if (uPt.w > 0.) { float d = length(gl_FragCoord.xy - uPt.xy); if (d > uPt.z + 1.) discard; o = vec4(pearl(0.04*uTime)*uPt.w*smoothstep(uPt.z + 0.5, uPt.z - 0.5, d), 1.); return; }   // the singularity: one point of light
-  vec2 fc = gl_FragCoord.xy; float lpx = 1., cdim = 1.;   // cdim: how much light the corner's mass lets through here
+  vec2 fc = gl_FragCoord.xy; float lpx = 1., cdim = 1., cm = 0.;   // cdim: how much light the corner's mass lets through here; cm: its pull here, Re^2/t^2 (1 on its ring)
   if (uLens2.w > 0.) { vec2 t = fc - uLens2.xy; float m = uLens2.z/max(dot(t, t), 1e-3);   // the mass off the bottom right corner (cornerLens): the same point lens, seen through first; near it the wall is bent toward it and goes dark, softly, to black at its ring
-    cdim = 1. - smoothstep(0.05, 0.9, m); if (cdim <= 0.001 && uOwn <= 0.) discard;
+    cm = m; cdim = 1. - smoothstep(0.05, 0.9, m); if (cdim <= 0.001 && uOwn <= 0.) discard;
     float a = uTw*m, ca = cos(a), sa = sin(a);     // and it turns what it bends, more the nearer: the wall winds round the corner as water round a drain, as a torus turns through its own hole
     lpx = max(1. + m, abs(1. - m))*(1. + 2.*abs(a)); fc = uLens2.xy + mat2(ca, sa, -sa, ca)*t*(1. - m); }   // lpx: how many of the wall's pixels one pixel on the screen spans, the way space squeezes it most
   if (uLens.w > 0.) { vec2 t = fc - uLens.xy; float m = uLens.z/max(dot(t, t), 1e-3);   // a point lens on the whole wall: what is seen here lies at t(1 - Re^2/t^2) from it
@@ -426,6 +426,10 @@ void main(){
   float sheen = 0.35 + 0.65*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
   vec3 steel = vec3(0.10,0.105,0.11)*(0.7 + 0.6*sheen) + BONE*0.10*sheen*smoothstep(0.009, 0.0, abs(sd2 - 0.0012)/0.0012*0.009);
   col = mix(col, steel, lip*0.9);                        // dark brushed steel, catching the light on the upper left
+  if (cm > 0.) { vec2 tc = gl_FragCoord.xy - uLens2.xy;   // the corner wears the film the drains and bubbles wear (kiri), so the way to the far side can be found: a sheen in the band where the wall is bent, none far out, none at the ring
+    float band = smoothstep(0.05, 0.38, cm)*(1. - smoothstep(0.38, 0.9, cm)), br = 0.78 + 0.22*sin(0.45*uTime);   // soft on both sides; only its light breathes, slowly: nothing moves or changes size
+    vec3 film = kiri(1.4*cm + 0.35*atan(tc.y, tc.x) + 0.04*uTime);   // thicker toward the ring, turning round it, drifting at the film's own pace
+    col = col*mix(vec3(1.), 2.4*film, band) + film*0.05*band*br; }   // the wall's own dots take the colours; between them, a breath of it
   o = vec4(max(col,0.)*cdim,1.);
 }`,
 };
@@ -1161,10 +1165,11 @@ function gridLens(){                                  // the lens this frame, if
 // drain's does in a fall, the wall bent round the corner until the screen is dark: there the page about the piece opens, the far side. No word and no mark on the wall says so.
 const CORNER_T = 2.8;                                 // seconds, from the tap to the dark
 const ease5 = (x) => { x = Math.max(0, Math.min(1, x)); return x*x*x*(x*(6*x - 15) + 10); };   // slow in, slow out
-const cornerZone = (x, y) => !grid.zt && !grid.fall && Math.hypot(view.w - x, view.h - y) < Math.max(64, 0.13*Math.min(view.w, view.h));   // on the wall: is this in the heavy corner?
+const cornerReach = () => Math.max(72, 0.2*Math.min(view.w, view.h));   // how far from the corner a tap still falls into it: about as far as its film shows
+const cornerZone = (x, y) => !grid.zt && !grid.fall && Math.hypot(view.w - x, view.h - y) < cornerReach();   // on the wall: is this in the heavy corner?
 function cornerLens(){                                // the corner's lens this frame, if any: where its mass is (page pixels, off the screen) and its strength Re^2
   const c = grid.cn, u = Math.min(view.w, view.h), x = view.w + 0.07*u, y = view.h + 0.07*u, far = Math.hypot(x, y);
-  let R = u*(0.095 + 0.07*c.b)*c.pb;                   // at rest its ring lies just off the screen; under a hand it comes a little way on
+  let R = u*(0.14 + 0.06*c.b)*c.pb;                    // at rest its ring shows a little in the corner, so there is something to find; under a hand it comes further on
   if (c.fall) R = Math.exp(Math.log(Math.max(1, R)) + (Math.log(1.06*far) - Math.log(Math.max(1, R)))*ease5(c.fall.p));   // falling, it grows in equal ratios, to past the far corner
   const tw = (0.5 + 0.35*c.b)*c.pb + (c.fall ? 2.6*ease5(c.fall.p) : 0);   // the twist, radians at the ring: a slight wind at rest, more under a hand; falling, the wall winds up as it goes (Kat 2026-11-23: "a toroidal-like flow, so almost like a twisty flippy")
   return R > 0.5 ? { x, y, m:R*R, tw, gone:R > 1.05*far, busy:!!c.fall || c.pb < 0.999 } : null;
@@ -1242,7 +1247,7 @@ if (grid) {                                           // on the wall a tap goes 
     const D = grid.drag; if (D && grid.zt && !grid.fall) { const d = Math.hypot(ev.clientX - view.w/2, ev.clientY - view.h/2), R = rim(ev.clientX, ev.clientY);
       if (grid.climb != null || Math.hypot(ev.clientX - D.x, ev.clientY - D.y) > 10) { grid.climb = Math.max(0, Math.min(1, (d - D.d0)/Math.max(20, R - D.d0)));
         if (grid.climb >= 0.98) { dn = null; gridOut(); } } }   // the rim: out
-    if (dn && Math.hypot(ev.clientX - dn.x, ev.clientY - dn.y) > 24 && Math.hypot(view.w - ev.clientX, view.h - ev.clientY) < 0.6*Math.max(64, 0.13*Math.min(view.w, view.h)) && cornerFall()) dn = null;   // a drag into the heavy corner slips down it
+    if (dn && Math.hypot(ev.clientX - dn.x, ev.clientY - dn.y) > 24 && Math.hypot(view.w - ev.clientX, view.h - ev.clientY) < 0.6*cornerReach() && cornerFall()) dn = null;   // a drag into the heavy corner slips down it
     gridCursor(ev.clientX, ev.clientY); });
   const up = (ev) => { downs.delete(ev.pointerId); const d = dn; dn = null; grid.drag = null; if (grid.climb != null) { grid.climb = null; gridCursor(ev.clientX, ev.clientY); return; }   // let go short: back in
     if (d && performance.now() - d.t < 300 && Math.hypot(ev.clientX - d.x, ev.clientY - d.y) < 10) gridTap(ev.clientX, ev.clientY); };
