@@ -5,7 +5,9 @@
 //   spring answers, the drag grips, the hand's time is told on the way out, and the page logged no error.
 //   On the grid (?r=grid, the bare address) it checks the fall instead: a tap goes in, a drain tap falls through to depth 1, a short pull
 //   slides back, a pull to the rim climbs out, a hold grips and the rim tells its time, past 30 s alone (set by __basin.idle(s)) it floats up, two fingers go out;
-//   then the hearts, run 30 minutes ahead: all 48 still beating, neighbours both in step (over 0.55 of pairs) and out of it (under 0.3) at some time.
+//   then the hearts, run 30 minutes ahead: all 48 still beating, neighbours both in step (over 0.55 of pairs) and out of it (under 0.3) at some time;
+//   then the way to the about page: the corner's mass is there at rest, Enter on the unseen about link falls through it to about.html, and so does a tap in the bottom right corner.
+//   On the one basin (?r=off) the link is plain: Enter on it opens about.html.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
 //   2. node src/check.mjs http://127.0.0.1:8806/            the spring's water if it is awake, else the reservoir
@@ -116,6 +118,7 @@ try {
     // the hearts: 30 minutes run ahead (__basin.beats). Neighbours must fall into step and slip out of it, and every heart must keep beating at about its own pace
     // no borders: every dot of the wall's lattice drawn by exactly one copy. One probe frame, each kept dot half grey and the copies added: 128 everywhere, never 0 (a gap) or 255 (drawn twice)
     const own = await js('__basin.own()');
+    need(own.corner, 'the probe frame on the wall was drawn without the corner\'s lens');   // the wall is always seen through the corner's mass: the proof must be too
     await send('Emulation.setDeviceMetricsOverride', { width:960, height:721, deviceScaleFactor:1, mobile:false }); await nap(900);   // an odd height: a cell edge on a row of pixel centres, where one row was once drawn twice or not at all
     const odd = await js('__basin.own()'); await send('Emulation.clearDeviceMetricsOverride'); await nap(900);
     need(odd.gaps === 0 && odd.twice === 0 && own.gaps === 0 && own.twice === 0, `a row of the wall is drawn by no copy or by two: at an odd height ${odd.gaps} gaps, ${odd.twice} twice, in ${JSON.stringify(odd.box)}`);
@@ -139,9 +142,25 @@ try {
     await nap(1200); await js(HAND('pointerup', 0.50, 0.54)); await nap(1500);
     handOut(await js(STATE));
   }
+  // the way to the about page, last (it leaves the page): by a key on both addresses; on the wall through the heavy corner, by a key and by a tap
+  const there = async (what) => { const end = Date.now() + 12000; let at = ''; while (Date.now() < end && !/about\.html$/.test(at)) { await nap(150); at = await js('location.pathname').catch(() => ''); }
+    need(/about\.html$/.test(at), `${what} did not reach about.html (at ${at})`); await nap(400); need(/hole/.test(await js('document.title').catch(() => '')), `${what}: the about page did not load`); };
+  const enter = async () => { need(await js(`(() => { const a = document.getElementById('about'); a.focus(); return document.activeElement === a && getComputedStyle(a).display !== 'none' && getComputedStyle(a).visibility !== 'hidden'; })()`), 'the about link does not take focus');
+    for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, key:'Enter', code:'Enter', windowsVirtualKeyCode:13, nativeVirtualKeyCode:13, ...(type === 'keyDown' ? { text:'\r' } : {}) }); };
+  if (isGrid) {
+    const wall = async () => { await send('Page.navigate', { url }); let c = null; for (let i = 0; i < 100 && !(c && c.on === 1 && c.p === null); i++) { await nap(200); c = await js('window.__basin && __basin.fall.z === 0 && __basin.fall.f === null ? __basin.corner : null').catch(() => null); } return c; };
+    const falling = async (what) => { let c = null; for (let i = 0; i < 20 && !(c && c.p > 0); i++) { await nap(100); c = await js('window.__basin ? __basin.corner : null').catch(() => null); if (!c) break; }   // no __basin: already through
+      need(!c || c.p > 0, `${what} did not start the fall into the corner (${JSON.stringify(c)})`); };
+    let c = await wall(); console.log('corner  ', JSON.stringify(c));
+    need(c && c.re > 0 && c.on === 1, `on the wall the corner's mass is not there at rest (${JSON.stringify(c)})`);
+    await enter(); await falling('Enter on the about link'); await there('Enter on the about link');
+    await wall(); const W = await js('innerWidth'), H = await js('innerHeight');
+    for (const t of ['pointerdown', 'pointerup']) await js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${W - 14}, clientY:${H - 14}, pointerId:1, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
+    await falling('a tap in the bottom right corner'); await there('a tap in the bottom right corner');
+  } else { await enter(); await there('Enter on the about link'); }
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
   const bad = errors.filter((e) => !/\/nofeed\//.test(e));          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
-  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; every dot drawn once; hearts in and out of step; no errors' : 'PASS: water, the default look, the hand, the rim, no errors');
+  console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; every dot drawn once; hearts in and out of step; the corner and the about link both reach the about page; no errors' : 'PASS: water, the default look, the hand, the rim, the about link by a key, no errors');
 } finally { ws.close(); }
 process.exit(fails.length ? 1 : 0);
