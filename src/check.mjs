@@ -90,7 +90,7 @@ try {
     const until = async (test, ms) => { const end = Date.now() + ms; let f = await F(); while (!test(f) && Date.now() < end) { await nap(100); f = await F(); } return f; };   // poll the page's own state, never its timings
     const expect = async (test, ms, what) => { const f = await until(test, ms); need(test(f), `${what} (${JSON.stringify(f)})`); return f; };   // poll, and fail out loud on a timeout
     const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
-    const goIn = async () => { await expect((f) => f.z === 0 && f.in === null, 8000, 'never back on the wall'); await tap(0.3*W, 0.3*H); return expect((f) => f.in !== null && f.z === 1, 8000, 'a tap on the wall did not go in'); };
+    const goIn = async () => { await expect((f) => f.z === 0 && f.in === null && f.f === null, 8000, 'never back on the wall'); await tap(0.3*W, 0.3*H); return expect((f) => f.in !== null && f.z === 1 && f.f === null, 8000, 'a tap on the wall did not fall into the copy and arrive'); };   // going in and out are falls through the drain: wait for each to end
     const drag = async (x0, y0, x1, y1) => { await P('pointerdown', x0, y0); for (let i = 1; i <= 15; i++) { await P('pointermove', x0 + (x1 - x0)*i/15, y0 + (y1 - y0)*i/15); await nap(40); } };
     let f = await goIn();
     await tap(cx, cy); await expect((f) => f.f !== null, 2000, 'a tap on the drain did not start a fall');
