@@ -1165,9 +1165,10 @@ function cornerLens(){                                // the corner's lens this 
 }
 function cornerFall(){                                // into the corner: the wall bends round it and goes dark, and the about page is the far side
   const c = grid.cn; if (c.fall || grid.zt || grid.fall) return false;
-  c.fall = { p:0, v:1 }; gridCursor(); setTimeout(cornerThrough, 1000*CORNER_T + 1500); return true;   // the timer: a tab that stops drawing still arrives
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = document.getElementById('about').href; return true; }   // asked for less motion: no fall, straight there, whether by a tap, a drag or a key
+  const f = c.fall = { p:0, v:1 }; gridCursor(); setTimeout(() => { if (grid.cn.fall === f) cornerThrough(); }, 1000*CORNER_T + 1500); return true;   // the timer: a tab that stops drawing still arrives. It ends only the fall that set it: a fall backed out of and begun again is not cut short by the first one's timer
 }
-function cornerThrough(){ const f = grid.cn.fall; if (!f || f.v < 0 || f.gone) return; f.gone = true; f.p = 1; try { sessionStorage.setItem('synkhole.fell', '1'); } catch (e) {} location.href = document.getElementById('about').href; }
+function cornerThrough(){ const f = grid.cn.fall; if (!f || f.v < 0 || f.gone) return; f.gone = true; f.p = 1; location.href = document.getElementById('about').href; }
 function cornerTick(dt){                              // once a frame: the hand's pull eased in and out, the mass there only on the wall, the fall
   const c = grid.cn, k = 1 - Math.exp(-dt/0.45), on = !grid.zt && !grid.fall ? 1 : 0;
   const near = hand.on && on ? kss(1, 0, Math.hypot(view.w - hand.x, view.h - hand.y)/(0.34*Math.min(view.w, view.h))) : 0;
@@ -1243,7 +1244,7 @@ if (grid) {                                           // on the wall a tap goes 
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', (ev) => { downs.delete(ev.pointerId); dn = null; grid.drag = null; grid.climb = null; });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { grid.idle = 0; gridOut(); } });
   document.body.classList.add('wall');                // the about link: unseen, for a key or a screen reader; on the wall Enter falls through the corner as a tap does
-  document.getElementById('about').addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || matchMedia('(prefers-reduced-motion: reduce)').matches) return; if (cornerFall() || (grid.cn.fall && !grid.cn.fall.gone)) e.preventDefault(); });
+  document.getElementById('about').addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; if (cornerFall() || (grid.cn.fall && !grid.cn.fall.gone)) e.preventDefault(); });
   const cornerBack = () => { const c = grid.cn; c.pa = c.pb = 1; c.fall = { p:1, v:-1 }; };   // back from the far side: out of the corner, the way you went in
   try { if (sessionStorage.getItem('synkhole.back')) { sessionStorage.removeItem('synkhole.back'); cornerBack(); } } catch (err) {}   // by the about page's own way back: read before the first frame, so the wall is never seen unbent first
   addEventListener('pageshow', (e) => { if (e.persisted) cornerBack(); });   // by the browser's back button, the page kept as it was left: dark
@@ -1284,9 +1285,9 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
       const sw = Math.min(canvas.width, Math.ceil((t.x1 + M)*d)) - x0, sh = Math.min(canvas.height, Math.ceil((view.h - t.y0 + M)*d)) - y0; if (sw <= 0 || sh <= 0) continue;   // a copy with no pixels on screen
       gl.scissor(x0, y0, sw, sh); }
     gl.uniform2f(u.uCenter, t.cx*d, (view.h - t.cy)*d); gl.uniform1f(u.uS, t.S*d);
-    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform2f(u.uGW, Nx*g.c, Ny*g.r); gl.uniform4f(u.uGS, gsx, gsy, Nx*(t.u + 0.5) - gsx/2 + LATTICE_OFF_PX*Nx/(2*t.hw*d), Ny*(0.5 - t.v) - gsy/2 + LATTICE_OFF_PX*Ny/(2*t.hh*d));   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
+    gl.uniform4f(u.uCW, t.hw/t.S, t.hh/t.S, M/t.S, sel ? kin : -kin); gl.uniform2f(u.uGW, Nx*g.c, Ny*g.r); const offX = Nx*(t.u + 0.5) - gsx/2 + LATTICE_OFF_PX*Nx/(2*t.hw*d), offY = Ny*(0.5 - t.v) - gsy/2 + LATTICE_OFF_PX*Ny/(2*t.hh*d); gl.uniform4f(u.uGS, gsx, gsy, offX, offY);   // the lattice sits a quarter pixel off the cells' edges: an edge that falls on a row of pixel centres (a screen an odd number of pixels high) left that row to rounding, some of its pixels drawn by two copies and some by none
     if (wrapIt) gl.uniform4f(u.uLat, 0, 0, 0, 0);   // which dot of the lattice a pixel lies in is asked once for the whole wall (uLat, from the first copy drawn) and each copy only counts on from there in whole dots (uLatN):
-    else { const ax = gsx/(2*BX*t.S*d), ay = gsy/(2*BY*t.S*d), bx = (BX - t.cx/t.S)/(2*BX)*gsx + Nx*(t.u + 0.5) - gsx/2 + LATTICE_OFF_PX*Nx/(2*t.hw*d), by = (BY - (view.h - t.cy)/t.S)/(2*BY)*gsy + Ny*(0.5 - t.v) - gsy/2 + LATTICE_OFF_PX*Ny/(2*t.hh*d);
+    else { const ax = gsx/(2*BX*t.S*d), ay = gsy/(2*BY*t.S*d), bx = (BX - t.cx/t.S)/(2*BX)*gsx + offX, by = (BY - (view.h - t.cy)/t.S)/(2*BY)*gsy + offY;
       if (!lat) lat = [ax, ay, bx, by];              // each copy working it out from its own centre could round a pixel on a dot's edge two ways, and through the corner's lens a pixel was then drawn by two copies
       gl.uniform4f(u.uLat, lat[0], lat[1], lat[2], lat[3]); gl.uniform2f(u.uLatN, Math.round(bx - lat[2]), Math.round(by - lat[3])); }
     gl.uniform4f(u.uKH, kh0, kh1, mips ? Math.log2(dye.read.w/(t.S*d)) : -99, kh3);
