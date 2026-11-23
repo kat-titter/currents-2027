@@ -89,7 +89,7 @@ try {
   need(s.water > 0.9, `water ${s.water}, not above 0.9 within 45 s`); need(s.k === 0.25, `k is ${s.k}, not 0.25`);
   need(s.line === 'none', 'the line under the basin is showing'); need(s.rim !== null, 'no line on the drain\'s rim');
   need(s.about && s.about.startsWith('about.html') && !s.about.endsWith('none'), 'no about link');
-  need(/^\[s\[i\/y\]n\[k\]\[w\]hole/.test(s.title), `title is "${s.title}"`);
+  need(/^\[s\[i\|y\]n\[k\]\[w\]hole/.test(s.title), `title is "${s.title}"`);
   if (/spring=nofeed/.test(url)) need(s.res && s.res.on && s.res.runs > 0, 'no spring, and the reservoir is not pouring');
   const handIn = (held) => { console.log('hand in ', JSON.stringify(held)); need(held.grip > 0.3, `the drag did not grip (${held.grip})`); need(held.soft > 0.3, `the water did not go soft under the hand (${held.soft})`); };
   const handOut = (out) => { console.log('hand out', JSON.stringify(out));   // both modes: the hand's time told on the rim, in a clear breath
