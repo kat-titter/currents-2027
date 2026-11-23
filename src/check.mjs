@@ -6,7 +6,7 @@
 //   On the grid (?r=grid, the bare address) it checks the fall instead: a tap goes in, a drain tap falls through to depth 1, a short pull
 //   slides back, a pull to the rim climbs out, a hold grips and the rim tells its time, past 30 s alone (set by __basin.idle(s)) it floats up, two fingers go out;
 //   then the hearts, run 30 minutes ahead: all 48 still beating, neighbours both in step (over 0.55 of pairs) and out of it (under 0.3) at some time;
-//   then the way to the about page: the corner's mass is there at rest, Enter on the unseen about link falls through it to about.html, and so does a tap in the bottom right corner.
+//   then the way to the about page: the corner's mass is there at rest, Enter on the unseen about link falls through it to about.html, and so does a tap in the bottom right corner. In the stone (?sink) there is no corner: no mass, a tap there leaves the page where it is. Escape part of the way down turns the fall round and stays on the page; the about page's own link home opens the wall out of the corner, which then lets go.
 //   On the one basin (?r=off) the link is plain: Enter on it opens about.html.
 //   1. a headless Chrome:  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9396 \
 //        --user-data-dir=<a temp folder> --window-size=960,720 --hide-scrollbars --enable-gpu --use-angle=metal --ignore-gpu-blocklist about:blank
@@ -143,6 +143,7 @@ try {
     handOut(await js(STATE));
   }
   // the way to the about page, last (it leaves the page): by a key on both addresses; on the wall through the heavy corner, by a key and by a tap
+  let feedFrom = Infinity;
   const there = async (what) => { const end = Date.now() + 12000; let at = ''; while (Date.now() < end && !/about\.html$/.test(at)) { await nap(150); at = await js('location.pathname').catch(() => ''); }
     need(/about\.html$/.test(at), `${what} did not reach about.html (at ${at})`); await nap(400); need(/hole/.test(await js('document.title').catch(() => '')), `${what}: the about page did not load`); };
   const enter = async () => { need(await js(`(() => { const a = document.getElementById('about'); a.focus(); return document.activeElement === a && getComputedStyle(a).display !== 'none' && getComputedStyle(a).visibility !== 'hidden'; })()`), 'the about link does not take focus');
@@ -151,6 +152,13 @@ try {
     const wall = async () => { await send('Page.navigate', { url }); let c = null; for (let i = 0; i < 100 && !(c && c.on === 1 && c.p === null); i++) { await nap(200); c = await js('window.__basin && __basin.fall.z === 0 && __basin.fall.f === null ? __basin.corner : null').catch(() => null); } return c; };
     const falling = async (what) => { let c = null; for (let i = 0; i < 20 && !(c && c.p > 0); i++) { await nap(100); c = await js('window.__basin ? __basin.corner : null').catch(() => null); if (!c) break; }   // no __basin: already through
       need(!c || c.p > 0, `${what} did not start the fall into the corner (${JSON.stringify(c)})`); };
+    { await send('Page.navigate', { url:url + (url.includes('?') ? '&' : '?') + 'sink&r=grid' });   // where the page has no way out (the stone; a document and a frame go by the same value) there is no corner at all
+      let s = null; for (let i = 0; i < 100 && !(s && s.on === 1); i++) { await nap(200); s = await js('window.__basin && __basin.fall.z === 0 && __basin.fall.f === null ? __basin.corner : null').catch(() => null); }
+      need(s && s.re === 0, `in the stone the corner's mass is there (${JSON.stringify(s)})`);
+      const so = await js('Promise.race([__basin.own(), new Promise((r) => setTimeout(() => r(null), 8000))])'); need(so && so.corner === false && so.gaps === 0 && so.twice === 0, `in the stone the wall's probe did not come back without the corner, every dot drawn once (${JSON.stringify(so)})`);
+      const sw = await js('innerWidth'), sh = await js('innerHeight');
+      for (const t of ['pointerdown', 'pointerup']) await js(`document.querySelector('canvas').dispatchEvent(new PointerEvent('${t}', { clientX:${sw - 14}, clientY:${sh - 14}, pointerId:1, pointerType:'mouse', isPrimary:true, bubbles:true, buttons:${t === 'pointerup' ? 0 : 1} })), 1`);
+      await nap(700); s = await js('__basin.corner'); need(s.p === null && !/about\.html$/.test(await js('location.pathname')), `in the stone a tap in the corner started a fall to the about page (${JSON.stringify(s)})`); }
     let c = await wall(); console.log('corner  ', JSON.stringify(c));
     need(c && c.re > 0 && c.on === 1, `on the wall the corner's mass is not there at rest (${JSON.stringify(c)})`);
     await enter(); await falling('Enter on the about link'); await there('Enter on the about link');
@@ -163,6 +171,7 @@ try {
     await settle('Escape during the fall into the corner');
     await cornerTap(); await falling('a tap in the bottom right corner'); await there('a tap in the bottom right corner');
     // the way back: the about page's own link (pointed at this build, where it names the live one), the dark closing over the page, and the wall opening out of its corner
+    feedFrom = errors.length;                                    // from here the about page's live frame may ask the real spring
     let home = false; for (let i = 0; i < 40 && !home; i++) { await js('scrollTo(0, document.documentElement.scrollHeight), 1'); await nap(150); home = await js(`!!document.querySelector('a[data-piece="home"]')`); }   // the page furnishes itself on a scroll: its links are there after one
     need(home, 'the about page has no way back to the piece');
     if (home) await js(`document.querySelectorAll('a[data-piece="home"]').forEach((a) => { a.href = ${JSON.stringify(url)}; }), document.querySelector('a[data-piece="home"]').click(), 1`);
@@ -171,7 +180,7 @@ try {
     await settle('the way back from the about page');
   } else { await enter(); await there('Enter on the about link'); }
   if (png) { const { data } = await send('Page.captureScreenshot', { format:'png' }); fs.writeFileSync(png, Buffer.from(data, 'base64')); console.log('wrote', png); }
-  const bad = errors.filter((e) => !/\/nofeed\//.test(e) && !/\/feed\/now\.json/.test(e));   // and the about page's live frame asks the real spring, which may be down: not this build's error          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
+  const bad = errors.filter((e, i) => !/\/nofeed\//.test(e) && !(i >= feedFrom && /\/feed\/now\.json/.test(e)));   // and once the about page is scrolled its live frame asks the real spring, which may be down: not this build's error, and excused only from then on          // ?spring=nofeed/ is a spring that is not there on purpose: its 404 is the test, not an error
   need(bad.length === 0, `${bad.length} errors logged: ${bad.slice(0, 3).join(' | ')}`);
   console.log(fails.length ? 'FAIL: ' + fails.join('; ') : isGrid ? 'PASS: water, the grid: in, through, back, a hold, out, alone, two fingers; every dot drawn once; hearts in and out of step; the corner and the about link both reach the about page, Escape backs out of the corner, and the way back opens out of it; no errors' : 'PASS: water, the default look, the hand, the rim, the about link by a key, no errors');
 } finally { ws.close(); }
