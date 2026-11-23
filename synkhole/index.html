@@ -69,6 +69,7 @@ for (const [name, value] of new URLSearchParams(location.search)) { if (value ==
 if (window.top !== window.self) document.body.classList.add('framed');
 if (params.has('sink')) document.body.classList.add('sink');
 if (params.has('doc')) document.body.classList.add('doc');
+const WAY_OUT = !['framed', 'sink', 'doc'].some((c) => document.body.classList.contains(c));   // in the stone, in a document, or framed by another page there is only the water: no about link (the CSS hides it by these same classes) and no heavy corner to fall through
 const SPRING_HOME = '', POINTER_HOME = 'https://kat-titter.github.io/vanitas-veritas/verse/spring.json';                           // the spring's public address, once it has one; until then, on the web, the water is off
 let SPRING = params.has('spring') ? (params.get('spring') || 'feed/') : SPRING_HOME;
 if (!SPRING && !params.get('img')) fetch(POINTER_HOME + '?t=' + Date.now(), { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed) SPRING = j.feed; }).catch(() => {});   // on either public address: where the spring is now (one pointer, which sink.py rewrites)
@@ -1166,8 +1167,9 @@ function gridLens(){                                  // the lens this frame, if
 const CORNER_T = 2.8;                                 // seconds, from the tap to the dark
 const ease5 = (x) => { x = Math.max(0, Math.min(1, x)); return x*x*x*(x*(6*x - 15) + 10); };   // slow in, slow out
 const cornerReach = () => Math.max(72, 0.2*Math.min(view.w, view.h));   // how far from the corner a tap still falls into it: about as far as its film shows
-const cornerZone = (x, y) => !grid.zt && !grid.fall && Math.hypot(view.w - x, view.h - y) < cornerReach();   // on the wall: is this in the heavy corner?
+const cornerZone = (x, y) => WAY_OUT && !grid.zt && !grid.fall && Math.hypot(view.w - x, view.h - y) < cornerReach();   // on the wall: is this in the heavy corner?
 function cornerLens(){                                // the corner's lens this frame, if any: where its mass is (page pixels, off the screen) and its strength Re^2
+  if (!WAY_OUT) return null;                         // no way out of this page: no mass, so nothing bends (cornerZone, cornerFall and cornerBack each ask WAY_OUT too)
   const c = grid.cn, u = Math.min(view.w, view.h), x = view.w + 0.07*u, y = view.h + 0.07*u, far = Math.hypot(x, y);
   let R = u*(0.14 + 0.06*c.b)*c.pb;                    // at rest its ring shows a little in the corner, so there is something to find; under a hand it comes further on
   if (c.fall) R = Math.exp(Math.log(Math.max(1, R)) + (Math.log(1.06*far) - Math.log(Math.max(1, R)))*ease5(c.fall.p));   // falling, it grows in equal ratios, to past the far corner
@@ -1175,7 +1177,7 @@ function cornerLens(){                                // the corner's lens this 
   return R > 0.5 ? { x, y, m:R*R, tw, gone:R > 1.05*far, busy:!!c.fall || c.pb < 0.999 } : null;
 }
 function cornerFall(){                                // into the corner: the wall bends round it and goes dark, and the about page is the far side
-  const c = grid.cn; if (c.fall || grid.zt || grid.fall) return false;
+  const c = grid.cn; if (!WAY_OUT || c.fall || grid.zt || grid.fall) return false;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = document.getElementById('about').href; return true; }   // asked for less motion: no fall, straight there, whether by a tap, a drag or a key
   const f = c.fall = { p:0, v:1 }; gridCursor(); setTimeout(() => { if (grid.cn.fall === f) cornerThrough(); }, 1000*CORNER_T + 1500); return true;   // the timer: a tab that stops drawing still arrives. It ends only the fall that set it: a fall backed out of and begun again is not cut short by the first one's timer
 }
@@ -1256,8 +1258,8 @@ if (grid) {                                           // on the wall a tap goes 
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { grid.idle = 0; gridOut(); } });
   document.body.classList.add('wall');                // the about link: unseen, for a key or a screen reader; on the wall Enter falls through the corner as a tap does
   document.getElementById('about').addEventListener('click', (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; if (cornerFall() || (grid.cn.fall && !grid.cn.fall.gone)) e.preventDefault(); });
-  const cornerBack = () => { const c = grid.cn; c.pa = c.pb = 1; c.fall = { p:1, v:-1 }; };   // back from the far side: out of the corner, the way you went in
-  try { if (sessionStorage.getItem('synkhole.back')) { sessionStorage.removeItem('synkhole.back'); cornerBack(); } } catch (err) {}   // by the about page's own way back: read before the first frame, so the wall is never seen unbent first
+  const cornerBack = () => { const c = grid.cn; if (!WAY_OUT) return; if (matchMedia('(prefers-reduced-motion: reduce)').matches) { c.fall = null; gridCursor(); return; }   /* less motion asked for: the wall as it is at rest, no unwinding */ c.pa = c.pb = 1; c.fall = { p:1, v:-1 }; };   // back from the far side: out of the corner, the way you went in
+  try { if (WAY_OUT && sessionStorage.getItem('synkhole.back')) { sessionStorage.removeItem('synkhole.back'); cornerBack(); } } catch (err) {}   /* WAY_OUT: the about page's own live frame is this page too, and must leave the word for the page it was meant for */   // by the about page's own way back: read before the first frame, so the wall is never seen unbent first
   addEventListener('pageshow', (e) => { if (e.persisted) cornerBack(); });   // by the browser's back button, the page kept as it was left: dark
 }
 const INKN = new Float32Array(9);
@@ -1278,7 +1280,8 @@ function wvUp(u, t){                                  // the last four beats of 
 function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once per copy, each over its cell and a margin beyond it, with its own heart; in the margin a copy keeps only the dots that are its own, on one lattice of dots about 5.5 screen pixels apart
   const d = view.dpr; gridLayout(); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.enable(gl.SCISSOR_TEST);
   const fl = gridLens(), cl = cornerLens(), bent = fl || cl, g = grid.g, Z = grid.Z, kin = kss(0.25, 0.85, grid.e)*(grid.fall && fl ? 1 - fl.round : 1);
-  const probe = grid.probe && (grid.probe.mid ? kin > 0.2 && kin < 0.8 : kin === 0 && !fl && cl && !cl.busy) ? grid.probe : null;   // on the wall the corner's lens is in the probe frame, at rest   // src/check.mjs asks: is every dot drawn exactly once? One frame in half grey, the copies added
+  const cornerAtRest = cl ? !cl.busy : !WAY_OUT;      // the corner's lens fully there, or a page that has none
+  const probeNow = grid.probe && (grid.probe.mid ? kin > 0.2 && kin < 0.8 : kin === 0 && !fl && cornerAtRest), probe = probeNow ? grid.probe : null;   // on the wall the corner's lens is in the probe frame, at rest   // src/check.mjs asks: is every dot drawn exactly once? One frame in half grey, the copies added
   if (probe) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); } gl.uniform1f(u.uOwn, probe ? 1 : 0);   // kin: how far in you are: 1, the copy you are in is the whole screen; a fall bends the others back into view
   if (fl) { gl.uniform4f(u.uLens, fl.x*d, (view.h - fl.y)*d, fl.m*d*d, 1); gl.uniform1f(u.uRound, fl.round); }
   if (cl) { gl.uniform4f(u.uLens2, cl.x*d, (view.h - cl.y)*d, cl.m*d*d, 1); gl.uniform1f(u.uTw, cl.tw); }   // the corner's mass: seen through first   // bent: each copy drawn once over the whole screen, wherever the lens shows it
