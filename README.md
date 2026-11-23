@@ -13,7 +13,7 @@ A proposed installation: a sink without water. In its basin a screen pours a mac
 
 It began at a sink. Late one night, Kat was thirsty and could not find a cup, so she put her head under the bathroom tap and drank while strangers took turns behind her. Nobody asked whose water it was. The piece asks the same of AI, which drinks real water mostly where nobody sees it, and of Santa Fe, a city in a desert.
 
-It grows out of Kat's [Vanitas Veritas](https://kat-titter.github.io/veritas/) (2026), a gold sink: eight of her Midjourney still lifes melting into each other through the same diffusion model, poured into a basin you could hold still. Asked what it would be in Santa Fe, the gold drained out, the one basin became 48 copies of one heart, and the water became something a desert counts.
+It grows out of Kat's [Vanitas Veritas](https://kat-titter.github.io/veritas/) (2026), a steel sink with gold water: eight of her Midjourney still lifes melting into each other through the same diffusion model, poured into a basin you could hold still. Asked what it would be in Santa Fe, the gold drained out, the one basin became 48 copies of one heart, and the water became something a desert counts.
 
 ## A creative eval
 
