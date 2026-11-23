@@ -415,10 +415,10 @@ void main(){
   float sheen = 0.35 + 0.65*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
   vec3 steel = vec3(0.10,0.105,0.11)*(0.7 + 0.6*sheen) + BONE*0.10*sheen*smoothstep(0.009, 0.0, abs(sd2 - 0.0012)/0.0012*0.009);
   col = mix(col, steel, lip*0.9);                        // dark brushed steel, catching the light on the upper left
-  if (cm > 0.) { vec2 tc = gl_FragCoord.xy - uLens2.xy;   // the corner wears the film the drains and bubbles wear (kiri), so the way to the far side can be found: a sheen in the band where the wall is bent, none far out, none at the ring
-    float band = smoothstep(0.05, 0.38, cm)*(1. - smoothstep(0.38, 0.9, cm)), br = 0.78 + 0.22*sin(0.45*uTime);   // soft on both sides; only its light breathes, slowly: nothing moves or changes size
+  if (cm > 0.) { vec2 tc = gl_FragCoord.xy - uLens2.xy;   // the corner wears the film the drains and bubbles wear (kiri), so the way to the far side can be found: a faint sheen right at the corner, where the wall is bent most (within a fifth of the short side, as far as a tap reaches), none on the copies further out, none at the ring
+    float band = smoothstep(0.22, 0.55, cm)*(1. - smoothstep(0.55, 0.9, cm)), br = 0.78 + 0.22*sin(0.45*uTime);   // soft on both sides; only its light breathes, slowly: nothing moves or changes size
     vec3 film = kiri(1.4*cm + 0.35*atan(tc.y, tc.x) + 0.04*uTime);   // thicker toward the ring, turning round it, drifting at the film's own pace
-    col = col*mix(vec3(1.), 2.4*film, band) + film*0.05*band*br; }   // the wall's own dots take the colours; between them, a breath of it
+    col = col*mix(vec3(1.), 1.5*film, 0.6*band) + film*0.03*band*br; }   // a hint: the wall's own dots lean toward the film's colours, with a breath of it between them
   o = vec4(max(col,0.)*cdim,1.);
 }`,
 };
