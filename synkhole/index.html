@@ -1131,7 +1131,7 @@ function gridLayout(){                                // as many columns as make
 // that point, folded along a ring that closes in on the drain you fell into, and you are where you began, one more pearl ring round the drain. The way out is through, and through again:
 // (Kat, the same night: "if you fall into one hole, it then takes like the whole sink basin ... almost you have to struggle to find your way out. You could keep falling back through the hole")
 // to leave, pull from the drain out to the rim against its pull; let go short and you slide back in. Esc, two fingers, or half a minute alone float you back up to the wall
-const FALL = 3.6, F1 = 0.46, F2 = 0.54;               // seconds, the whole loop; the singularity lies between F1 and F2 of it
+const FALL = 5.2, F1 = 0.46, F2 = 0.54;               // seconds, the whole loop (3.6 until Kat, 2026-11-22: "a little bit too fast"); the singularity lies between F1 and F2 of it
 const drainPx = (S) => HOLE*(BH || 1)*S;            // the drain's radius on the screen for a copy drawn at scale S (the lens bends space, so it leaves out the plug, which only closes the drawn hole)
 function fallLens(F){                                 // where the fall has got to: the lens's strength (Re^2 in page pixels^2; minus, the white hole; Infinity, the singularity), how round the dots are held, how bright the one point
   const g = grid.g, f = Math.max(0, Math.min(1, F.s/FALL)), h = drainPx(g.S*grid.Z), w = view.w, H = view.h;
@@ -1180,7 +1180,7 @@ function gridTap(x, y){                               // on the wall a tap goes 
 function gridOut(slow){                               // back up to the wall; a fall under way turns round first
   if (grid.fall) { if (grid.fall.to === 0) return; grid.fall.v = grid.fall.s < 0.5*FALL ? -3 : 3; grid.fall.out = 1; return; }   // already on the way out; else back up the way it came, or on out, whichever is nearer
   if (!grid.zt) return;
-  if (grid.climb == null && grid.zc < 0.05) { grid.fall = { x:grid.home.cx, y:grid.home.cy, s:0, v:slow ? 0.75 : 1, to:0 }; gridCursor(); return; }   // out the way you came in: through the drain, and the far side is the wall. Only a pull to the rim still rises (the hand's own climb)
+  if (grid.climb == null && grid.zc < 0.05) { grid.fall = { x:grid.home.cx, y:grid.home.cy, s:0, v:1, to:0 }; gridCursor(); return; }   // out the way you came in: through the drain, and the far side is the wall. Only a pull to the rim still rises (the hand's own climb)
   grid.climb = null; grid.drag = null;               // a pull under way ends; its stretch eases off by itself as you rise, so the camera and the lens both stay continuous
   grid.zt = 0; grid.depth = 0; grid.slow = slow ? 1 : 0; gridCursor();
 }
