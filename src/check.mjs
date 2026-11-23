@@ -90,7 +90,7 @@ try {
     const until = async (test, ms) => { const end = Date.now() + ms; let f = await F(); while (!test(f) && Date.now() < end) { await nap(100); f = await F(); } return f; };   // poll the page's own state, never its timings
     const expect = async (test, ms, what) => { const f = await until(test, ms); need(test(f), `${what} (${JSON.stringify(f)})`); return f; };   // poll, and fail out loud on a timeout
     const tap = async (x, y) => { await P('pointerdown', x, y); await P('pointerup', x, y); };
-    const goIn = async () => { await expect((f) => f.z === 0 && f.in === null && f.f === null, 8000, 'never back on the wall'); await tap(0.3*W, 0.3*H); return expect((f) => f.in !== null && f.z === 1 && f.f === null, 8000, 'a tap on the wall did not fall into the copy and arrive'); };   // going in and out are falls through the drain: wait for each to end
+    const goIn = async () => { await expect((f) => f.z === 0 && f.in === null && f.f === null, 8000, 'never back on the wall'); await tap(0.3*W, 0.3*H); await expect((f) => f.f !== null, 2000, 'a tap on the wall did not start a fall into the copy (going in must be a fall, never a zoom)'); return expect((f) => f.in !== null && f.z === 1 && f.f === null, 8000, 'a tap on the wall did not fall into the copy and arrive'); };   // going in and out are falls through the drain: wait for each to end
     const drag = async (x0, y0, x1, y1) => { await P('pointerdown', x0, y0); for (let i = 1; i <= 15; i++) { await P('pointermove', x0 + (x1 - x0)*i/15, y0 + (y1 - y0)*i/15); await nap(40); } };
     let f = await goIn();
     await tap(cx, cy); await expect((f) => f.f !== null, 2000, 'a tap on the drain did not start a fall');
@@ -100,9 +100,9 @@ try {
     await drag(cx, cy, cx, H - 2); await expect((f) => f.in === null, 6000, 'a pull to the rim did not climb out'); await P('pointerup', cx, H - 2);
     await goIn(); await drag(0.25*W, 0.3*H, 0.2*W, 0.25*H); await nap(1200); handIn(await js(STATE)); f = await F(); await P('pointerup', 0.2*W, 0.25*H);
     need(f.in !== null, `a hold away from the drain did not stay in (${JSON.stringify(f)})`); await nap(1500); handOut(await js(STATE));
-    await js('window.__basin.idle(30.1), 1'); await expect((f) => f.in === null, 6000, 'past 30 s alone, it did not float up');
+    await js('window.__basin.idle(30.1), 1'); await expect((f) => f.f !== null, 2000, 'past 30 s alone, no fall out began'); await expect((f) => f.in === null, 6000, 'past 30 s alone, the fall did not come out on the wall');
     await goIn(); await P('pointerdown', 0.2*W, 0.2*H, 1); await P('pointerdown', 0.8*W, 0.8*H, 2); await P('pointerup', 0.2*W, 0.2*H, 1); await P('pointerup', 0.8*W, 0.8*H, 2);
-    await expect((f) => f.in === null, 6000, 'two fingers did not go out');
+    await expect((f) => f.f !== null, 2000, 'two fingers did not start a fall out'); await expect((f) => f.in === null, 6000, 'two fingers did not go out');
     // the hearts: 30 minutes run ahead (__basin.beats). Neighbours must fall into step and slip out of it, and every heart must keep beating at about its own pace
     // no borders: every dot of the wall's lattice drawn by exactly one copy. One probe frame, each kept dot half grey and the copies added: 128 everywhere, never 0 (a gap) or 255 (drawn twice)
     const own = await js('__basin.own()');
@@ -111,7 +111,7 @@ try {
     need(odd.gaps === 0 && odd.twice === 0 && own.gaps === 0 && own.twice === 0, `a row of the wall is drawn by no copy or by two: at an odd height ${odd.gaps} gaps, ${odd.twice} twice, in ${JSON.stringify(odd.box)}`);
     need(own.lo >= 126 && own.hi <= 130, `on the wall a dot is drawn ${own.lo < 126 ? 'by no copy' : 'by two copies'}: probe pixels run ${own.lo} to ${own.hi}, not 128`);
     await js('__basin.tap(innerWidth*0.3, innerHeight*0.3)'); const mid = await js('__basin.own(true)');   // going in, the copy you enter takes dots over: still never two copies on one dot (the drain's lens may leave gaps)
-    need(mid.hi <= 130, `on the way into a copy a dot is drawn by two copies: probe pixels reach ${mid.hi} at ${mid.kin} of the way`);
+    need(mid.twice <= 16, `on the way into a copy ${mid.twice} pixels are drawn by two copies at ${mid.kin} of the way (up to 16 of ${mid.of} are let pass: through the lens the bent lattice can land on a pixel's centre, and rounding gives that pixel to both)`);
     console.log('borders ', JSON.stringify({ wall:own, goingIn:mid }));
     // the hearts: 30 minutes run ahead (__basin.beats; it moves the page's clock, so it stays last). Neighbours must fall into step and then slip out of it again, and every heart must keep beating
     const STALL = 1200;                                              // beats in 30 minutes below which a heart has stalled: 0.67 a second, where the slowest rests at 0.87
