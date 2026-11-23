@@ -37,6 +37,7 @@
     --serif:"Cormorant Garamond", "Iowan Old Style", Georgia, serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
     --film:conic-gradient(from 210deg, var(--cy), var(--vi), var(--ro), var(--cy)); }
   * { box-sizing:border-box; }
+  html, body { overflow-x:clip; }   /* nothing scrolls sideways: at some widths the page measured 16 px wider than its window (found by check.mjs --about at 960 px; the cause was never traced to one element) */
   html { background:var(--ink); scroll-behavior:smooth; }
   /* the far side (index.html cornerLens): the piece goes dark round its bottom right corner and this page opens behind it, so its first frame is dark and the dark draws back into the corner
      you came through, seen from behind: the bottom left. The way back closes the same dark over the page before it leaves. Light alone moves; nothing is scaled. */
@@ -93,7 +94,8 @@
   .hero h1 .k { font-style:italic; background:linear-gradient(100deg, #bfeef7, #cfc4fb 50%, #f7c6de); -webkit-background-clip:text; background-clip:text; color:transparent; padding-right:.04em; }
   .hero .sub { margin:calc(clamp(42px, 10.4vw, 190px)*.24) 0 0 .08em; font:300 italic clamp(24px, 2.6vw, 36px)/1 var(--serif); color:var(--text); }
   .hero .lede { margin:calc(clamp(42px, 10.4vw, 190px)*.3) 0 0 .1em; max-width:24em; color:var(--dim); font-size:21px; }
-  .hero .sync { margin:1.4em 0 0 .15em; }
+  /* the first screen: the title, one sentence, one line that says what you found, the eye and its heartbeat. The page's furniture (who and where, the counter, the clock, the trace's label) waits until you scroll */
+  @media screen { .bar, #lost, #ekgl { transition:opacity 1.4s ease; } .at-top .bar, .at-top #lost, .at-top #ekgl { opacity:0; } .at-top .bar a, .at-top .bar span { pointer-events:none; } .at-top .bar:focus-within { opacity:1; } }   /* a keyboard that lands on the bar's link sees the whole bar */
   .hero .cue { position:absolute; left:50%; bottom:calc(var(--hb) - 44px); transform:translateX(-50%); margin:0; }
   .hero .cue::after { content:""; display:block; width:1px; height:34px; margin:10px auto 0; background:linear-gradient(var(--dim), transparent); animation:fall 2.6s ease-in-out infinite; }
   @keyframes fall { 0% { transform:scaleY(0); transform-origin:top; } 50% { transform:scaleY(1); transform-origin:top; } 51% { transform-origin:bottom; } 100% { transform:scaleY(0); transform-origin:bottom; } }
@@ -225,7 +227,7 @@
     .frame i { width:16px; height:16px; }
     .frame i:nth-child(1), .frame i:nth-child(3) { left:10px; } .frame i:nth-child(2), .frame i:nth-child(4) { right:10px; }
     .frame i:nth-child(1), .frame i:nth-child(2) { top:10px; } .frame i:nth-child(3), .frame i:nth-child(4) { bottom:10px; }
-    .hero { --hb:17vh; padding:0 20px var(--hb); } .bar .far { display:none; } .hero .cue { left:auto; right:20px; transform:none; } .hero .cue::after { margin-right:0; }
+    .hero { --hb:17vh; padding:0 20px var(--hb); } .bar .far, .bar .who { display:none; } .hero .cue { left:20px; right:20px; transform:none; text-align:right; white-space:normal; } .hero .cue::after { margin-right:0; }
     .hero .lede { font-size:19px; }
     .say { font-size:22px; }
     .row { grid-template-columns:minmax(0, 1fr); gap:28px; } .row.two { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
@@ -345,7 +347,7 @@
 <body>
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<nav class="bar mono"><span>made for <a href="https://currentsnewmedia.org/">currents 2027</a><span class="far">, el museo cultural de santa fe, june 2027</span></span><span id="count" aria-hidden="true">00 / 10</span></nav>
+<nav class="bar mono"><span><span class="who">katherine titterton, for </span><a href="https://currentsnewmedia.org/">currents 2027</a><span class="far">, el museo cultural de santa fe, june 2027</span></span><span id="count" aria-hidden="true">00 / 10</span></nav>
 <p id="lost" class="mono" aria-hidden="true">lost = <b>00:00</b></p>
 <div class="monitor" aria-hidden="true"></div>
 <p id="ekgl" class="mono" aria-hidden="true">rest</p>
@@ -355,8 +357,7 @@
 <section class="hero" id="top">
   <h1>[s[i/y]n[<span class="k">k</span>][w]hole</h1>
   <p class="lede">inside this basin, the water is a machine's dream.<br>every day, each copy runs dry.</p>
-  <p class="mono sync">sync == sink</p>
-  <p class="cue mono">katherine titterton</p>
+  <p class="cue mono">you found the back of the water. this is how it was made.</p>
 </section>
 
 <section class="thesis">
@@ -394,7 +395,7 @@
   <figure class="dots wide" data-src="doc/water.webp" data-r><canvas role="img" aria-label="the basin full: a vanitas still life drawn as dots of light"></canvas><figcaption class="mono">water = reservoir.pour()  # stored dreams: the spring is asleep</figcaption></figure>
   <p class="say" data-r>fall into any drain and the wall turns inside out round you: every copy, each with a drain of its own, packed into smaller and smaller rings, the pearls of indra's net, each holding all the others.<sup class="fn">4</sup></p>
   <aside class="note" data-r><b>4</b>indra's net: in the heaven of the god indra hangs a net with a pearl at every knot, and each pearl reflects every other, and the reflections reflect again, without end. mumford, series and wright drew it as circles that each hold all the rest, and named their book for it. the fall draws it too: turned inside out about a point, a wall of copies becomes rings inside rings, closing on that point. <span class="mono">mumford, series and wright, indra's pearls: the vision of felix klein, <a href="https://assets.cambridge.org/97805213/52536/frontmatter/9780521352536_frontmatter.pdf">cambridge</a></span></aside>
-  <p data-r>tap a copy and you go in: it fills the screen, and the space round its drain bends as you arrive. tap the drain and you fall through. nothing flies: the drain gains a mass, and space bends round it. the hole stretches into a dark ring that opens across the screen. outside the ring the basin bends away; inside it the whole wall shows again, inside out, its far copies packed toward the middle. the ring passes the edges of the screen and you are inside it. the mass grows until every copy is smaller than a pixel and one point of light is left. then the mass passes through infinity and comes back as its opposite, a white hole: the basin opens out of that point, folded along a ring that closes on the drain, and you are back where you began, with one more thin ring of pearl round the drain. fall again, and again; every line is a loop. the way out is a climb: pull from the drain to the rim, against its pull. let go short and you slide back in. esc works too, and left alone for half a minute, the water floats you back up to the wall. press and hold anywhere else, and you reach into the water they all share: the same patch moves in all 48. it follows your hand, then slips through your fingers, and the dots lean toward your hand as toward a small hole.</p>
+  <p data-r>tap a copy and you fall into its drain, there on the wall, and come out inside it. tap the drain again and you fall through. nothing flies: the drain gains a mass, and space bends round it. the hole stretches into a dark ring that opens across the screen. outside the ring the basin bends away; inside it the whole wall shows again, inside out, its far copies packed toward the middle. the ring passes the edges of the screen and you are inside it. the mass grows until every copy is smaller than a pixel and one point of light is left. then the mass passes through infinity and comes back as its opposite, a white hole: the basin opens out of that point, folded along a ring that closes on the drain, and you are back where you began, with one more thin ring of pearl round the drain. fall again, and again; every line is a loop. the way out is a climb: pull from the drain to the rim, against its pull. let go short and you slide back in. esc works too, and left alone for half a minute, you fall back out through the drain to the wall. press and hold anywhere else, and you reach into the water they all share: the same patch moves in all 48. it follows your hand, then slips through your fingers, and the dots lean toward your hand as toward a small hole.</p>
   <figure class="hand wide" data-r><canvas tabindex="0" role="img" aria-label="a small basin of dots to reach into: move a pointer or a finger over it, or the arrow keys; the water follows about a second behind, then lets go"></canvas><figcaption class="mono">grip = exp(−held/1.7 s)</figcaption></figure>
 </section>
 
@@ -681,6 +682,8 @@ const tunedR = () => performance.now() < RT.until ? RT.r : 3.71;
 const countEl = document.getElementById('count'), secs = [...document.querySelectorAll('section[data-n]')];
 function where(){ const mid = innerHeight*0.5; let n = '00'; for (const s of secs) if (s.getBoundingClientRect().top < mid) n = s.dataset.n; countEl.textContent = `${n} / 10`; }
 addEventListener('scroll', where, { passive:true }); where();
+const BARE = 0.3;   // the first screen stays bare until this share of a screen has scrolled by: far enough that a nudge does not flash the bar, well before the first section's text
+const atTop = () => document.body.classList.toggle('at-top', scrollY < BARE*innerHeight); addEventListener('scroll', atTop, { passive:true }); atTop();   // the first screen stays bare: see .at-top
 
 // reveals
 if (!STILL && 'IntersectionObserver' in window) {
@@ -713,7 +716,8 @@ function field(t){
   const tw = 0.9 + 0.35*Math.sin(t*0.043), calm = 1 - 0.55*Math.min(1, scrollY/(H*0.8));
   for (let i = 0; i < NB*NA; i++) paths[i] = new Path2D();
   const rs = [];                                                                // the words on screen: the dots part round them, as the water parts round a hand
-  for (const el of TXT) { const b = el.getBoundingClientRect(); if (!b.width || b.bottom < -30 || b.top > H + 30) continue;
+  const bare = document.body.classList.contains('at-top');   // on the bare first screen the bar and the clock are not shown, so the dots do not part for them
+  for (const el of TXT) { if (bare && (el.id === 'lost' || el.classList.contains('bar'))) continue; const b = el.getBoundingClientRect(); if (!b.width || b.bottom < -30 || b.top > H + 30) continue;
     const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); while (tw.nextNode()) { if (!tw.currentNode.nodeValue.trim()) continue; RG.selectNodeContents(tw.currentNode);
       for (const q of RG.getClientRects()) if (q.width > 1) rs.push([q.left - 7, q.top - 2, q.right + 7, q.bottom + 2]); } }   // one box per line of words, as tight as the words (text only: a row's box would cut a straight edge in the field)
   for (const el of BOX) { const q = el.getBoundingClientRect(); if (q.width && q.bottom > -30 && q.top < H + 30) rs.push([q.left - 4, q.top - 4, q.right + 4, q.bottom + 4]); }   // and round the drawn marks
