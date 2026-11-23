@@ -1138,9 +1138,9 @@ function fallLens(F){                                 // where the fall has got 
   const far = Math.max(Math.hypot(F.x, F.y), Math.hypot(w - F.x, F.y), Math.hypot(F.x, H - F.y), Math.hypot(w - F.x, H - F.y));
   const a = Math.max(g.cw, g.ch)*grid.Z, top = Math.log(far*Math.sqrt(a/40)/h), lo = -3;   // ln(Re/h): from a speck in the drain to where the copies left on the screen are too small to hold a dot (measured: by then the screen is dark)
   let L = top, m = Infinity;
-  if (f < F1) { const u = f/F1; L = lo + (top - lo)*Math.pow(u, 1.3); m = (h*Math.exp(L))**2*kss(0, 0.05, u); }   // in: slow at the lip, then faster
-  else if (f > F2) { const v = (f - F2)/(1 - F2); L = top - (top - lo)*(1 - Math.pow(1 - v, 1.3)); m = -((h*Math.exp(L))**2)*kss(1, 0.95, v); }   // out: fast from the point, slowing as the basin settles
-  return { x:F.x, y:F.y, f, m, round:kss(0, 0.04, f)*kss(1, 0.96, f), pt:kss(top - 1.2, top - 0.1, L), gone:a*far*far/Math.abs(m) < 1.5 };   // gone: every copy on the screen under a pixel or two
+  if (f < F1) { const u = f/F1; L = lo + (top - lo)*kss(0, 1, u); m = (h*Math.exp(L))**2*kss(0, 0.3, u); }   // in: slow at the lip, faster, and slow again into the point. Nothing in the fall starts or stops at once (Kat 2026-11-22: "very jumpy ... I want this to be smooth, slippery"): the lens took hold in a twentieth of the way and the far copies cut in over a fifth of a second
+  else if (f > F2) { const v = (f - F2)/(1 - F2); L = top - (top - lo)*kss(0, 1, v); m = -((h*Math.exp(L))**2)*kss(1, 0.7, v); }   // out: the same, turned round
+  return { x:F.x, y:F.y, f, m, round:kss(0, 0.2, f)*kss(1, 0.8, f), pt:kss(top - 1.2, top - 0.1, L), gone:a*far*far/Math.abs(m) < 1.5 };   // gone: every copy on the screen under a pixel or two
 }
 function gridLens(){                                  // the lens this frame, if any: the fall's; or, going in or pulling out, the drain bending the space round it
   if (grid.fall) return fallLens(grid.fall);
@@ -1240,7 +1240,7 @@ function gridDraw(u, mips, kh0, kh1, kh3){            // the display drawn once 
     gl.uniform4f(u.uKB, h.ph, kq.amp, simTime, K*kq.clear); gl.uniform3f(u.uKP, h.dub, 0, 0); ripUp(u, NORIP); wvUp(u, t); inkUp(u, t);   // the wall's beats are kwave's crests: the one basin's ripple rings are not drawn here
     if (QD > 0 || BH > 0) { gl.uniform4f(u.uQD, gsx, Math.max(0, Math.log2(dye.read.w*2*BX/gsx)), h.steps, QD); gl.uniform1f(u.uKStep, simTime - h.stepAt); gl.uniform1f(u.uDepth, grid.zt && t.hi === grid.sel ? grid.depth : 0);
       gl.uniform4f(u.uBH, HOLE*BH*(1 - plugAmt), 0.082*BH*(1 - plugAmt), BH*(0.9 + (0.15 + 0.3*kh(Math.floor(h.nb/32) + 0.5))*Math.sin(6.28318*((h.nb % 32) + h.bt/h.bl)/32)), 0.11*QD);
-      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/gsx*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/2) % 991); }
+      if (QD > 0) gl.uniform4f(u.uGX, gx.n, Math.max(0, Math.log2(48/(2*BX/gsx*t.S*d))), 0.9*drainAmt, Math.floor(h.nb/32) % 991); }   // on the wall the rows of letters re-read once a phrase: every second beat was a jump
     draw(null); }
   if (fl && fl.pt > 0.001) { const r = 1.6*d, px = fl.x*d, py = (view.h - fl.y)*d;   // the one point: where every copy has gone
     gl.scissor(Math.floor(px - r - 2), Math.floor(py - r - 2), Math.ceil(2*r + 4), Math.ceil(2*r + 4)); gl.uniform4f(u.uPt, px, py, r, fl.pt); draw(null); gl.uniform4f(u.uPt, 0, 0, 0, 0); }
