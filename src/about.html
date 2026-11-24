@@ -386,7 +386,7 @@
 <section id="wall" data-n="01">
   <h2 class="kick"><span class="mono">01</span><span class="ring"></span><span class="bw" tabindex="0"><span class="br">[</span><i class="h">w</i><span class="br">]</span>hole</span><span class="alt mono"><span class="one">wall text</span><span class="two">hole / whole</span></span></h2>
   <p class="label mono" data-r><b>katherine titterton</b><br>[s[i|y]n[k][w]hole, 2027<br>basin, touch screen, one small computer<br>30 x 25 x 34 in (76 x 64 x 86 cm)</p>
-  <figure class="side" data-r><canvas class="g" data-g="basin" role="img" aria-label="the piece drawn to scale, from above and from the front: a block 30 by 25 inches, its rim at 34 inches over a 30 inch plinth, the screen set in its top with the water and the hole; a bar marks 12 inches"></canvas><figcaption class="mono">rim at 34 in<br>plinth to 30</figcaption></figure>
+  <figure class="side" data-r><canvas class="g" data-g="basin" role="img" aria-label="the piece from three quarters, to scale: a block 30 by 25 inches, its rim at 34 inches over a 30 inch plinth, the screen set in its top with the water and the hole; a bar marks 12 inches"></canvas><figcaption class="mono">rim at 34 in<br>plinth to 30</figcaption></figure>
   <p class="say" data-r>the most beautiful things usually have something nasty about them. here, it is the drain: the [s[i|y]n[k][w]hole, where time goes missing.</p>
   <p data-r>one heart, printed 48 times over the same water. copy by copy, a single number steps it from steady, through doubling, into chaos.</p>
   <p data-r>endless feeds have no bottom. this hole does. ai drinks real water and real hours; this water runs out every day, and you climb back up.</p>
@@ -941,55 +941,31 @@ function beatAge(){ for (let i = RIP.length - 1; i >= 0; i--) if (RIP[i][1] >= 1
 const GLY = {
   // 01: the piece, to scale (30 x 25 in, rim at 34 in, plinth to 30; the screen a 4:3 opening in its top, from floor_plan.html)
   basin(D, O, T, w, h, b, t, fl, x){
-    const V = new URLSearchParams(location.search).get('plinth') || 'a';
-    /* drawn at 4 px to the inch where the figure has room: 1:24 at 100%, as floor_plan.html */
-    const s = V === 'c' ? Math.min(4, (h - 44)/66, (w - 70)/52) : Math.min(4, (h - 40)/59, (w - 70)/30), px = (v) => Math.round(v) + 0.5;
-    const ln = (x1, y1, x2, y2, a, lw) => { x.strokeStyle = 'rgba(228,223,210,' + a + ')'; x.lineWidth = lw || 1; x.beginPath(); x.moveTo(x1, y1); x.lineTo(x2, y2); x.stroke(); };
-    const hv = (x1, y1, x2, y2, a) => ln(px(x1), px(y1), px(x2), px(y2), a);
-    const num = (str, X, Y, al) => { x.font = '400 11px "IBM Plex Mono", ui-monospace, Menlo, monospace'; x.fillStyle = 'rgba(163,166,172,1)'; x.textAlign = al || 'left'; x.textBaseline = 'middle'; x.fillText(str, X, Y); x.textBaseline = 'alphabetic'; };
-    /* a level: a short line out from the object, an oblique tick where it meets the datum line, the height beside it */
-    const levels = (X, yFloor, hs) => { const dx = px(X + 14); ln(dx, px(yFloor - hs[hs.length - 1]*s) - 5, dx, px(yFloor) + 5, 0.34);
-      for (const z of hs) { const y = px(yFloor - z*s); ln(px(X + 4), y, dx + 5, y, 0.34); ln(dx - 3.5, y + 3.5, dx + 3.5, y - 3.5, 0.8); num(String(z), dx + 9, y); } };
-    const hx = 15, hy = 12.5, RH = 1.6;
-    /* the water in its screen: P maps the top face (inches) to the page */
-    const water = (P, kx, ky) => { for (let Y = 6.4; Y < 19.1; Y += 0.95) for (let X = 6.6; X < 23.8; X += 0.95) {
-        const bx = X - hx, by = Y - hy, r = Math.hypot(bx, by); if (r < 0.1) continue;
-        const th = lens(r, 1.4); if (th < RH*1.1) continue;
-        const a = Math.atan2(by, bx) + (STILL ? 0 : t*0.35*Math.pow(RH/th, 1.5)), X2 = hx + Math.cos(a)*th, Y2 = hy + Math.sin(a)*th;
-        if (X2 < 6.8 || X2 > 23.2 || Y2 < 6.5 || Y2 > 18.5) continue;
-        const clock = Math.sqrt(Math.max(0, 1 - RH/th)), tk = Math.floor(b/2), v = 0.5 + 0.5*Math.sin(X*0.5 + t*0.2)*Math.cos(Y*0.6 - t*0.15);
-        const q = P(X2, Y2); D(q[0], q[1], (0.45 + 0.95*v)*(0.75 + 0.25*hash(X*7 + tk, Y*5)), X/30 + Y/50, 1 - clock); }
-      const c = P(hx, hy); x.fillStyle = '#030304'; x.beginPath(); x.ellipse(c[0], c[1], RH*kx*s, RH*ky*s, 0, 0, 6.2832); x.fill();
-      x.strokeStyle = 'rgba(207,196,251,' + (0.7 + 0.3*fl) + ')'; x.lineWidth = 0.8 + 0.8*fl; x.beginPath(); x.ellipse(c[0], c[1], RH*1.14*kx*s, RH*1.14*ky*s, 0, 0, 6.2832); x.stroke(); };
-    const glass = (x1, x2, y) => { const g = x.createLinearGradient(x1, 0, x2, 0); g.addColorStop(0, '#59e6ff'); g.addColorStop(0.5, '#9e7aff'); g.addColorStop(1, '#ff73b8'); x.strokeStyle = g; x.globalAlpha = 0.9; x.lineWidth = 1.5; x.beginPath(); x.moveTo(x1, px(y)); x.lineTo(x2, px(y)); x.stroke(); x.globalAlpha = 1; };
-    if (V === 'a') {                                   /* plan over front elevation, one above the other on shared verticals */
-      const X0 = Math.round(w/2 - 15*s), top = Math.max(4, Math.round((h - 59*s - 16)/2) - 9), ey = top + 25*s + 16, fy = ey + 34*s;
-      x.strokeStyle = 'rgba(228,223,210,0.9)'; x.lineWidth = 1; x.strokeRect(px(X0), px(top), Math.round(30*s), Math.round(25*s));
-      x.strokeStyle = 'rgba(228,223,210,0.4)'; x.beginPath(); x.roundRect(px(X0 + 6.2*s), px(top + 5.9*s), Math.round(17.6*s), Math.round(13.2*s), 2); x.stroke();
-      water((X, Y) => [X0 + X*s, top + Y*s], 1, 1);
-      x.strokeStyle = 'rgba(228,223,210,0.9)'; x.strokeRect(px(X0), px(ey), Math.round(30*s), Math.round(34*s));
-      hv(X0, ey + 4*s, X0 + 30*s, ey + 4*s, 0.45); glass(X0 + 6.2*s, X0 + 23.8*s, ey);
-      hv(X0 - 16, fy, X0 + 30*s + 30, fy, 0.34);
-      levels(X0 + 30*s, fy, [0, 30, 34]);
-    } else if (V === 'b') {                            /* three quarters, hairline: every axis at one scale */
-      const k = Math.min(s, (w - 60)/(55*0.866)), ox = Math.round(w/2 + 2.5*0.866*k), oy = Math.round((h - (27.5 + 34)*k)/2 + 34*k);
-      const P = (X, Y, Z) => [ox + (X - Y)*0.866*k, oy + (X + Y)*0.5*k - Z*k], L = (a, c, al) => { const p = P(...a), q = P(...c); ln(p[0], p[1], q[0], q[1], al); };
-      for (const [a, c] of [[[0, 0, 34], [30, 0, 34]], [[30, 0, 34], [30, 25, 34]], [[30, 25, 34], [0, 25, 34]], [[0, 25, 34], [0, 0, 34]], [[0, 25, 0], [0, 25, 34]], [[30, 25, 0], [30, 25, 34]], [[30, 0, 0], [30, 0, 34]], [[0, 25, 0], [30, 25, 0]], [[30, 25, 0], [30, 0, 0]]]) L(a, c, 0.9);
-      L([0, 25, 30], [30, 25, 30], 0.45); L([30, 25, 30], [30, 0, 30], 0.45);
-      for (const [a, c] of [[[6.2, 5.9, 34], [23.8, 5.9, 34]], [[23.8, 5.9, 34], [23.8, 19.1, 34]], [[23.8, 19.1, 34], [6.2, 19.1, 34]], [[6.2, 19.1, 34], [6.2, 5.9, 34]]]) L(a, c, 0.4);
-      const sv = s; water((X, Y) => P(X, Y, 34), 1.2247*k/sv, 0.7071*k/sv);
-      const r0 = P(30, 0, 0); levels(r0[0], r0[1], [0, 30, 34].map((z) => z*k/s));
-    } else {                                           /* side elevation, a visitor reaching in (the figure of floor_plan.html) */
-      const X0 = Math.round(w/2 - 26*s - 6), fy = h - 30, Y = (z) => fy - z*s;
-      hv(X0, Y(70), X0, fy, 0.34); hv(X0 - 8, fy, X0 + 52*s + 30, fy, 0.34);
-      x.strokeStyle = 'rgba(228,223,210,0.9)'; x.lineWidth = 1; x.strokeRect(px(X0 + 6*s), px(Y(34)), Math.round(25*s), Math.round(34*s));
-      hv(X0 + 6*s, Y(30), X0 + 31*s, Y(30), 0.45); glass(X0 + 11.9*s, X0 + 25.1*s, Y(34));
-      x.strokeStyle = 'rgba(228,223,210,0.34)'; x.beginPath(); x.roundRect(px(X0 + 37*s), px(Y(55)), Math.round(9*s), Math.round(55*s), 4.5*s); x.stroke();
-      x.beginPath(); x.arc(X0 + 41.5*s, Y(61.5), 4.3*s, 0, 6.2832); x.stroke(); ln(X0 + 39.5*s, Y(51), X0 + 22.5*s, Y(35), 0.34);
-      levels(X0 + 46*s, fy, [0, 30, 34]);
-    }
+    /* three quarters, every axis at one scale: 4 px to the inch where the figure has room (1:24 at 100%, as floor_plan.html) */
+    const s = Math.min(4, (h - 44)/61.5, (w - 60)/(55*0.866)), px = (v) => Math.round(v) + 0.5;
+    const ln = (x1, y1, x2, y2, a) => { x.strokeStyle = 'rgba(228,223,210,' + a + ')'; x.lineWidth = 1; x.beginPath(); x.moveTo(x1, y1); x.lineTo(x2, y2); x.stroke(); };
+    const num = (str, X, Y) => { x.font = '400 11px "IBM Plex Mono", ui-monospace, Menlo, monospace'; x.fillStyle = 'rgba(163,166,172,1)'; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(str, X, Y); x.textBaseline = 'alphabetic'; };
+    const ox = Math.round(w/2 + 2.5*0.866*s), oy = Math.round((h - 61.5*s)/2 + 34*s);
+    const P = (X, Y, Z) => [ox + (X - Y)*0.866*s, oy + (X + Y)*0.5*s - Z*s], L = (a, c, al) => { const p = P(...a), q = P(...c); ln(p[0], p[1], q[0], q[1], al); };
+    for (const [a, c] of [[[0, 0, 34], [30, 0, 34]], [[30, 0, 34], [30, 25, 34]], [[30, 25, 34], [0, 25, 34]], [[0, 25, 34], [0, 0, 34]], [[0, 25, 0], [0, 25, 34]], [[30, 25, 0], [30, 25, 34]], [[30, 0, 0], [30, 0, 34]], [[0, 25, 0], [30, 25, 0]], [[30, 25, 0], [30, 0, 0]]]) L(a, c, 0.9);
+    /* where the basin meets its plinth, and the screen's opening in the top */
+    L([0, 25, 30], [30, 25, 30], 0.45); L([30, 25, 30], [30, 0, 30], 0.45);
+    for (const [a, c] of [[[6.2, 5.9, 34], [23.8, 5.9, 34]], [[23.8, 5.9, 34], [23.8, 19.1, 34]], [[23.8, 19.1, 34], [6.2, 19.1, 34]], [[6.2, 19.1, 34], [6.2, 5.9, 34]]]) L(a, c, 0.4);
+    const hx = 15, hy = 12.5, RH = 1.6;                                                /* the drain, at the centre of the screen */
+    for (let Y = 6.4; Y < 19.1; Y += 0.95) for (let X = 6.6; X < 23.8; X += 0.95) {
+      const bx = X - hx, by = Y - hy, r = Math.hypot(bx, by); if (r < 0.1) continue;
+      const th = lens(r, 1.4); if (th < RH*1.1) continue;
+      const a = Math.atan2(by, bx) + (STILL ? 0 : t*0.35*Math.pow(RH/th, 1.5)), X2 = hx + Math.cos(a)*th, Y2 = hy + Math.sin(a)*th;
+      if (X2 < 6.8 || X2 > 23.2 || Y2 < 6.5 || Y2 > 18.5) continue;
+      const clock = Math.sqrt(Math.max(0, 1 - RH/th)), tk = Math.floor(b/2), v = 0.5 + 0.5*Math.sin(X*0.5 + t*0.2)*Math.cos(Y*0.6 - t*0.15);
+      const q = P(X2, Y2, 34); D(q[0], q[1], (0.45 + 0.95*v)*(0.75 + 0.25*hash(X*7 + tk, Y*5)), X/30 + Y/50, 1 - clock); }
+    const c = P(hx, hy, 34); x.fillStyle = '#030304'; x.beginPath(); x.ellipse(c[0], c[1], RH*1.2247*s, RH*0.7071*s, 0, 0, 6.2832); x.fill();
+    x.strokeStyle = 'rgba(207,196,251,' + (0.7 + 0.3*fl) + ')'; x.lineWidth = 0.8 + 0.8*fl; x.beginPath(); x.ellipse(c[0], c[1], RH*1.37*s, RH*0.79*s, 0, 0, 6.2832); x.stroke();
+    /* levels: a short line out from the corner, an oblique tick where it meets the datum line, the height beside it */
+    const r0 = P(30, 0, 0), dx = px(r0[0] + 14); ln(dx, px(r0[1] - 34*s) - 5, dx, px(r0[1]) + 5, 0.34);
+    for (const z of [0, 30, 34]) { const y = px(r0[1] - z*s); ln(px(r0[0] + 4), y, dx + 5, y, 0.34); ln(dx - 3.5, y + 3.5, dx + 3.5, y - 3.5, 0.8); num(String(z), dx + 9, y); }
     /* a foot, to measure the rest by */
-    const bx = px(V === 'c' ? w/2 - 26*s - 6 + 6*s : w/2 - 15*s), by = px(h - 9); ln(bx, by, bx + Math.round(12*s), by, 0.6); ln(bx, by - 3, bx, by + 3, 0.6); ln(bx + Math.round(12*s), by - 3, bx + Math.round(12*s), by + 3, 0.6); num('12 in', bx + Math.round(12*s) + 7, by); },
+    const bx = px(P(0, 25, 0)[0]), by = px(h - 9), be = bx + Math.round(12*s); ln(bx, by, be, by, 0.6); ln(bx, by - 3, bx, by + 3, 0.6); ln(be, by - 3, be, by + 3, 0.6); num('12 in', be + 7, by); },
   // 02
   // a dot's size: as large as its patch of water is bright, times the last crest that rolled past it. Light across, beat up; no light, no dot
   size(D, O, T, w, h){ const L = 46, top = 4, bot = 24, NC = 12, NR = 5, cw = (w - L - 8)/NC, rh = (h - top - bot)/NR, R = Math.min(cw, rh)*0.46;
